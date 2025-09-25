@@ -345,7 +345,7 @@ const avgPrice = computed(() => {
 });
 
 const totalPorto = computed(() => 
-    numberWithCommas(latestPrice.value * totalGold.value)
+    numberWithCommas(latestPrice.value * totalGold.value * 100)
 );
 const avgPriceFormatted = computed(() => 
     numberWithCommas(avgPrice.value)
@@ -444,7 +444,7 @@ function drawLine() {
         }, 
         scales: { 
             y: { beginAtZero: false, ticks: { callback: (value) => `Rp ${numberWithCommas(value)}` } },
-            x: { reverse: true } // Show latest date on the right
+            x: { reverse: false } // Show latest date on the right
         } 
     }
   };
