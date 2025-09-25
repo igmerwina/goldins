@@ -44,7 +44,7 @@
             </div>
             <div>
               <div class="small">Senilai</div>
-              <div style="font-weight:900;font-size:28px">Rp {{ latestPriceFormatted }}</div>
+              <div style="font-weight:900;font-size:28px">Rp {{ totalPorto }}</div>
             </div>
             <div style="text-align:right">
               <div class="small">Harga Hari Ini: {{ latestDate }}</div>
@@ -70,10 +70,6 @@
           <div class="header-row">
             <div>
               <div class="small">Komposisi Emas (per merk)</div>
-            </div>
-            <div class="controls small">
-              <button class="btn ghost" @click="exportJSON">Export</button>
-              <input type="file" @change="importJSON" style="padding:6px;border-radius:8px">
             </div>
           </div>
 
@@ -176,8 +172,8 @@
         <div class="card" style="margin-top:12px">
           <div class="small">Aksi Cepat</div>
           <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">
-            <button class="btn" @click="exportJSON">Export JSON</button>
-            <button class="btn ghost" @click="clearAll">Hapus Semua</button>
+            <!-- <button class="btn" @click="exportJSON">Export JSON</button> -->
+            <button class="btn ghost" @click="clearAll">Hapus Semua Data</button>
           </div>
         </div>
       </aside>
@@ -271,7 +267,6 @@ export default {
       transactions.value.unshift(tx);
       saveLocal();
       drawDonut();
-      autoDownloadJSON();
       transaction.value = { date:'', type:'beli', brand:'Galeri24', denom:0.1, count:1 };
     }
 
@@ -290,7 +285,8 @@ export default {
 
     const avgPriceFormatted = computed(()=> numberWithCommas(Math.round(avgPrice.value)));
     const latestPriceFormatted = computed(()=> numberWithCommas(latestPrice.value || (priceHistory.value.length? priceHistory.value[priceHistory.value.length-1].price : '-')));
-    const potentialProfit = computed(()=> Math.round(((latestPrice.value||0) - (avgPrice.value||0)) * totalGold.value));
+    const totalPorto = computed(()=> numberWithCommas(latestPrice.value * totalGold.value * 100))
+    const potentialProfit = computed(()=> Math.round(((latestPrice.value) - (avgPrice.value)) * totalGold.value));
     const potentialProfitFormatted = computed(()=> numberWithCommas(potentialProfit.value));
     const profitPercent = computed(()=> { const avg = avgPrice.value||1; const p = Math.round(((latestPrice.value||0) - avg)/avg * 100); return p + '%'; });
 
@@ -380,7 +376,7 @@ export default {
 
     return {
       user, hasUser, saveUser, filterPhone, filterName, transaction, transactions, addTransaction,
-      totalGold, avgPriceFormatted, latestPriceFormatted, latestDate, potentialProfitFormatted, profitPercent,
+      totalGold, avgPriceFormatted, latestPriceFormatted, latestDate, totalPorto, potentialProfitFormatted, profitPercent,
       exportJSON, importJSON, clearAll, brandColor, apiStatus
     };
   }
