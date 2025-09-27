@@ -103,31 +103,37 @@
                   ></v-text-field>
                 </v-col>
                 <v-col cols="12" md="3" class="d-flex align-center">
-                  <div class="text-subtitle-1 font-weight-bold">Total: {{ (transaction.denom * transaction.count).toFixed(2) }} g</div>
+                  <div class="text-subtitle-1 font-weight-bold">Total: {{ (transaction.denom * transaction.count).toFixed(2) }} gr</div>
                 </v-col>
               </v-row>
               <v-row v-if="isBackdate(transaction.date)">
                 <v-col cols="12" sm="8" md="6">
                   <v-text-field
                     v-model="transaction.manualPrice"
-                    label="Harga Beli Emas (manual)"
+                    label="Harga Beli Emas"
                     placeholder="Masukkan harga beli"
                     :rules="[
                       v => !!v || 'Harga wajib diisi',
-                      v => /^\d{1,12}$/.test(v) || 'Nominal hanya angka, max 12 digit'
+                      v => {
+                        const digits = v ? v.toString().replace(/[^\d]/g, '') : '';
+                        return /^\d{1,12}$/.test(digits) || 'Nominal hanya angka, max 12 digit';
+                      }
                     ]"
-                    maxlength="12"
+                    maxlength="20"
                     clearable
                     prepend-inner-icon="mdi-cash"
                     variant="outlined"
                     type="text"
                     inputmode="numeric"
+                    :formatter="formatRupiah"
+                    :model-value="formatRupiah(transaction.manualPrice)"
+                    @update:model-value="val => transaction.manualPrice = unformatRupiah(val)"
                   ></v-text-field>
                 </v-col>
               </v-row>
               
               <v-card-actions class="justify-end px-0">
-                <v-btn color="primary" type="submit" size="large" :disabled="!transaction.date || transaction.count < 1">
+                <v-btn variant="tonal" color="primary" type="submit" size="large" :disabled="!transaction.date || transaction.count < 1">
                   <v-icon start>mdi-content-save</v-icon> Simpan Transaksi
                 </v-btn>
               </v-card-actions>
@@ -188,7 +194,7 @@
               
               <template v-slot:append>
                 <div class="text-right">
-                  <div class="font-weight-black text-subtitle-1">{{ (tx.denom * tx.count).toFixed(2) }} g</div>
+                  <div class="font-weight-black text-subtitle-1">{{ (tx.denom * tx.count).toFixed(2) }} gr</div>
                   <v-chip size="small" :color="brandColor(tx.brand)" label>{{ tx.brand }}</v-chip>
                 </div>
               </template>
@@ -203,7 +209,7 @@
           <v-card-text>
             <div class="mb-3">
               <div class="text-caption text-medium-emphasis">Total Emas</div>
-              <div class="text-h6 font-weight-black text-primary">{{ totalGold.toFixed(2) }} g</div>
+              <div class="text-h6 font-weight-black text-primary">{{ totalGold.toFixed(2) }} gr</div>
             </div>
             
             <div class="mb-3">
@@ -338,8 +344,14 @@ async function addTransaction() {
 
   // Integrasi Supabase: simpan ke table transaction
   try {
-    const price = isBackdate(tx.date) ? Number(tx.manualPrice) : latestPrice.value * 100;
-    const total_price = price * tx.denom * tx.count;
+    let price;
+    if (isBackdate(tx.date)) {
+      // manualPrice sudah diformat string, pastikan parseInt
+      price = parseInt(tx.manualPrice.toString().replace(/\D/g, ''), 10) || 0;
+    } else {
+      price = latestPrice.value * 100;
+    }
+    const total_price = price * tx.count;
     const { error } = await supabase.from('transactions').insert([
       {
         user_phone: props.user.phone,
@@ -568,6 +580,16 @@ function isBackdate(dateStr) {
   today.setHours(0,0,0,0);
   input.setHours(0,0,0,0);
   return input < today;
+}
+
+function formatRupiah(value) {
+  if (!value) return '';
+  const num = value.toString().replace(/[^\d]/g, '');
+  return 'Rp ' + num.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+}
+
+function unformatRupiah(value) {
+  return value ? value.toString().replace(/[^\d]/g, '') : '';
 }
 </script>
 

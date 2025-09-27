@@ -6,7 +6,7 @@
           <v-icon size="32" class="mr-2" color="secondary">mdi-treasure-chest</v-icon>
           <v-toolbar-title class="white--text">
             <span class="font-weight-bold text-h6">Gold Insight by Pegadaian</span>
-            <p class="text-caption mt-n1 hidden-sm-and-down">Membantu mengelola aset emasmu jauh lebih mudah</p>
+            <p class="text-caption mt-n1 hidden-sm-and-down">Membantu mengelola aset emasmu dengan lebih mudah</p>
           </v-toolbar-title>
           <v-btn v-if="hasUser" color="secondary" variant="flat" style="margin-left:auto;margin-right:22%;" @click="logout" prepend-icon="mdi-logout">
             Logout
@@ -120,8 +120,9 @@ async function saveUser() {
   // Jika belum ada, simpan sebagai data baru
   hasUser.value = true;
   localStorage.setItem('pg_user', JSON.stringify(user.value));
+  const date = new Date().toISOString().split('T')[0]
   const { error: upsertError } = await supabase.from('users').upsert([
-    { name: user.value.name, phone: user.value.phone }
+    { name: user.value.name, phone: user.value.phone, create_date: date }
   ], { onConflict: ['phone'] });
   if (upsertError) {
     console.error('Supabase upsert error:', upsertError.message);
