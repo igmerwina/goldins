@@ -197,7 +197,7 @@
         </v-card>
       </v-col>
       
-      <v-col cols="12" md="4">
+      <!-- <v-col cols="12" md="4">
         <v-card class="mb-4 elevation-4" rounded="lg">
           <v-card-title class="text-subtitle-1 font-weight-bold">Status Data & Aksi</v-card-title>
           <v-card-text>
@@ -224,7 +224,7 @@
             </v-btn>
           </v-card-text>
         </v-card>
-      </v-col>
+      </v-col> -->
     </v-row>
   </v-container>
   <v-alert

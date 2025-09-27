@@ -1,19 +1,18 @@
 <template>
   <v-app>
     <v-app-bar app color="primary" flat>
-      <v-container class="d-flex align-center">
-        <v-icon size="32" class="mr-2" color="secondary">mdi-treasure-chest</v-icon>
-        <v-toolbar-title class="white--text">
-          <span class="font-weight-bold text-h6">Gold Insight by Pegadaian</span>
-          <p class="text-caption mt-n1 hidden-sm-and-down">Membantu mengelola aset emasmu jauh lebih mudah</p>
-        </v-toolbar-title>
-      </v-container>
-      
-      <v-spacer></v-spacer>
-      
-      <v-btn v-if="hasUser" color="secondary" variant="flat" class="mr-2" @click="logout" prepend-icon="mdi-logout">
-        Logout
-      </v-btn>
+      <div style="width:100vw;display:flex;justify-content:center;align-items:center;position:relative;">
+        <v-container class="d-flex align-center px-0" style="max-width:900px;width:100%;">
+          <v-icon size="32" class="mr-2" color="secondary">mdi-treasure-chest</v-icon>
+          <v-toolbar-title class="white--text">
+            <span class="font-weight-bold text-h6">Gold Insight by Pegadaian</span>
+            <p class="text-caption mt-n1 hidden-sm-and-down">Membantu mengelola aset emasmu jauh lebih mudah</p>
+          </v-toolbar-title>
+          <v-btn v-if="hasUser" color="secondary" variant="flat" style="margin-left:auto;margin-right:22%;" @click="logout" prepend-icon="mdi-logout">
+            Logout
+          </v-btn>
+        </v-container>
+      </div>
     </v-app-bar>
 
     <v-main class="bg-background">
