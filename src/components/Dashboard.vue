@@ -247,12 +247,23 @@
   >
     {{ errorMsg }}
   </v-alert>
+  <v-alert
+    v-if="showSuccess"
+    type="success"
+    class="welcome-fade center-popup"
+    border="start"
+    prominent
+    elevation="10"
+  >
+    Data transaksi berhasil disimpan!
+  </v-alert>
 </template>
 
 <script setup>
 import { ref, onMounted, computed, defineProps } from 'vue';
 import axios from 'axios';
 import { Chart, DoughnutController, ArcElement, Tooltip, Legend, LineController, LineElement, PointElement, CategoryScale, LinearScale } from 'chart.js';
+import { supabase } from '../lib/SupabaseClient';
 
 Chart.register(DoughnutController, ArcElement, Tooltip, Legend, LineController, LineElement, PointElement, CategoryScale, LinearScale);
 
@@ -275,6 +286,7 @@ const welcomeName = ref('');
 const showWelcome = ref(false);
 const showError = ref(false);
 const errorMsg = ref('');
+const showSuccess = ref(false);
 
 const today = new Date().toISOString().split('T')[0];
 
@@ -309,7 +321,7 @@ function saveLocal() {
     localStorage.setItem('pg_tx', JSON.stringify(transactions.value));
 }
 
-function addTransaction() {
+async function addTransaction() {
   if (!transaction.value.manualPrice && isBackdate(transaction.value.date)) {
     showError.value = true;
     errorMsg.value = 'Harga Beli Emas wajib diisi untuk tanggal lampau!';
@@ -318,19 +330,46 @@ function addTransaction() {
   const tx = { 
     ...transaction.value, 
     id: Date.now(),
-    // Assume latestPrice is the price at the time of transaction for simplicity in this refactor
     pricePerGram: latestPrice.value, 
   };
-  
   transactions.value.unshift(tx);
   saveLocal();
   drawDonut();
-  
-  // Reset form with new default date
+
+  // Integrasi Supabase: simpan ke table transaction
+  try {
+    const price = isBackdate(tx.date) ? Number(tx.manualPrice) : latestPrice.value * 100;
+    const total_price = price * tx.denom * tx.count;
+    const { error } = await supabase.from('transactions').insert([
+      {
+        user_phone: props.user.phone,
+        type: tx.type,
+        brand: tx.brand,
+        denom: tx.denom,
+        count: tx.count,
+        date: tx.date,
+        price: price,
+        total_price: total_price
+      }
+    ]);
+    if (error) {
+      throw error;
+    }
+    // Notif sukses dan reset field
+    showSuccess.value = true;
+    setTimeout(() => {
+      showSuccess.value = false;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 1000);
+    transaction.value = { date: new Date().toISOString().split('T')[0], type: 'beli', brand: 'Galeri24', denom: 1, count: 1 };
+  } catch (e) {
+    showError.value = true;
+    errorMsg.value = 'Gagal simpan ke database!';
+  }
+
+  // Reset form dengan tanggal baru
   transaction.value = { date: new Date().toISOString().split('T')[0], type: 'beli', brand: 'Galeri24', denom: 1, count: 1 };
-  
-  // Hard reload after saving data
-  window.location.reload();
+  // window.location.reload();
 }
 
 function clearAll() { 
