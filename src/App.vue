@@ -4,8 +4,8 @@
       <v-container class="d-flex align-center">
         <v-icon size="32" class="mr-2" color="secondary">mdi-treasure-chest</v-icon>
         <v-toolbar-title class="white--text">
-          <span class="font-weight-bold text-h6">Gold Insight</span>
-          <p class="text-caption mt-n1 hidden-sm-and-down">Post Purchase Portofolio Emas by Pegadaian</p>
+          <span class="font-weight-bold text-h6">Gold Insight by Pegadaian</span>
+          <p class="text-caption mt-n1 hidden-sm-and-down">Membantu mengelola aset emasmu jauh lebih mudah</p>
         </v-toolbar-title>
       </v-container>
       
@@ -19,7 +19,7 @@
     <v-main class="bg-background">
       <v-container>
         <v-row justify="center">
-          <v-col cols="12" sm="10" md="8" lg="6">
+          <v-col cols="12" sm="12" md="10" lg="9" xl="8">
             <v-card v-if="!hasUser" class="pa-4 pa-sm-6 elevation-8" rounded="lg">
               <v-card-title class="text-h5 font-weight-bold mb-4">Input Data Nasabah</v-card-title>
               <v-text-field

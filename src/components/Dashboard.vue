@@ -2,7 +2,7 @@
   <v-container fluid>
     <v-row>
       
-      <v-col cols="12" md="8">
+      <v-col cols="12" sm="12" md="10" lg="9" xl="8">
         
         <v-card class="mb-4 elevation-4" rounded="lg">
           <v-card-title class="text-h6 d-flex justify-space-between align-center py-3">
@@ -50,28 +50,6 @@
         </v-card>
 
         <v-card class="mb-4 elevation-4" rounded="lg">
-          <v-card-title class="text-subtitle-1 font-weight-bold">Analisis Portofolio</v-card-title>
-          <v-card-text>
-            
-            <v-row>
-              <v-col cols="12" sm="6">
-                <div class="text-caption text-medium-emphasis mb-2">Komposisi Emas (per Merk)</div>
-                <div class="d-flex justify-center align-center" style="height: 250px;">
-                    <canvas id="donutChart"></canvas>
-                </div>
-              </v-col>
-
-              <v-col cols="12" sm="6">
-                <div class="text-caption text-medium-emphasis mb-2">Perubahan Harga Emas (7 Hari)</div>
-                <div class="d-flex justify-center align-center" style="height: 250px;">
-                    <canvas id="lineChart"></canvas>
-                </div>
-              </v-col>
-            </v-row>
-          </v-card-text>
-        </v-card>
-
-        <v-card class="mb-4 elevation-4" rounded="lg">
           <v-card-title class="text-subtitle-1 font-weight-bold">Tambah Transaksi</v-card-title>
           <v-card-text>
             <v-form @submit.prevent="addTransaction">
@@ -99,6 +77,8 @@
                     type="date"
                     variant="outlined"
                     required
+                    :min="'1900-01-01'"
+                    :max="today"
                   ></v-text-field>
                 </v-col>
               </v-row>
@@ -126,6 +106,25 @@
                   <div class="text-subtitle-1 font-weight-bold">Total: {{ (transaction.denom * transaction.count).toFixed(2) }} g</div>
                 </v-col>
               </v-row>
+              <v-row v-if="isBackdate(transaction.date)">
+                <v-col cols="12" sm="8" md="6">
+                  <v-text-field
+                    v-model="transaction.manualPrice"
+                    label="Harga Beli Emas (manual)"
+                    placeholder="Masukkan harga beli"
+                    :rules="[
+                      v => !!v || 'Harga wajib diisi',
+                      v => /^\d{1,12}$/.test(v) || 'Nominal hanya angka, max 12 digit'
+                    ]"
+                    maxlength="12"
+                    clearable
+                    prepend-inner-icon="mdi-cash"
+                    variant="outlined"
+                    type="text"
+                    inputmode="numeric"
+                  ></v-text-field>
+                </v-col>
+              </v-row>
               
               <v-card-actions class="justify-end px-0">
                 <v-btn color="primary" type="submit" size="large" :disabled="!transaction.date || transaction.count < 1">
@@ -133,6 +132,28 @@
                 </v-btn>
               </v-card-actions>
             </v-form>
+          </v-card-text>
+        </v-card>
+
+        <v-card class="mb-4 elevation-4" rounded="lg">
+          <v-card-title class="text-subtitle-1 font-weight-bold">Analisis Portofolio</v-card-title>
+          <v-card-text>
+            
+            <v-row>
+              <v-col cols="12" sm="6">
+                <div class="text-caption text-medium-emphasis mb-2">Komposisi Emas (per Merk)</div>
+                <div class="d-flex justify-center align-center" style="height: 250px;">
+                    <canvas id="donutChart"></canvas>
+                </div>
+              </v-col>
+
+              <v-col cols="12" sm="6">
+                <div class="text-caption text-medium-emphasis mb-2">Perubahan Harga Emas (7 Hari)</div>
+                <div class="d-flex justify-center align-center" style="height: 250px;">
+                    <canvas id="lineChart"></canvas>
+                </div>
+              </v-col>
+            </v-row>
           </v-card-text>
         </v-card>
 
@@ -255,6 +276,8 @@ const showWelcome = ref(false);
 const showError = ref(false);
 const errorMsg = ref('');
 
+const today = new Date().toISOString().split('T')[0];
+
 onMounted(async () => {
   loadLocal();
   await fetchLatestPrice();
@@ -287,6 +310,11 @@ function saveLocal() {
 }
 
 function addTransaction() {
+  if (!transaction.value.manualPrice && isBackdate(transaction.value.date)) {
+    showError.value = true;
+    errorMsg.value = 'Harga Beli Emas wajib diisi untuk tanggal lampau!';
+    return;
+  }
   const tx = { 
     ...transaction.value, 
     id: Date.now(),
@@ -492,6 +520,15 @@ function drawLine() {
   } else {
     lineChartInstance = new Chart(ctx, config);
   }
+}
+
+function isBackdate(dateStr) {
+  if (!dateStr) return false;
+  const today = new Date();
+  const input = new Date(dateStr);
+  today.setHours(0,0,0,0);
+  input.setHours(0,0,0,0);
+  return input < today;
 }
 </script>
 
