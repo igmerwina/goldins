@@ -206,6 +206,26 @@
       </v-col>
     </v-row>
   </v-container>
+  <v-alert
+    v-if="showWelcome"
+    type="success"
+    class="welcome-fade center-popup"
+    border="start"
+    prominent
+    elevation="10"
+  >
+    Selamat datang, <b>{{ welcomeName }}</b>!
+  </v-alert>
+  <v-alert
+    v-if="showError"
+    type="error"
+    class="welcome-fade center-popup"
+    border="start"
+    prominent
+    elevation="10"
+  >
+    {{ errorMsg }}
+  </v-alert>
 </template>
 
 <script setup>
@@ -230,12 +250,28 @@ let lineChartInstance = null;
 
 const BRAND_COLORS = { Galeri24: '#0B6B3A', Antam: '#C69C2F', UBS: '#6B6B6B' };
 
+const welcomeName = ref('');
+const showWelcome = ref(false);
+const showError = ref(false);
+const errorMsg = ref('');
+
 onMounted(async () => {
   loadLocal();
   await fetchLatestPrice();
   await fetchPriceChart();
   drawDonut();
   drawLine();
+  // Cek jika ada nama dari localStorage (hasil login)
+  const raw = localStorage.getItem('pg_user');
+  if (raw) {
+    const u = JSON.parse(raw);
+    if (u && u.name) {
+      welcomeName.value = u.name;
+      showWelcome.value = true;
+      // Sembunyikan popup setelah 3 detik
+      setTimeout(() => { showWelcome.value = false; }, 2000);
+    }
+  }
 });
 
 // --- Data & Persistence Functions ---
@@ -460,5 +496,25 @@ function drawLine() {
 </script>
 
 <style scoped>
-/* No specific scoped styles, rely on Vuetify components */
+.welcome-fade {
+  opacity: 1;
+  animation: fadeInOut 3s cubic-bezier(0.4,0,0.2,1);
+}
+.center-popup {
+  position: fixed;
+  top: 10%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 9999;
+  min-width: 300px;
+  max-width: 90vw;
+  text-align: center;
+  transition: opacity 0.7s, transform 0.7s;
+}
+@keyframes fadeInOut {
+  0% { opacity: 0; transform: translate(-50%, -60%) scale(0.95); }
+  10% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  90% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -60%) scale(0.95); }
+}
 </style>
