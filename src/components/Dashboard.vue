@@ -12,7 +12,7 @@
             </div>
             <v-chip color="secondary" label>No HP: {{ user.phone }}</v-chip>
           </v-card-title>
-          
+
           <v-divider></v-divider>
 
           <v-card-text>
@@ -26,8 +26,8 @@
                 <div class="text-h5 font-weight-black text-secondary">Rp {{ totalPorto }}</div>
               </v-col>
               <v-col cols="12" sm="3" class="text-sm-right py-1">
-                <div class="text-caption text-medium-emphasis">Harga Hari Ini ({{ latestDate }})</div>
-                <div class="text-subtitle-1 font-weight-bold text-error">Rp {{ latestPriceFormatted }}</div>
+                <div class="text-caption text-medium-emphasis">Harga Jual Hari Ini <br/></br>{{ latestDate }}</div>
+                <div class="text-subtitle-1 font-weight-bold">Rp {{ latestPriceFormatted }}</div>
               </v-col>
             </v-row>
             
@@ -47,9 +47,10 @@
               </v-col>
             </v-row>
             
+            <br>
             <v-divider></v-divider>
 
-            <v-row class="mt-6">
+            <v-row class="mt-1">
               <v-col cols="12">
                 <div class="text-caption text-medium-emphasis mb-2">Komposisi Emas (per Merk)</div>
                 <div class="d-flex justify-center align-center" style="height: 250px;">
@@ -476,13 +477,13 @@ const totalGold = computed(() =>
 );
 
 const avgPrice = computed(() => {
-  const buys = transactions.value.filter(t => t.type === 'beli' && t.pricePerGram > 0);
+  // Ambil hanya transaksi beli
+  const buys = transactions.value.filter(t => t.type === 'beli' && t.total_price > 0 && t.denom > 0);
   if (buys.length === 0) return latestPrice.value || 0;
-  
-  const totalGrBeli = buys.reduce((s, t) => s + t.denom * t.count, 0);
-  const sumCost = buys.reduce((s, t) => s + t.pricePerGram * t.denom * t.count, 0);
-  
-  return totalGrBeli > 0 ? Math.round(sumCost / totalGrBeli) : 0;
+  // sum(total_price) / sum(denom*100)
+  const sumTotal = buys.reduce((s, t) => s + Number(t.total_price), 0);
+  const sumGram = buys.reduce((s, t) => s + (Number(t.denom) * Number(t.count) * 100), 0);
+  return sumGram > 0 ? Math.round(sumTotal / sumGram) : 0;
 });
 
 const totalPorto = computed(() => 
