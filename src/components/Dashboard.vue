@@ -310,7 +310,7 @@ const showSuccess = ref(false);
 const today = new Date().toISOString().split('T')[0];
 
 onMounted(async () => {
-  loadLocal();
+  await fetchTransactionsFromSupabase();
   await fetchLatestPrice();
   await fetchPriceChart();
   drawDonut();
@@ -359,7 +359,6 @@ async function addTransaction() {
   try {
     let price;
     if (isBackdate(tx.date)) {
-      // manualPrice sudah diformat string, pastikan parseInt
       price = parseInt(tx.manualPrice.toString().replace(/\D/g, ''), 10) || 0;
     } else {
       price = latestPrice.value * 100;
@@ -380,6 +379,8 @@ async function addTransaction() {
     if (error) {
       throw error;
     }
+    // Sinkronisasi otomatis: fetch ulang transaksi dari Supabase
+    await fetchTransactionsFromSupabase();
     // Notif sukses dan reset field
     showSuccess.value = true;
     setTimeout(() => {
@@ -394,7 +395,6 @@ async function addTransaction() {
 
   // Reset form dengan tanggal baru
   transaction.value = { date: new Date().toISOString().split('T')[0], type: 'beli', brand: 'Galeri24', denom: 1, count: 1 };
-  // window.location.reload();
 }
 
 function clearAll() { 
@@ -449,6 +449,19 @@ async function fetchPriceChart() {
     }
   } catch (err) {
     console.warn('fetchPriceChart failed', err && err.message);
+  }
+}
+
+async function fetchTransactionsFromSupabase() {
+  if (props.user && props.user.phone) {
+    const { data, error } = await supabase
+      .from('transactions')
+      .select('*')
+      .eq('user_phone', props.user.phone)
+      .order('date', { ascending: false });
+    if (!error && data) {
+      transactions.value = data;
+    }
   }
 }
 
