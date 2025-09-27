@@ -46,6 +46,26 @@
                 <div class="text-caption text-medium-emphasis">({{ profitPercent }})</div>
               </v-col>
             </v-row>
+            
+            <v-divider></v-divider>
+
+            <v-row class="mt-6">
+              <v-col cols="12">
+                <div class="text-caption text-medium-emphasis mb-2">Komposisi Emas (per Merk)</div>
+                <div class="d-flex justify-center align-center" style="height: 250px;">
+                  <canvas id="donutChart"></canvas>
+                </div>
+                <div class="mt-4">
+                  <v-row>
+                    <v-col v-for="brand in donutBrands" :key="brand" cols="12" sm="4" class="mb-2">
+                      <div class="font-weight-bold">{{ brand }}</div>
+                      <div class="text-caption">Gram: <b>{{ donutData[brand].gram.toFixed(2) }}</b> gr</div>
+                      <div class="text-caption">Senilai: <b>Rp {{ numberWithCommas(donutData[brand].nominal) }}</b></div>
+                    </v-col>
+                  </v-row>
+                </div>
+              </v-col>
+            </v-row>
           </v-card-text>
         </v-card>
 
@@ -142,18 +162,11 @@
         </v-card>
 
         <v-card class="mb-4 elevation-4" rounded="lg">
-          <v-card-title class="text-subtitle-1 font-weight-bold">Analisis Portofolio</v-card-title>
+          <v-card-title class="text-subtitle-1 font-weight-bold">Grafik Harga Emas</v-card-title>
           <v-card-text>
             
             <v-row>
-              <v-col cols="12" sm="6">
-                <div class="text-caption text-medium-emphasis mb-2">Komposisi Emas (per Merk)</div>
-                <div class="d-flex justify-center align-center" style="height: 250px;">
-                    <canvas id="donutChart"></canvas>
-                </div>
-              </v-col>
-
-              <v-col cols="12" sm="6">
+              <v-col cols="12">
                 <div class="text-caption text-medium-emphasis mb-2">Perubahan Harga Emas (7 Hari)</div>
                 <div class="d-flex justify-center align-center" style="height: 250px;">
                     <canvas id="lineChart"></canvas>
@@ -483,6 +496,21 @@ const profitPercent = computed(() => {
     return `${p}%`; 
 });
 
+const donutData = computed(() => {
+  const result = {};
+  transactions.value
+    .filter(t => t.type === 'beli')
+    .forEach(t => {
+      const b = t.brand || 'Other';
+      if (!result[b]) result[b] = { gram: 0, nominal: 0 };
+      result[b].gram += Number(t.denom) * Number(t.count);
+      // Nominal = gram * harga terakhir (per gram) * 100
+      result[b].nominal += Number(t.denom) * Number(t.count) * latestPrice.value * 100;
+    });
+  return result;
+});
+const donutBrands = computed(() => Object.keys(donutData.value));
+
 // --- Chart Functions ---
 function drawDonut() {
   const ctx = document.getElementById('donutChart');
@@ -544,10 +572,11 @@ function drawLine() {
         datasets: [{ 
             label: 'Harga Jual /gram (Rp)', 
             data: data.length > 0 ? data : [0], 
-            borderColor: BRAND_COLORS.Galeri24, // Use primary green for line
-            tension: 0.3, 
-            pointRadius: 4,
-            fill: false,
+            borderColor: BRAND_COLORS.Galeri24,
+            backgroundColor: BRAND_COLORS.Galeri24,
+            tension: 0, // garis tajam (tidak melengkung)
+            pointRadius: 5,
+            fill: true,
         }] 
     },
     options: { 
@@ -559,7 +588,7 @@ function drawLine() {
         }, 
         scales: { 
             y: { beginAtZero: false, ticks: { callback: (value) => `Rp ${numberWithCommas(value)}` } },
-            x: { reverse: false } // Show latest date on the right
+            x: { reverse: false }
         } 
     }
   };
@@ -567,6 +596,10 @@ function drawLine() {
   if (lineChartInstance) {
     lineChartInstance.data.labels = config.data.labels;
     lineChartInstance.data.datasets[0].data = config.data.datasets[0].data;
+    lineChartInstance.data.datasets[0].backgroundColor = config.data.datasets[0].backgroundColor;
+    lineChartInstance.data.datasets[0].borderColor = config.data.datasets[0].borderColor;
+    lineChartInstance.data.datasets[0].fill = config.data.datasets[0].fill;
+    lineChartInstance.data.datasets[0].tension = config.data.datasets[0].tension;
     lineChartInstance.update();
   } else {
     lineChartInstance = new Chart(ctx, config);
