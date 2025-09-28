@@ -26,7 +26,7 @@
                 <div class="text-h5 font-weight-black text-secondary">Rp {{ totalPorto }}</div>
               </v-col>
               <v-col cols="12" sm="3" class="text-sm-right py-1">
-                <div class="text-caption text-medium-emphasis">Harga Jual Hari Ini <br/></br>{{ latestDate }}</div>
+                <div class="text-caption text-medium-emphasis">Rata-rata Harga Jual Hari Ini <br/></br>{{ latestDate }}</div>
                 <div class="text-subtitle-1 font-weight-bold">Rp {{ latestPriceFormatted }}</div>
               </v-col>
             </v-row>
@@ -35,7 +35,7 @@
 
             <v-row justify="space-between">
               <v-col cols="6" class="py-1">
-                <div class="text-caption text-medium-emphasis">Harga Rata-rata Beli /gram</div>
+                <div class="text-caption text-medium-emphasis">Rata-rata Harga Beli /gram</div>
                 <div class="text-subtitle-1 font-weight-bold">Rp {{ avgPriceFormatted }}</div>
               </v-col>
               <v-col cols="6" class="text-right py-1">
@@ -165,12 +165,21 @@
         <v-card class="mb-4 elevation-4" rounded="lg">
           <v-card-title class="text-subtitle-1 font-weight-bold">Grafik Harga Emas</v-card-title>
           <v-card-text>
-            
+            <v-row>
+              <v-col cols="12" sm="6" md="4">
+                <v-select
+                  v-model="selectedBrand"
+                  :items="goldBrands"
+                  label="Pilih Merk"
+                  variant="outlined"
+                ></v-select>
+              </v-col>
+            </v-row>
             <v-row>
               <v-col cols="12">
-                <div class="text-caption text-medium-emphasis mb-2">Perubahan Harga Emas (7 Hari)</div>
+                <div class="text-caption text-medium-emphasis mb-2">Perubahan Harga Emas (7 Hari) - {{ selectedBrand }}</div>
                 <div class="d-flex justify-center align-center" style="height: 250px;">
-                    <canvas id="lineChart"></canvas>
+                  <canvas id="lineChart"></canvas>
                 </div>
               </v-col>
             </v-row>
@@ -280,7 +289,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, defineProps } from 'vue';
+import { ref, onMounted, computed, defineProps, watch } from 'vue';
 import axios from 'axios';
 import { Chart, DoughnutController, ArcElement, Tooltip, Legend, LineController, LineElement, PointElement, CategoryScale, LinearScale } from 'chart.js';
 import { supabase } from '../lib/SupabaseClient';
@@ -310,10 +319,30 @@ const showSuccess = ref(false);
 
 const today = new Date().toISOString().split('T')[0];
 
+const goldPriceHistory = ref([]); // Data harga emas dari Supabase
+const selectedBrand = ref('Galeri24');
+const goldBrands = ref(['Galeri24', 'Antam', 'UBS']);
+
+async function fetchGoldPricesFromSupabase(brand = 'Galeri24') {
+  // Ambil 7 data terakhir untuk merk tertentu
+  const { data, error } = await supabase
+    .from('gold_prices')
+    .select('*')
+    .eq('brand', brand)
+    .order('date', { ascending: false })
+    .limit(7);
+  if (!error && data) {
+    // Urutkan tanggal naik
+    goldPriceHistory.value = data.sort((a, b) => new Date(a.date) - new Date(b.date));
+  } else {
+    goldPriceHistory.value = [];
+  }
+}
+
 onMounted(async () => {
   await fetchTransactionsFromSupabase();
   await fetchLatestPrice();
-  await fetchPriceChart();
+  await fetchGoldPricesFromSupabase(selectedBrand.value);
   drawDonut();
   drawLine();
   // Cek jika ada nama dari localStorage (hasil login)
@@ -418,16 +447,29 @@ function brandColor(b) {
 async function fetchLatestPrice() {
   apiStatus.value = 'loading';
   try {
-    // Assuming /api/prices/savings is a proxy to the Pegadaian API
-    const res = await axios.get('/api/prices/savings', { timeout: 7000 });
-    
-    if (res && res.data && res.data.data) {
-      const d = res.data.data;
-      // Use hargaJual (Sell Price) as the market price
-      latestPrice.value = Number(d.hargaJual) || Number(d.hargaBeli) || 0; 
-      latestDate.value = d.tglBerlaku || '-';
+    // Ambil harga jual hari ini dari gold_prices untuk 3 brand
+    const todayStr = new Date().toISOString().split('T')[0];
+    // Query gold_prices untuk 3 brand, date <= today, urutkan date desc, ambil 1 per brand
+    let prices = [];
+    for (const brand of goldBrands.value) {
+      const { data, error } = await supabase
+        .from('gold_prices')
+        .select('date,price_buyback')
+        .eq('brand', brand)
+        .lte('date', todayStr)
+        .order('date', { ascending: false })
+        .limit(1);
+      if (!error && data && data.length > 0) {
+        prices.push(Number(data[0].price_buyback) || 0);
+        latestDate.value = data[0].date; // Akan di-overwrite, tapi semua sama/tanggal terbaru
+      }
+    }
+    if (prices.length > 0) {
+      // Rata-rata, lalu dibagi 100
+      latestPrice.value = Math.round(prices.reduce((a, b) => a + b, 0) / prices.length / 100);
       apiStatus.value = 'ok';
     } else {
+      latestPrice.value = 0;
       apiStatus.value = 'no-data';
     }
   } catch (err) {
@@ -575,38 +617,36 @@ function drawDonut() {
 function drawLine() {
   const ctx = document.getElementById('lineChart');
   if (!ctx) return;
-  
-  const labels = priceHistory.value.map(p => p.date);
-  const data = priceHistory.value.map(p => p.price);
-
+  const labels = goldPriceHistory.value.map(p => p.date);
+  // Ambil data dari kolom price_buyback
+  const data = goldPriceHistory.value.map(p => p.price_buyback);
   const config = {
     type: 'line',
-    data: { 
-        labels: labels.length > 0 ? labels : ['-'], 
-        datasets: [{ 
-            label: 'Harga Jual /gram (Rp)', 
-            data: data.length > 0 ? data : [0], 
-            borderColor: BRAND_COLORS.Galeri24,
-            backgroundColor: BRAND_COLORS.Galeri24,
-            tension: 0, // garis tajam (tidak melengkung)
-            pointRadius: 5,
-            fill: true,
-        }] 
+    data: {
+      labels: labels.length > 0 ? labels : ['-'],
+      datasets: [{
+        label: `Harga Jual /gram (Rp) - ${selectedBrand.value}`,
+        data: data.length > 0 ? data : [0],
+        borderColor: BRAND_COLORS[selectedBrand.value] || '#0B6B3A',
+        backgroundColor: BRAND_COLORS[selectedBrand.value] || '#0B6B3A',
+        tension: 0,
+        pointRadius: 5,
+        fill: true,
+      }]
     },
-    options: { 
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { 
-            legend: { display: false },
-            tooltip: { callbacks: { label: (context) => `Rp ${numberWithCommas(context.raw)}` } }
-        }, 
-        scales: { 
-            y: { beginAtZero: false, ticks: { callback: (value) => `Rp ${numberWithCommas(value)}` } },
-            x: { reverse: false }
-        } 
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: (context) => `Rp ${numberWithCommas(context.raw)}` } }
+      },
+      scales: {
+        y: { beginAtZero: false, ticks: { callback: (value) => `Rp ${numberWithCommas(value)}` } },
+        x: { reverse: false }
+      }
     }
   };
-
   if (lineChartInstance) {
     lineChartInstance.data.labels = config.data.labels;
     lineChartInstance.data.datasets[0].data = config.data.datasets[0].data;
@@ -619,6 +659,11 @@ function drawLine() {
     lineChartInstance = new Chart(ctx, config);
   }
 }
+
+watch(selectedBrand, async (val) => {
+  await fetchGoldPricesFromSupabase(val);
+  drawLine();
+});
 
 function isBackdate(dateStr) {
   if (!dateStr) return false;
