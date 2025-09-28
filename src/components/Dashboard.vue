@@ -12,6 +12,10 @@
           :potentialProfit="potentialProfit"
           :potentialProfitFormatted="potentialProfitFormatted"
           :profitPercent="profitPercent"
+          :donutBrands="donutBrands"
+          :donutData="donutData"
+          :numberWithCommas="numberWithCommas"
+          :transactions="transactions"
         />
         <GoldComposition
           :donutBrands="donutBrands"
@@ -35,6 +39,7 @@
           :transactions="transactions"
           :brandColor="brandColor"
         />
+        <AppFeedback />
       </v-col>
     </v-row>
     <!-- Alerts tetap di root -->
@@ -61,6 +66,7 @@ import TransactionForm from './TransactionForm.vue';
 import GoldPriceChart from './GoldPriceChart.vue';
 import TransactionHistory from './TransactionHistory.vue';
 import GoldComposition from './GoldComposition.vue';
+import AppFeedback from './AppFeedback.vue';
 
 Chart.register(DoughnutController, ArcElement, Tooltip, Legend, LineController, LineElement, PointElement, CategoryScale, LinearScale);
 
