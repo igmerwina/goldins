@@ -123,12 +123,7 @@
                     required
                   ></v-text-field>
                 </v-col>
-                <v-col cols="12" md="3" class="d-flex align-center">
-                  <div class="text-subtitle-1 font-weight-bold">Total: {{ (transaction.denom * transaction.count).toFixed(2) }} gr</div>
-                </v-col>
-              </v-row>
-              <v-row v-if="isBackdate(transaction.date)">
-                <v-col cols="12" sm="8" md="6">
+                <v-col v-if="isBackdate(transaction.date)" cols="12" sm="8" md="6">
                   <v-text-field
                     v-model="transaction.manualPrice"
                     label="Harga Beli Emas"
@@ -151,8 +146,10 @@
                     @update:model-value="val => transaction.manualPrice = unformatRupiah(val)"
                   ></v-text-field>
                 </v-col>
+                <v-col cols="12" md="3" class="d-flex align-center">
+                  <div class="text-subtitle-1 font-weight-bold">Total: {{ (transaction.denom * transaction.count).toFixed(2) }} gr</div>
+                </v-col>
               </v-row>
-              
               <v-card-actions class="justify-end px-0">
                 <v-btn variant="tonal" color="primary" type="submit" size="large" :disabled="!transaction.date || transaction.count < 1">
                   <v-icon start>mdi-content-save</v-icon> Simpan Transaksi
