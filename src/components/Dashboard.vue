@@ -1,288 +1,53 @@
 <template>
   <v-container fluid>
     <v-row>
-      
       <v-col cols="12" sm="12" md="10" lg="9" xl="8">
-        
-        <v-card class="mb-4 elevation-4" rounded="lg">
-          <v-card-title class="text-h6 d-flex justify-space-between align-center py-3">
-            <div>
-              <div class="text-caption text-medium-emphasis">Halo, <strong>{{ user.name || user.phone }}</strong></div>
-              <div class="text-subtitle-2 font-weight-bold">Portofolio Emas</div>
-            </div>
-            <v-chip color="secondary" label>No HP: {{ user.phone }}</v-chip>
-          </v-card-title>
-
-          <v-divider></v-divider>
-
-          <v-card-text>
-            <v-row align="center" justify="space-between" class="mb-4">
-              <v-col cols="12" sm="4" class="py-1">
-                <div class="text-caption text-medium-emphasis">Total Emas Fisik</div>
-                <div class="text-h4 font-weight-black text-primary">{{ totalGold.toFixed(2) }} gr</div>
-              </v-col>
-              <v-col cols="12" sm="5" class="py-1">
-                <div class="text-caption text-medium-emphasis">Senilai Nominal</div>
-                <div class="text-h5 font-weight-black text-secondary">Rp {{ totalPorto }}</div>
-              </v-col>
-              <v-col cols="12" sm="3" class="text-sm-right py-1">
-                <div class="text-caption text-medium-emphasis">Rata-rata Harga Jual Hari Ini <br/></br>{{ latestDate }}</div>
-                <div class="text-subtitle-1 font-weight-bold">Rp {{ latestPriceFormatted }}</div>
-              </v-col>
-            </v-row>
-            
-            <v-divider class="my-3"></v-divider>
-
-            <v-row justify="space-between">
-              <v-col cols="6" class="py-1">
-                <div class="text-caption text-medium-emphasis">Rata-rata Harga Beli /gram</div>
-                <div class="text-subtitle-1 font-weight-bold">Rp {{ avgPriceFormatted }}</div>
-              </v-col>
-              <v-col cols="6" class="text-right py-1">
-                <div class="text-caption text-medium-emphasis">Potensi Profit</div>
-                <div :class="['text-h6 font-weight-black', potentialProfit >= 0 ? 'text-success' : 'text-error']">
-                  Rp {{ potentialProfitFormatted }}
-                </div>
-                <div class="text-caption text-medium-emphasis">({{ profitPercent }})</div>
-              </v-col>
-            </v-row>
-            
-            <br>
-            <v-divider></v-divider>
-
-            <v-row class="mt-1">
-              <v-col cols="12">
-                <div class="text-caption text-medium-emphasis mb-2">Komposisi Emas (per Merk)</div>
-                <div class="d-flex justify-center align-center" style="height: 250px;">
-                  <canvas id="donutChart"></canvas>
-                </div>
-                <div class="mt-4">
-                  <v-row>
-                    <v-col v-for="brand in donutBrands" :key="brand" cols="12" sm="4" class="mb-2">
-                      <div class="font-weight-bold">{{ brand }}</div>
-                      <div class="text-caption">Gram: <b>{{ donutData[brand].gram.toFixed(2) }}</b> gr</div>
-                      <div class="text-caption">Senilai: <b>Rp {{ numberWithCommas(donutData[brand].nominal) }}</b></div>
-                    </v-col>
-                  </v-row>
-                </div>
-              </v-col>
-            </v-row>
-          </v-card-text>
-        </v-card>
-
-        <v-card class="mb-4 elevation-4" rounded="lg">
-          <v-card-title class="text-subtitle-1 font-weight-bold">Tambah Transaksi</v-card-title>
-          <v-card-text>
-            <v-form @submit.prevent="addTransaction">
-              <v-row>
-                <v-col cols="12" sm="6" md="3">
-                  <v-select
-                    v-model="transaction.type"
-                    :items="['beli', 'jual']"
-                    label="Jenis"
-                    variant="outlined"
-                  ></v-select>
-                </v-col>
-                <v-col cols="12" sm="6" md="4">
-                  <v-select
-                    v-model="transaction.brand"
-                    :items="['Galeri24', 'Antam', 'UBS']"
-                    label="Merk"
-                    variant="outlined"
-                  ></v-select>
-                </v-col>
-                <v-col cols="12" sm="6" md="5">
-                  <v-text-field
-                    v-model="transaction.date"
-                    label="Tanggal"
-                    type="date"
-                    variant="outlined"
-                    required
-                    :min="'1900-01-01'"
-                    :max="today"
-                  ></v-text-field>
-                </v-col>
-              </v-row>
-
-              <v-row>
-                <v-col cols="12" sm="6" md="5">
-                  <v-select
-                    v-model.number="transaction.denom"
-                    :items="[0.1, 0.2, 0.5, 1, 2, 5, 10, 25, 50, 100]"
-                    label="Denominasi (g)"
-                    variant="outlined"
-                  ></v-select>
-                </v-col>
-                <v-col cols="12" sm="6" md="4">
-                  <v-text-field
-                    v-model.number="transaction.count"
-                    label="Jumlah Keping"
-                    type="number"
-                    min="1"
-                    variant="outlined"
-                    required
-                  ></v-text-field>
-                </v-col>
-                <v-col v-if="isBackdate(transaction.date)" cols="12" sm="8" md="6">
-                  <v-text-field
-                    v-model="transaction.manualPrice"
-                    label="Harga Beli Emas"
-                    placeholder="Masukkan harga beli"
-                    :rules="[
-                      v => !!v || 'Harga wajib diisi',
-                      v => {
-                        const digits = v ? v.toString().replace(/[^\d]/g, '') : '';
-                        return /^\d{1,12}$/.test(digits) || 'Nominal hanya angka, max 12 digit';
-                      }
-                    ]"
-                    maxlength="20"
-                    clearable
-                    prepend-inner-icon="mdi-cash"
-                    variant="outlined"
-                    type="text"
-                    inputmode="numeric"
-                    :formatter="formatRupiah"
-                    :model-value="formatRupiah(transaction.manualPrice)"
-                    @update:model-value="val => transaction.manualPrice = unformatRupiah(val)"
-                  ></v-text-field>
-                </v-col>
-                <v-col cols="12" md="3" class="d-flex align-center">
-                  <div class="text-subtitle-1 font-weight-bold">Total: {{ (transaction.denom * transaction.count).toFixed(2) }} gr</div>
-                </v-col>
-              </v-row>
-              <v-card-actions class="justify-end px-0">
-                <v-btn variant="tonal" color="primary" type="submit" size="large" :disabled="!transaction.date || transaction.count < 1">
-                  <v-icon start>mdi-content-save</v-icon> Simpan Transaksi
-                </v-btn>
-              </v-card-actions>
-            </v-form>
-          </v-card-text>
-        </v-card>
-
-        <v-card class="mb-4 elevation-4" rounded="lg">
-          <v-card-title class="text-subtitle-1 font-weight-bold">Grafik Harga Emas</v-card-title>
-          <v-card-text>
-            <v-row>
-              <v-col cols="12" sm="6" md="4">
-                <v-select
-                  v-model="selectedBrand"
-                  :items="goldBrands"
-                  label="Pilih Merk"
-                  variant="outlined"
-                ></v-select>
-              </v-col>
-            </v-row>
-            <v-row>
-              <v-col cols="12">
-                <div class="text-caption text-medium-emphasis mb-2">Perubahan Harga Emas (7 Hari) - {{ selectedBrand }}</div>
-                <div class="d-flex justify-center align-center" style="height: 250px;">
-                  <canvas id="lineChart"></canvas>
-                </div>
-              </v-col>
-            </v-row>
-          </v-card-text>
-        </v-card>
-
-        <v-card class="mb-4 elevation-4" rounded="lg">
-          <v-card-title class="text-subtitle-1 d-flex justify-space-between align-center">
-            Riwayat Transaksi
-            <span class="text-caption text-medium-emphasis">{{ transactions.length }} transaksi</span>
-          </v-card-title>
-          
-          <v-divider></v-divider>
-
-          <v-card-text v-if="transactions.length === 0" class="text-center text-medium-emphasis">
-            Tidak ada portofolio — tambahkan transaksi untuk melihat ringkasan.
-          </v-card-text>
-          
-          <v-list v-else dense>
-            <v-list-item v-for="tx in transactions" :key="tx.id" :class="tx.type === 'beli' ? 'bg-green-lighten-5' : 'bg-red-lighten-5'">
-              <template v-slot:prepend>
-                <v-icon :color="tx.type === 'beli' ? 'primary' : 'error'">
-                    {{ tx.type === 'beli' ? 'mdi-arrow-up-circle-outline' : 'mdi-arrow-down-circle-outline' }}
-                </v-icon>
-              </template>
-              
-              <v-list-item-title class="font-weight-bold">
-                {{ tx.brand }} • {{ tx.type.toUpperCase() }}
-                <span class="text-caption font-weight-regular ml-2 text-medium-emphasis">{{ tx.date }}</span>
-              </v-list-item-title>
-              
-              <v-list-item-subtitle>
-                {{ tx.denom }} g × {{ tx.count }} keping
-              </v-list-item-subtitle>
-              
-              <template v-slot:append>
-                <div class="text-right">
-                  <div class="font-weight-black text-subtitle-1">{{ (tx.denom * tx.count).toFixed(2) }} gr</div>
-                  <v-chip size="small" :color="brandColor(tx.brand)" label>{{ tx.brand }}</v-chip>
-                </div>
-              </template>
-            </v-list-item>
-          </v-list>
-        </v-card>
+        <PortfolioSummary
+          :user="user"
+          :totalGold="totalGold"
+          :totalPorto="totalPorto"
+          :latestDate="latestDate"
+          :latestPriceFormatted="latestPriceFormatted"
+          :avgPriceFormatted="avgPriceFormatted"
+          :potentialProfit="potentialProfit"
+          :potentialProfitFormatted="potentialProfitFormatted"
+          :profitPercent="profitPercent"
+        />
+        <GoldComposition
+          :donutBrands="donutBrands"
+          :donutData="donutData"
+          :numberWithCommas="numberWithCommas"
+        />
+        <TransactionForm
+          :transaction="transaction"
+          :today="today"
+          :addTransaction="addTransaction"
+          :isBackdate="isBackdate"
+          :formatRupiah="formatRupiah"
+          :unformatRupiah="unformatRupiah"
+        />
+        <GoldPriceChart
+          :selectedBrand="selectedBrand"
+          :goldBrands="goldBrands"
+          @update:selectedBrand="val => { selectedBrand.value = val; }"
+        />
+        <TransactionHistory
+          :transactions="transactions"
+          :brandColor="brandColor"
+        />
       </v-col>
-      
-      <!-- <v-col cols="12" md="4">
-        <v-card class="mb-4 elevation-4" rounded="lg">
-          <v-card-title class="text-subtitle-1 font-weight-bold">Status Data & Aksi</v-card-title>
-          <v-card-text>
-            <div class="mb-3">
-              <div class="text-caption text-medium-emphasis">Total Emas</div>
-              <div class="text-h6 font-weight-black text-primary">{{ totalGold.toFixed(2) }} gr</div>
-            </div>
-            
-            <div class="mb-3">
-              <div class="text-caption text-medium-emphasis">Harga Jual /gram Terakhir</div>
-              <div class="text-subtitle-1 font-weight-bold">Rp {{ latestPriceFormatted }}</div>
-              <div class="text-caption text-medium-emphasis">Tanggal: {{ latestDate }}</div>
-            </div>
-            
-            <v-divider class="my-3"></v-divider>
-
-            <div class="mb-3">
-                <div class="text-caption text-medium-emphasis">API Status Harga</div>
-                <v-chip :color="apiStatus === 'ok' ? 'success' : 'warning'" size="small" label>{{ apiStatus }}</v-chip>
-            </div>
-            
-            <v-btn color="error" variant="outlined" block @click="clearAll" class="mt-4" prepend-icon="mdi-delete-sweep">
-              Hapus Semua Data
-            </v-btn>
-          </v-card-text>
-        </v-card>
-      </v-col> -->
     </v-row>
+    <!-- Alerts tetap di root -->
+    <v-alert v-if="showWelcome" type="success" class="welcome-fade center-popup" border="start" prominent elevation="10">
+      Selamat datang, <b>{{ welcomeName }}</b>!
+    </v-alert>
+    <v-alert v-if="showError" type="error" class="welcome-fade center-popup" border="start" prominent elevation="10">
+      {{ errorMsg }}
+    </v-alert>
+    <v-alert v-if="showSuccess" type="success" class="welcome-fade center-popup" border="start" prominent elevation="10">
+      Data transaksi berhasil disimpan!
+    </v-alert>
   </v-container>
-  <v-alert
-    v-if="showWelcome"
-    type="success"
-    class="welcome-fade center-popup"
-    border="start"
-    prominent
-    elevation="10"
-  >
-    Selamat datang, <b>{{ welcomeName }}</b>!
-  </v-alert>
-  <v-alert
-    v-if="showError"
-    type="error"
-    class="welcome-fade center-popup"
-    border="start"
-    prominent
-    elevation="10"
-  >
-    {{ errorMsg }}
-  </v-alert>
-  <v-alert
-    v-if="showSuccess"
-    type="success"
-    class="welcome-fade center-popup"
-    border="start"
-    prominent
-    elevation="10"
-  >
-    Data transaksi berhasil disimpan!
-  </v-alert>
 </template>
 
 <script setup>
@@ -290,6 +55,12 @@ import { ref, onMounted, computed, defineProps, watch } from 'vue';
 import axios from 'axios';
 import { Chart, DoughnutController, ArcElement, Tooltip, Legend, LineController, LineElement, PointElement, CategoryScale, LinearScale } from 'chart.js';
 import { supabase } from '../lib/SupabaseClient';
+
+import PortfolioSummary from './PortfolioSummary.vue';
+import TransactionForm from './TransactionForm.vue';
+import GoldPriceChart from './GoldPriceChart.vue';
+import TransactionHistory from './TransactionHistory.vue';
+import GoldComposition from './GoldComposition.vue';
 
 Chart.register(DoughnutController, ArcElement, Tooltip, Legend, LineController, LineElement, PointElement, CategoryScale, LinearScale);
 
