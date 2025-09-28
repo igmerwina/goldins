@@ -12,6 +12,10 @@
           :potentialProfit="potentialProfit"
           :potentialProfitFormatted="potentialProfitFormatted"
           :profitPercent="profitPercent"
+          :donutBrands="donutBrands"
+          :donutData="donutData"
+          :numberWithCommas="numberWithCommas"
+          :transactions="transactions"
         />
         <GoldComposition
           :donutBrands="donutBrands"

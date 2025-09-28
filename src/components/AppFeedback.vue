@@ -6,7 +6,7 @@
         Kami sangat menghargai masukan Anda untuk pengembangan aplikasi ini.<br>
         Silakan isi form singkat berikut untuk memberikan saran, kritik, atau laporan bug.
       </div>
-      <v-btn color="primary" variant="flat" href="https://forms.gle/your-google-form-link" target="_blank" rel="noopener">
+      <v-btn color="primary" variant="flat" href="https://docs.google.com/forms/d/e/1FAIpQLSc61jRPHG-IhyalyTeGD_Np6JzIVdieSvr2YehqaJQc3dRwng/viewform" target="_blank" rel="noopener">
         <v-icon start>mdi-message-text</v-icon>
         Isi Feedback
       </v-btn>
