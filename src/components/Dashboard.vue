@@ -299,7 +299,6 @@ const props = defineProps({
 
 const transaction = ref({ date: new Date().toISOString().split('T')[0], type: 'beli', brand: 'Galeri24', denom: 1, count: 1 });
 const transactions = ref([]);
-const priceHistory = ref([]);
 const latestPrice = ref(0);
 const latestDate = ref('-');
 const apiStatus = ref('idle');
@@ -356,17 +355,6 @@ onMounted(async () => {
 });
 
 // --- Data & Persistence Functions ---
-function loadLocal() {
-  const txRaw = localStorage.getItem('pg_tx');
-  transactions.value = txRaw ? JSON.parse(txRaw) : [];
-  const phRaw = localStorage.getItem('pg_price_history');
-  priceHistory.value = phRaw ? JSON.parse(phRaw) : [];
-}
-
-function saveLocal() { 
-    localStorage.setItem('pg_tx', JSON.stringify(transactions.value));
-}
-
 async function addTransaction() {
   if (!transaction.value.manualPrice && isBackdate(transaction.value.date)) {
     showError.value = true;
@@ -379,7 +367,6 @@ async function addTransaction() {
     pricePerGram: latestPrice.value, 
   };
   transactions.value.unshift(tx);
-  saveLocal();
   drawDonut();
 
   // Integrasi Supabase: simpan ke table transaction
@@ -427,9 +414,6 @@ async function addTransaction() {
 function clearAll() { 
   if (!confirm('Hapus semua data transaksi dan histori harga?')) return;
   transactions.value = [];
-  priceHistory.value = []; 
-  localStorage.removeItem('pg_tx'); 
-  localStorage.removeItem('pg_price_history');
   drawDonut();
   drawLine();
 }
@@ -472,23 +456,6 @@ async function fetchLatestPrice() {
   } catch (err) {
     console.warn('fetchLatestPrice failed', err && err.message);
     apiStatus.value = 'failed';
-  }
-}
-
-async function fetchPriceChart() {
-  try {
-    // Assuming /api/prices/chart is a proxy to the Pegadaian chart API
-    const res = await axios.get('/api/prices/chart?interval=7&isRequest=true', { timeout: 7000 });
-    
-    if (res?.data?.data?.priceList) {
-      priceHistory.value = res.data.data.priceList.map(p => ({ 
-        date: p.lastUpdate ? p.lastUpdate.split(' ')[0] : (p.lastUpdate || ''), 
-        price: Number(p.hargaJual) 
-      })).filter(p => p.price > 0);
-      localStorage.setItem('pg_price_history', JSON.stringify(priceHistory.value));
-    }
-  } catch (err) {
-    console.warn('fetchPriceChart failed', err && err.message);
   }
 }
 
