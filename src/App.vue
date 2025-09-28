@@ -8,8 +8,8 @@
             <span class="font-weight-bold text-h6">Gold Insight by Pegadaian</span>
             <p class="text-caption mt-n1 hidden-sm-and-down">Membantu mengelola aset emasmu dengan lebih mudah</p>
           </v-toolbar-title>
-          <v-btn v-if="hasUser" color="secondary" variant="flat" style="margin-left:auto;margin-right:22%;" @click="logout" prepend-icon="mdi-logout">
-            Logout
+          <v-btn v-if="hasUser" color="secondary" variant="flat" style="margin-left:auto;margin-right:22%;" @click="logout" prepend-icon="mdi-logout" class="logout-btn">
+            <span class="logout-text">Logout</span>
           </v-btn>
         </v-container>
       </div>
@@ -147,4 +147,18 @@ function logout() {
 
 <style scoped>
 /* No scoped styles needed as Vuetify handles most styling */
+.logout-btn .logout-text {
+  display: none;
+  opacity: 0;
+  transition: opacity 1.85s, margin-left 0.85s;
+}
+.logout-btn:hover .logout-text {
+  display: inline;
+  margin-left: 8px;
+  opacity: 1;
+  transition: opacity 0.25s, margin-left 0.25s;
+}
+.logout-btn .v-btn__prepend {
+  margin-right: 0;
+}
 </style>
