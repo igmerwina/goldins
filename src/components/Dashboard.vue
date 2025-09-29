@@ -33,7 +33,11 @@
         <GoldPriceChart
           :selectedBrand="selectedBrand"
           :goldBrands="goldBrands"
-          @update:selectedBrand="val => { selectedBrand.value = val; }"
+          :selectedDenom="selectedDenom"
+          :denomOptions="denomOptions"
+          :priceHistory="goldPriceHistory"
+          @update:selectedBrand="val => selectedBrand = val"
+          @update:selectedDenom="val => selectedDenom = val"
         />
         <TransactionHistory
           :transactions="transactions"
@@ -95,17 +99,19 @@ const today = new Date().toISOString().split('T')[0];
 const goldPriceHistory = ref([]); // Data harga emas dari Supabase
 const selectedBrand = ref('Galeri24');
 const goldBrands = ref(['Galeri24', 'Antam', 'UBS']);
+const denomOptions = [0.5, 1, 2, 5, 10, 25, 50, 100];
+const selectedDenom = ref(1);
 
-async function fetchGoldPricesFromSupabase(brand = 'Galeri24') {
-  // Ambil 7 data terakhir untuk merk tertentu
+async function fetchGoldPricesFromSupabase(brand = 'Galeri24', denom = 1) {
+  // Ambil 7 data terakhir untuk merk dan denominasi tertentu
   const { data, error } = await supabase
     .from('gold_prices')
     .select('*')
     .eq('brand', brand)
+    .eq('denom', denom)
     .order('date', { ascending: false })
     .limit(7);
   if (!error && data) {
-    // Urutkan tanggal naik
     goldPriceHistory.value = data.sort((a, b) => new Date(a.date) - new Date(b.date));
   } else {
     goldPriceHistory.value = [];
@@ -115,7 +121,7 @@ async function fetchGoldPricesFromSupabase(brand = 'Galeri24') {
 onMounted(async () => {
   await fetchTransactionsFromSupabase();
   await fetchLatestPrice();
-  await fetchGoldPricesFromSupabase(selectedBrand.value);
+  await fetchGoldPricesFromSupabase(selectedBrand.value, selectedDenom.value);
   drawDonut();
   drawLine();
   // Cek jika ada nama dari localStorage (hasil login)
@@ -223,8 +229,7 @@ async function fetchLatestPrice() {
       }
     }
     if (prices.length > 0) {
-      // Rata-rata, lalu dibagi 100
-      latestPrice.value = Math.round(prices.reduce((a, b) => a + b, 0) / prices.length / 100);
+      latestPrice.value = Math.round(prices.reduce((a, b) => a + b, 0) / prices.length);
       apiStatus.value = 'ok';
     } else {
       latestPrice.value = 0;
@@ -263,14 +268,14 @@ const avgPrice = computed(() => {
   // Ambil hanya transaksi beli
   const buys = transactions.value.filter(t => t.type === 'beli' && t.total_price > 0 && t.denom > 0);
   if (buys.length === 0) return latestPrice.value || 0;
-  // sum(total_price) / sum(denom*100)
+  // sum(total_price) / sum(denom)
   const sumTotal = buys.reduce((s, t) => s + Number(t.total_price), 0);
-  const sumGram = buys.reduce((s, t) => s + (Number(t.denom) * Number(t.count) * 100), 0);
+  const sumGram = buys.reduce((s, t) => s + (Number(t.denom) * Number(t.count)), 0);
   return sumGram > 0 ? Math.round(sumTotal / sumGram) : 0;
 });
 
 const totalPorto = computed(() => 
-    numberWithCommas(latestPrice.value * totalGold.value * 100)
+    numberWithCommas(latestPrice.value * totalGold.value)
 );
 const avgPriceFormatted = computed(() => 
     numberWithCommas(avgPrice.value)
@@ -401,8 +406,8 @@ function drawLine() {
   }
 }
 
-watch(selectedBrand, async (val) => {
-  await fetchGoldPricesFromSupabase(val);
+watch([selectedBrand, selectedDenom], async ([brand, denom]) => {
+  await fetchGoldPricesFromSupabase(brand, denom);
   drawLine();
 });
 

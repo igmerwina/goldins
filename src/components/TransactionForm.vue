@@ -51,7 +51,7 @@
               required
             ></v-text-field>
           </v-col>
-          <v-col v-if="isBackdate(transaction.date)" cols="12" sm="8" md="6">
+          <v-col cols="12" sm="8" md="6">
             <v-text-field
               v-model="transaction.manualPrice"
               label="Harga Beli Emas"
@@ -92,8 +92,35 @@ const props = defineProps({
   transaction: Object,
   today: String,
   addTransaction: Function,
-  isBackdate: Function,
   formatRupiah: Function,
   unformatRupiah: Function
+});
+
+import { watch, onMounted } from 'vue';
+import { supabase } from '../lib/SupabaseClient';
+
+async function setDefaultManualPrice(dateStr) {
+  // Jika tanggal hari ini, ambil harga hari ini, jika tidak, ambil harga terakhir <= tanggal
+  let price = '';
+  if (!dateStr) return;
+  const { data, error } = await supabase
+    .from('gold_prices')
+    .select('price_buyback, date')
+    .eq('brand', props.transaction.brand || 'Galeri24')
+    .lte('date', dateStr)
+    .order('date', { ascending: false })
+    .limit(1);
+  if (!error && data && data.length > 0) {
+    price = data[0].price_buyback;
+  }
+  if (price) props.transaction.manualPrice = price;
+}
+
+onMounted(() => {
+  setDefaultManualPrice(props.transaction.date);
+});
+
+watch(() => [props.transaction.date, props.transaction.brand], ([date, brand]) => {
+  setDefaultManualPrice(date);
 });
 </script>
