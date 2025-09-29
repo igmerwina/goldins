@@ -35,9 +35,9 @@
             Rp {{ potentialProfitFormatted }}
           </div>
           <div class="text-caption text-medium-emphasis">({{ profitPercent }})</div>
-          <v-btn color="primary" variant="tonal" class="mt-2" @click="generateReport">
+          <v-btn color="primary" variant="tonal" class="mt-2 generate-report-btn" @click="generateReport">
             <v-icon start>mdi-file-pdf-box</v-icon>
-            Generate Report (PDF)
+            Generate Report
           </v-btn>
         </v-col>
       </v-row>
