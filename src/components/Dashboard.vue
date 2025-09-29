@@ -139,9 +139,9 @@ onMounted(async () => {
 
 // --- Data & Persistence Functions ---
 async function addTransaction() {
-  if (!transaction.value.manualPrice && isBackdate(transaction.value.date)) {
+  if (!transaction.value.manualPrice) {
     showError.value = true;
-    errorMsg.value = 'Harga Beli Emas wajib diisi untuk tanggal lampau!';
+    errorMsg.value = 'Harga Beli Emas wajib diisi!';
     return;
   }
   const tx = { 
@@ -154,12 +154,7 @@ async function addTransaction() {
 
   // Integrasi Supabase: simpan ke table transaction
   try {
-    let price;
-    if (isBackdate(tx.date)) {
-      price = parseInt(tx.manualPrice.toString().replace(/\D/g, ''), 10) || 0;
-    } else {
-      price = latestPrice.value * 100;
-    }
+    const price = Number(tx.manualPrice && tx.manualPrice.toString().replace(/[^\d]/g, '')) || 0;
     const total_price = price * tx.count;
     const { error } = await supabase.from('transactions').insert([
       {
@@ -411,14 +406,6 @@ watch([selectedBrand, selectedDenom], async ([brand, denom]) => {
   drawLine();
 });
 
-function isBackdate(dateStr) {
-  if (!dateStr) return false;
-  const today = new Date();
-  const input = new Date(dateStr);
-  today.setHours(0,0,0,0);
-  input.setHours(0,0,0,0);
-  return input < today;
-}
 
 function formatRupiah(value) {
   if (!value) return '';

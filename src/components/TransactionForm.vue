@@ -2,7 +2,7 @@
   <v-card class="mb-4 elevation-4" rounded="lg">
     <v-card-title class="text-subtitle-1 font-weight-bold">Tambah Transaksi</v-card-title>
     <v-card-text>
-      <v-form @submit.prevent="addTransaction">
+      <v-form @submit.prevent="wrappedAddTransaction">
         <v-row>
           <v-col cols="12" sm="6" md="3">
             <v-select
@@ -54,8 +54,8 @@
           <v-col cols="12" sm="8" md="6">
             <v-text-field
               v-model="transaction.manualPrice"
-              label="Harga Beli Emas"
-              placeholder="Masukkan harga beli"
+              :label="transaction.type === 'beli' ? 'Harga Beli Emas' : 'Harga Jual Emas'"
+              :placeholder="transaction.type === 'beli' ? 'Masukkan harga beli' : 'Masukkan harga jual'"
               :rules="[
                 v => !!v || 'Harga wajib diisi',
                 v => {
@@ -79,8 +79,23 @@
           </v-col>
         </v-row>
         <v-card-actions class="justify-end px-0">
-          <v-btn variant="tonal" color="primary" type="submit" size="large" :disabled="!transaction.date || transaction.count < 1">
-            <v-icon start>mdi-content-save</v-icon> Simpan Transaksi
+          <v-btn
+            variant="tonal"
+            color="primary"
+            type="submit"
+            size="large"
+            :disabled="!transaction.date || transaction.count < 1 || isLoading"
+          >
+            <v-icon start>mdi-content-save</v-icon>
+            <v-progress-circular
+              v-if="isLoading"
+              indeterminate
+              color="white"
+              size="20"
+              class="mr-2"
+            />
+            <span v-if="!isLoading">Simpan Transaksi</span>
+            <span v-else>Menyimpan...</span>
           </v-btn>
         </v-card-actions>
       </v-form>
@@ -96,22 +111,36 @@ const props = defineProps({
   unformatRupiah: Function
 });
 
-import { watch, onMounted } from 'vue';
+import { ref, watch, onMounted } from 'vue';
 import { supabase } from '../lib/SupabaseClient';
 
+const isLoading = ref(false);
+
+// Ganti addTransaction agar set isLoading true/false
+const originalAddTransaction = props.addTransaction;
+async function wrappedAddTransaction(...args) {
+  isLoading.value = true;
+  try {
+    await originalAddTransaction(...args);
+  } finally {
+    isLoading.value = false;
+  }
+}
+
 async function setDefaultManualPrice(dateStr) {
-  // Jika tanggal hari ini, ambil harga hari ini, jika tidak, ambil harga terakhir <= tanggal
+  // Ambil harga default sesuai jenis transaksi
   let price = '';
   if (!dateStr) return;
+  const field = props.transaction.type === 'beli' ? 'price_buyback' : 'price_sell';
   const { data, error } = await supabase
     .from('gold_prices')
-    .select('price_buyback, date')
+    .select(`${field}, date`)
     .eq('brand', props.transaction.brand || 'Galeri24')
     .lte('date', dateStr)
     .order('date', { ascending: false })
     .limit(1);
   if (!error && data && data.length > 0) {
-    price = data[0].price_buyback;
+    price = data[0][field];
   }
   if (price) props.transaction.manualPrice = price;
 }
@@ -120,7 +149,7 @@ onMounted(() => {
   setDefaultManualPrice(props.transaction.date);
 });
 
-watch(() => [props.transaction.date, props.transaction.brand], ([date, brand]) => {
+watch(() => [props.transaction.date, props.transaction.brand, props.transaction.type], ([date, brand, type]) => {
   setDefaultManualPrice(date);
 });
 </script>
