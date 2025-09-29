@@ -206,21 +206,20 @@ function brandColor(b) {
 async function fetchLatestPrice() {
   apiStatus.value = 'loading';
   try {
-    // Ambil harga jual hari ini dari gold_prices untuk 3 brand
     const todayStr = new Date().toISOString().split('T')[0];
-    // Query gold_prices untuk 3 brand, date <= today, urutkan date desc, ambil 1 per brand
     let prices = [];
     for (const brand of goldBrands.value) {
       const { data, error } = await supabase
         .from('gold_prices')
         .select('date,price_buyback')
         .eq('brand', brand)
+        .eq('denom', 1)
         .lte('date', todayStr)
         .order('date', { ascending: false })
         .limit(1);
       if (!error && data && data.length > 0) {
         prices.push(Number(data[0].price_buyback) || 0);
-        latestDate.value = data[0].date; // Akan di-overwrite, tapi semua sama/tanggal terbaru
+        latestDate.value = data[0].date;
       }
     }
     if (prices.length > 0) {
