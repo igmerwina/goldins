@@ -1,6 +1,6 @@
 # Gold Insight
 
-![Dashboard Screenshot](dist/assets/ss.jpeg)
+![Dashboard Screenshot](src/assets/ss.jpeg)
 
 Gold Insight adalah aplikasi web modern berbasis Vue 3 + Vuetify untuk mengelola dan menganalisis portofolio emas Pegadaian Anda. Fitur utama meliputi dashboard, grafik interaktif, dan integrasi database Supabase.
 
