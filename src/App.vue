@@ -1,71 +1,78 @@
 <template>
   <v-app>
-    <v-app-bar app color="primary" flat>
-      <div style="width:100vw;display:flex;justify-content:center;align-items:center;position:relative;">
-        <v-container class="d-flex align-center px-0" style="max-width:900px;width:100%;">
-          <v-icon size="32" class="mr-2" color="secondary">mdi-treasure-chest</v-icon>
-          <v-toolbar-title class="white--text">
-            <span class="font-weight-bold text-h6">Gold Insight by Pegadaian</span>
-            <p class="text-caption mt-n1 hidden-sm-and-down">Membantu mengelola aset emasmu dengan lebih mudah</p>
-          </v-toolbar-title>
-          <v-btn v-if="hasUser" color="secondary" variant="flat" style="margin-left:auto;margin-right:22%;" @click="logout" prepend-icon="mdi-logout">
-            Logout
-          </v-btn>
-        </v-container>
+    <transition name="fade-loader">
+      <div v-if="showLoader" class="loader-overlay">
+        <div class="loader-spinner"></div>
       </div>
-    </v-app-bar>
+    </transition>
+    <div :class="{ 'blur-bg': showLoader }">
+      <v-app-bar app color="primary" flat>
+        <div style="width:100vw;display:flex;justify-content:center;align-items:center;position:relative;">
+          <v-container class="d-flex align-center px-0" style="max-width:900px;width:100%;">
+            <v-icon size="32" class="mr-2" color="secondary">mdi-treasure-chest</v-icon>
+            <v-toolbar-title class="white--text">
+              <span class="font-weight-bold text-h6">Gold Insight by Pegadaian</span>
+              <p class="text-caption mt-n1 hidden-sm-and-down">Membantu mengelola aset emasmu dengan lebih mudah</p>
+            </v-toolbar-title>
+            <v-btn v-if="hasUser" color="secondary" variant="flat" style="margin-left:auto;margin-right:22%;" @click="logout" prepend-icon="mdi-logout" class="logout-btn">
+              <span class="logout-text">Logout</span>
+            </v-btn>
+          </v-container>
+        </div>
+      </v-app-bar>
 
-    <v-main class="bg-background">
-      <v-container>
-        <v-row justify="center">
-          <v-col cols="12" sm="12" md="10" lg="9" xl="8">
-            <v-card v-if="!hasUser" class="pa-4 pa-sm-6 elevation-8" rounded="lg">
-              <v-card-title class="text-h5 font-weight-bold mb-4">Input Data Nasabah</v-card-title>
-              <v-text-field
-                v-model="user.name"
-                label="Nama Nasabah"
-                placeholder="Nama lengkap"
-                :rules="[
-                  v => !!v || 'Nama wajib diisi',
-                  v => /^[a-zA-Z\s]*$/.test(v) || 'Nama hanya boleh huruf dan spasi'
-                ]"
-                :maxlength="50"
-                clearable
-                prepend-inner-icon="mdi-account"
-                variant="outlined"
-              ></v-text-field>
+      <v-main class="bg-background">
+        <v-container>
+          <v-row justify="center">
+            <v-col cols="12" sm="12" md="10" lg="9" xl="8">
+              <v-card v-if="!hasUser" class="pa-4 pa-sm-6 elevation-8" rounded="lg">
+                <v-card-title class="text-h5 font-weight-bold mb-4">Input Data Nasabah</v-card-title>
+                <v-text-field
+                  v-model="user.name"
+                  label="Nama Nasabah"
+                  placeholder="Nama lengkap"
+                  :rules="[
+                    v => !!v || 'Nama wajib diisi',
+                    v => /^[a-zA-Z\s]*$/.test(v) || 'Nama hanya boleh huruf dan spasi'
+                  ]"
+                  :maxlength="50"
+                  clearable
+                  prepend-inner-icon="mdi-account"
+                  variant="outlined"
+                ></v-text-field>
+                
+                <v-text-field
+                  v-model="user.phone"
+                  label="No HP (angka saja)"
+                  placeholder="08xxxxxxxx"
+                  :rules="[v => !!v || 'No HP wajib diisi', v => /^\d*$/.test(v) || 'Hanya angka yang diizinkan']"
+                  :maxlength="13"
+                  clearable
+                  prepend-inner-icon="mdi-phone"
+                  variant="outlined"
+                  @input="filterPhone"
+                ></v-text-field>
+                
+                <v-card-actions class="justify-end px-0">
+                  <v-btn color="primary" size="large" @click="saveUser" :disabled="!user.name || !user.phone" block>
+                    Lanjut ke Dashboard
+                  </v-btn>
+                </v-card-actions>
+                <v-alert v-if="phoneError" type="error" class="mt-4">{{ phoneError }}</v-alert>
+              </v-card>
               
-              <v-text-field
-                v-model="user.phone"
-                label="No HP (angka saja)"
-                placeholder="08xxxxxxxx"
-                :rules="[v => !!v || 'No HP wajib diisi', v => /^\d*$/.test(v) || 'Hanya angka yang diizinkan']"
-                :maxlength="13"
-                clearable
-                prepend-inner-icon="mdi-phone"
-                variant="outlined"
-                @input="filterPhone"
-              ></v-text-field>
-              
-              <v-card-actions class="justify-end px-0">
-                <v-btn color="primary" size="large" @click="saveUser" :disabled="!user.name || !user.phone" block>
-                  Lanjut ke Dashboard
-                </v-btn>
-              </v-card-actions>
-              <v-alert v-if="phoneError" type="error" class="mt-4">{{ phoneError }}</v-alert>
-            </v-card>
-            
-            <Dashboard v-else :user="user" />
-          </v-col>
-        </v-row>
-      </v-container>
-    </v-main>
+              <Dashboard v-else :user="user" />
+            </v-col>
+          </v-row>
+        </v-container>
+      </v-main>
 
-    <v-dialog v-model="showError" max-width="400">
-      <v-card>
-        <v-card-title class="text-h6 font-weight-bold">{{ errorMsg }}</v-card-title>
-      </v-card>
-    </v-dialog>
+      <v-dialog v-model="showError" max-width="400">
+        <v-card>
+          <v-card-title class="text-h6 font-weight-bold">{{ errorMsg }}</v-card-title>
+        </v-card>
+      </v-dialog>
+    </div>
   </v-app>
 </template>
 
@@ -81,8 +88,12 @@ const welcomeName = ref('');
 const showWelcome = ref(false);
 const errorMsg = ref('');
 const showError = ref(false);
+const showLoader = ref(true);
 
 onMounted(() => {
+  setTimeout(() => {
+    showLoader.value = false;
+  }, 780); // Loader tampil 1.2 detik, bisa diubah sesuai kebutuhan
   loadUser();
 });
 
@@ -147,4 +158,55 @@ function logout() {
 
 <style scoped>
 /* No scoped styles needed as Vuetify handles most styling */
+.logout-btn .logout-text {
+  display: none;
+  opacity: 0;
+  transition: opacity 1.85s, margin-left 0.85s;
+}
+.logout-btn:hover .logout-text {
+  display: inline;
+  margin-left: 8px;
+  opacity: 1;
+  transition: opacity 0.25s, margin-left 0.25s;
+}
+.logout-btn .v-btn__prepend {
+  margin-right: 0;
+}
+
+.loader-overlay {
+  position: fixed;
+  z-index: 99999;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(255,255,255,0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.4s;
+}
+.loader-spinner {
+  width: 56px;
+  height: 56px;
+  border: 6px solid #e0e0e0;
+  border-top: 6px solid #0B6B3A;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+.blur-bg {
+  filter: blur(4px) grayscale(0.1) brightness(0.97);
+  pointer-events: none;
+  user-select: none;
+}
+.fade-loader-enter-active, .fade-loader-leave-active {
+  transition: opacity 0.4s;
+}
+.fade-loader-enter-from, .fade-loader-leave-to {
+  opacity: 0;
+}
+.fade-loader-enter-to, .fade-loader-leave-from {
+  opacity: 1;
+}
 </style>

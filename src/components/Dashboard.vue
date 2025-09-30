@@ -12,6 +12,10 @@
           :potentialProfit="potentialProfit"
           :potentialProfitFormatted="potentialProfitFormatted"
           :profitPercent="profitPercent"
+          :donutBrands="donutBrands"
+          :donutData="donutData"
+          :numberWithCommas="numberWithCommas"
+          :transactions="transactions"
         />
         <GoldComposition
           :donutBrands="donutBrands"
@@ -29,12 +33,17 @@
         <GoldPriceChart
           :selectedBrand="selectedBrand"
           :goldBrands="goldBrands"
-          @update:selectedBrand="val => { selectedBrand.value = val; }"
+          :selectedDenom="selectedDenom"
+          :denomOptions="denomOptions"
+          :priceHistory="goldPriceHistory"
+          @update:selectedBrand="val => selectedBrand = val"
+          @update:selectedDenom="val => selectedDenom = val"
         />
         <TransactionHistory
           :transactions="transactions"
           :brandColor="brandColor"
         />
+        <AppFeedback />
       </v-col>
     </v-row>
     <!-- Alerts tetap di root -->
@@ -61,6 +70,7 @@ import TransactionForm from './TransactionForm.vue';
 import GoldPriceChart from './GoldPriceChart.vue';
 import TransactionHistory from './TransactionHistory.vue';
 import GoldComposition from './GoldComposition.vue';
+import AppFeedback from './AppFeedback.vue';
 
 Chart.register(DoughnutController, ArcElement, Tooltip, Legend, LineController, LineElement, PointElement, CategoryScale, LinearScale);
 
@@ -89,17 +99,19 @@ const today = new Date().toISOString().split('T')[0];
 const goldPriceHistory = ref([]); // Data harga emas dari Supabase
 const selectedBrand = ref('Galeri24');
 const goldBrands = ref(['Galeri24', 'Antam', 'UBS']);
+const denomOptions = [0.5, 1, 2, 5, 10, 25, 50, 100];
+const selectedDenom = ref(1);
 
-async function fetchGoldPricesFromSupabase(brand = 'Galeri24') {
-  // Ambil 7 data terakhir untuk merk tertentu
+async function fetchGoldPricesFromSupabase(brand = 'Galeri24', denom = 1) {
+  // Ambil 7 data terakhir untuk merk dan denominasi tertentu
   const { data, error } = await supabase
     .from('gold_prices')
     .select('*')
     .eq('brand', brand)
+    .eq('denom', denom)
     .order('date', { ascending: false })
     .limit(7);
   if (!error && data) {
-    // Urutkan tanggal naik
     goldPriceHistory.value = data.sort((a, b) => new Date(a.date) - new Date(b.date));
   } else {
     goldPriceHistory.value = [];
@@ -109,7 +121,7 @@ async function fetchGoldPricesFromSupabase(brand = 'Galeri24') {
 onMounted(async () => {
   await fetchTransactionsFromSupabase();
   await fetchLatestPrice();
-  await fetchGoldPricesFromSupabase(selectedBrand.value);
+  await fetchGoldPricesFromSupabase(selectedBrand.value, selectedDenom.value);
   drawDonut();
   drawLine();
   // Cek jika ada nama dari localStorage (hasil login)
@@ -127,9 +139,9 @@ onMounted(async () => {
 
 // --- Data & Persistence Functions ---
 async function addTransaction() {
-  if (!transaction.value.manualPrice && isBackdate(transaction.value.date)) {
+  if (!transaction.value.manualPrice) {
     showError.value = true;
-    errorMsg.value = 'Harga Beli Emas wajib diisi untuk tanggal lampau!';
+    errorMsg.value = 'Harga Beli Emas wajib diisi!';
     return;
   }
   const tx = { 
@@ -142,12 +154,7 @@ async function addTransaction() {
 
   // Integrasi Supabase: simpan ke table transaction
   try {
-    let price;
-    if (isBackdate(tx.date)) {
-      price = parseInt(tx.manualPrice.toString().replace(/\D/g, ''), 10) || 0;
-    } else {
-      price = latestPrice.value * 100;
-    }
+    const price = Number(tx.manualPrice && tx.manualPrice.toString().replace(/[^\d]/g, '')) || 0;
     const total_price = price * tx.count;
     const { error } = await supabase.from('transactions').insert([
       {
@@ -199,26 +206,24 @@ function brandColor(b) {
 async function fetchLatestPrice() {
   apiStatus.value = 'loading';
   try {
-    // Ambil harga jual hari ini dari gold_prices untuk 3 brand
     const todayStr = new Date().toISOString().split('T')[0];
-    // Query gold_prices untuk 3 brand, date <= today, urutkan date desc, ambil 1 per brand
     let prices = [];
     for (const brand of goldBrands.value) {
       const { data, error } = await supabase
         .from('gold_prices')
         .select('date,price_buyback')
         .eq('brand', brand)
+        .eq('denom', 1)
         .lte('date', todayStr)
         .order('date', { ascending: false })
         .limit(1);
       if (!error && data && data.length > 0) {
         prices.push(Number(data[0].price_buyback) || 0);
-        latestDate.value = data[0].date; // Akan di-overwrite, tapi semua sama/tanggal terbaru
+        latestDate.value = data[0].date;
       }
     }
     if (prices.length > 0) {
-      // Rata-rata, lalu dibagi 100
-      latestPrice.value = Math.round(prices.reduce((a, b) => a + b, 0) / prices.length / 100);
+      latestPrice.value = Math.round(prices.reduce((a, b) => a + b, 0) / prices.length);
       apiStatus.value = 'ok';
     } else {
       latestPrice.value = 0;
@@ -257,14 +262,14 @@ const avgPrice = computed(() => {
   // Ambil hanya transaksi beli
   const buys = transactions.value.filter(t => t.type === 'beli' && t.total_price > 0 && t.denom > 0);
   if (buys.length === 0) return latestPrice.value || 0;
-  // sum(total_price) / sum(denom*100)
+  // sum(total_price) / sum(denom)
   const sumTotal = buys.reduce((s, t) => s + Number(t.total_price), 0);
-  const sumGram = buys.reduce((s, t) => s + (Number(t.denom) * Number(t.count) * 100), 0);
+  const sumGram = buys.reduce((s, t) => s + (Number(t.denom) * Number(t.count)), 0);
   return sumGram > 0 ? Math.round(sumTotal / sumGram) : 0;
 });
 
 const totalPorto = computed(() => 
-    numberWithCommas(latestPrice.value * totalGold.value * 100)
+    numberWithCommas(latestPrice.value * totalGold.value)
 );
 const avgPriceFormatted = computed(() => 
     numberWithCommas(avgPrice.value)
@@ -395,19 +400,11 @@ function drawLine() {
   }
 }
 
-watch(selectedBrand, async (val) => {
-  await fetchGoldPricesFromSupabase(val);
+watch([selectedBrand, selectedDenom], async ([brand, denom]) => {
+  await fetchGoldPricesFromSupabase(brand, denom);
   drawLine();
 });
 
-function isBackdate(dateStr) {
-  if (!dateStr) return false;
-  const today = new Date();
-  const input = new Date(dateStr);
-  today.setHours(0,0,0,0);
-  input.setHours(0,0,0,0);
-  return input < today;
-}
 
 function formatRupiah(value) {
   if (!value) return '';
