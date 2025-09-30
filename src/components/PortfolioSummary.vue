@@ -94,21 +94,28 @@ async function generateReport() {
     doc.line(14, 18, 196, 18); // garis horizontal tipis di bawah judul
     doc.setFont(undefined, 'normal');
     doc.setFontSize(11);
-    doc.text(`Nama: ${props.user.name || '-'}`, 14, 22); // lebih rapat
-    doc.text(`No HP: ${props.user.phone || '-'}`, 14, 27);
+    doc.text(`Nama: ${props.user.name || '-'}`, 14, 23); 
+    doc.text(`No HP: ${props.user.phone || '-'}`, 14, 28);
     // Tanggal Cetak di kanan
     const pageWidth = doc.internal.pageSize.getWidth();
+    // Format tanggal cetak dan tanggal harga jual per ke format 30 Sep 2025
+    const bulanPendek = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
     const tglCetak = new Date();
-    const bulan = tglCetak.toLocaleString('id-ID', { month: 'long' });
-    const tglStr = `${tglCetak.getDate()} ${bulan} ${tglCetak.getFullYear()}`;
-    doc.text(`Tanggal Cetak: ${tglStr}`, pageWidth - 14 - doc.getTextWidth(`Tanggal Cetak: ${tglStr}`), 22);
+    const tglCetakStr = `${tglCetak.getDate()} ${bulanPendek[tglCetak.getMonth()]} ${tglCetak.getFullYear()}`;
+    // Format tanggal harga jual per
+    let tglHargaJualStr = '-';
+    if (props.latestDate && /^\d{4}-\d{2}-\d{2}$/.test(props.latestDate)) {
+      const [y, m, d] = props.latestDate.split('-');
+      tglHargaJualStr = `${Number(d)} ${bulanPendek[Number(m)-1]} ${y}`;
+    }
+    doc.text(`Tanggal Cetak: ${tglCetakStr}`, pageWidth - 14 - doc.getTextWidth(`Tanggal Cetak: ${tglCetakStr}`), 23);
 
     // Section 1: Portofolio Summary
     doc.setFontSize(13);
     doc.text('Ringkasan Portofolio', 14, 36); // lebih rapat
     // Tambahkan info harga jual per di bawah Ringkasan Portofolio
     doc.setFontSize(9);
-    doc.text(`Dihitung berdasarkan harga jual per: ${props.latestDate || '-'}`, 14, 41);
+    doc.text(`Dihitung berdasarkan harga jual per: ${tglHargaJualStr}`, 14, 41);
     doc.setFontSize(13);
     autoTable(doc, {
       startY: 43,
@@ -133,7 +140,7 @@ async function generateReport() {
     const donutCanvas = document.getElementById('donutChart');
     if (donutCanvas) {
       const chartImg = await html2canvas(donutCanvas).then(canvas => canvas.toDataURL('image/png'));
-      doc.addImage(chartImg, 'PNG', 14, y, 80, 50);
+      doc.addImage(chartImg, 'PNG', 60, y, 100, 50);
       y += 54;
       // Tambahkan persentase komposisi emas horizontal di bawah grafik
       if (props.donutBrands && props.donutBrands.length) {
@@ -197,7 +204,20 @@ async function generateReport() {
       headStyles: { fillColor: [11, 107, 58] }
     });
 
-    doc.save('Laporan_Portofolio_Emas.pdf');
+    // Penamaan file: report_rortofolio_emas_{nohp}_{tgl}_seq.pdf
+    const nohp = props.user.phone ? props.user.phone.replace(/\D/g, '') : 'nohp';
+    const tgl = `${tglCetak.getDate().toString().padStart(2, '0')}${(tglCetak.getMonth()+1).toString().padStart(2, '0')}${tglCetak.getFullYear()}`;
+    let seq = '';
+    if (window && window.localStorage) {
+      const key = `pdf_seq_${tgl}`;
+      let n = Number(localStorage.getItem(key) || '0') + 1;
+      localStorage.setItem(key, n);
+      seq = n;
+    } else {
+      seq = Math.floor(Math.random()*1000);
+    }
+    const filename = `report_insight_${nohp}_${tgl}_${seq}.pdf`;
+    doc.save(filename);
   } finally {
     isLoading.value = false;
   }
