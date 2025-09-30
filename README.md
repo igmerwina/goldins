@@ -1,43 +1,47 @@
 # Gold Insight
 
-Gold Insight is a modern Vue 3 + Vuetify web application for managing and analyzing your Pegadaian gold portfolio. It features a dashboard, interactive charts, and local data storage.
+![Dashboard Screenshot](dist/assets/ss.jpeg)
 
-## Features
-- User login and local data persistence
-- Dashboard with total gold, portfolio value, average buy price, and potential profit
-- Chart.js visualizations for gold composition and price history
-- Add, view, and delete gold transactions
-- Responsive design for desktop and mobile
-- API integration for real-time gold prices (Pegadaian)
+Gold Insight adalah aplikasi web modern berbasis Vue 3 + Vuetify untuk mengelola dan menganalisis portofolio emas Pegadaian Anda. Fitur utama meliputi dashboard, grafik interaktif, dan integrasi database Supabase.
 
-## Getting Started
+## Fitur Utama
+- Login nasabah (nama & no HP, data tersimpan di Supabase)
+- Dashboard: total emas, nilai portofolio, rata-rata harga beli & jual, potensi profit
+- Komposisi emas per merk (donut chart) dan grafik harga emas historis (Chart.js)
+- Tambah, lihat, dan hapus transaksi emas
+- Harga beli/jual otomatis terisi dari database, bisa edit manual
+- Riwayat transaksi lengkap
+- Responsive & mobile friendly
+- Download laporan PDF portofolio (termasuk chart, komposisi, riwayat, otomatis nama file)
+- Feedback aplikasi via Google Form
+
+## Cara Memulai
 
 1. **Install dependencies:**
    ```sh
    npm install
    ```
-2. **Run the development server:**
+2. **Jalankan server pengembangan:**
    ```sh
    npm run dev
    ```
-3. **Open your browser:**
-   Visit [http://localhost:5173](http://localhost:5173)
+3. **Buka di browser:**
+   Kunjungi [http://localhost:5173](http://localhost:5173)
 
-## API Proxy (CORS Solution)
-If you deploy to Vercel, use the `/api/prices.js` serverless function to proxy Pegadaian API requests and bypass CORS restrictions.
+## Struktur Proyek
+- `src/` — Kode utama
+  - `App.vue` — Shell aplikasi utama
+  - `components/` — Komponen utama (Dashboard, PortfolioSummary, GoldComposition, dsb)
+  - `lib/` — Supabase client & utilitas
+  - `style.css` — Kustomisasi tampilan
+- `api/prices.js` — Proxy API Pegadaian (untuk deployment Vercel)
+- `vite.config.js` — Konfigurasi Vite
 
-## Project Structure
-- `src/` — Main source code
-  - `App.vue` — Main app shell
-  - `components/Dashboard.vue` — Dashboard logic and UI
-  - `main.js` — Vue and Vuetify setup
-  - `style.css` — Custom styles
-- `api/prices.js` — Vercel API proxy for Pegadaian
-- `vite.config.js` — Vite configuration
-
-## Notes
-- All user and transaction data is stored locally in your browser.
-- If Pegadaian API is blocked by CORS, use the provided proxy or deploy to Vercel.
+## Catatan
+- Semua data transaksi dan user tersimpan di Supabase (bukan hanya local browser)
+- Jika API Pegadaian terblokir CORS, gunakan proxy atau deploy ke Vercel
+- Laporan PDF otomatis menyertakan chart, komposisi, riwayat, dan nama file: `report_rortofolio_emas_{nohp}_{tgl}_{seq}.pdf`
+- Kompatibel desktop & mobile
 
 ---
-Made with Vue 3, Vuetify, Chart.js, and Vercel serverless functions.
+Dibuat dengan Vue 3, Vuetify, Chart.js, Supabase, dan Vercel serverless functions.
