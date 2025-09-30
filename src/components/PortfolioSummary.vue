@@ -35,9 +35,17 @@
             Rp {{ potentialProfitFormatted }}
           </div>
           <div class="text-caption text-medium-emphasis">({{ profitPercent }})</div>
-          <v-btn color="primary" variant="tonal" class="mt-2" @click="generateReport">
+          <v-btn color="primary" variant="tonal" class="mt-2" @click="generateReport" :disabled="isLoading">
             <v-icon start>mdi-file-pdf-box</v-icon>
-            Generate Report (PDF)
+            <v-progress-circular
+              v-if="isLoading"
+              indeterminate
+              color="white"
+              size="18"
+              class="mr-2"
+            />
+            <span v-if="!isLoading">Download Report</span>
+            <span v-else>Mengunduh...</span>
           </v-btn>
         </v-col>
       </v-row>
@@ -51,6 +59,7 @@
   </v-card>
 </template>
 <script setup>
+import { ref } from 'vue';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import html2canvas from 'html2canvas';
@@ -71,119 +80,126 @@ const props = defineProps({
   transactions: Array
 });
 
+const isLoading = ref(false);
+
 async function generateReport() {
-  const doc = new jsPDF();
-  // Title
-  doc.setFontSize(16);
-  doc.setFont(undefined, 'bold');
-  doc.text('Laporan Portofolio Emas', 14, 16);
-  doc.setLineWidth(0.6);
-  doc.line(14, 18, 196, 18); // garis horizontal tipis di bawah judul
-  doc.setFont(undefined, 'normal');
-  doc.setFontSize(11);
-  doc.text(`Nama: ${props.user.name || '-'}`, 14, 22); // lebih rapat
-  doc.text(`No HP: ${props.user.phone || '-'}`, 14, 27);
-  // Tanggal Cetak di kanan
-  const pageWidth = doc.internal.pageSize.getWidth();
-  const tglCetak = new Date();
-  const bulan = tglCetak.toLocaleString('id-ID', { month: 'long' });
-  const tglStr = `${tglCetak.getDate()} ${bulan} ${tglCetak.getFullYear()}`;
-  doc.text(`Tanggal Cetak: ${tglStr}`, pageWidth - 14 - doc.getTextWidth(`Tanggal Cetak: ${tglStr}`), 22);
+  isLoading.value = true;
+  try {
+    const doc = new jsPDF();
+    // Title
+    doc.setFontSize(16);
+    doc.setFont(undefined, 'bold');
+    doc.text('Laporan Portofolio Emas', 14, 16);
+    doc.setLineWidth(0.6);
+    doc.line(14, 18, 196, 18); // garis horizontal tipis di bawah judul
+    doc.setFont(undefined, 'normal');
+    doc.setFontSize(11);
+    doc.text(`Nama: ${props.user.name || '-'}`, 14, 22); // lebih rapat
+    doc.text(`No HP: ${props.user.phone || '-'}`, 14, 27);
+    // Tanggal Cetak di kanan
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const tglCetak = new Date();
+    const bulan = tglCetak.toLocaleString('id-ID', { month: 'long' });
+    const tglStr = `${tglCetak.getDate()} ${bulan} ${tglCetak.getFullYear()}`;
+    doc.text(`Tanggal Cetak: ${tglStr}`, pageWidth - 14 - doc.getTextWidth(`Tanggal Cetak: ${tglStr}`), 22);
 
-  // Section 1: Portofolio Summary
-  doc.setFontSize(13);
-  doc.text('Ringkasan Portofolio', 14, 36); // lebih rapat
-  // Tambahkan info harga jual per di bawah Ringkasan Portofolio
-  doc.setFontSize(9);
-  doc.text(`Dihitung berdasarkan harga jual per: ${props.latestDate || '-'}`, 14, 41);
-  doc.setFontSize(13);
-  autoTable(doc, {
-    startY: 43,
-    head: [['Total Emas', 'Senilai', 'Rata-rata Harga Jual', 'Rata-rata Harga Beli', 'Potensi Profit']],
-    body: [[
-      props.totalGold?.toFixed(2) + ' gr' || '-',
-      'Rp ' + props.totalPorto || '-',
-      'Rp ' + props.latestPriceFormatted || '-',
-      'Rp ' + props.avgPriceFormatted || '-',
-      `${props.potentialProfitFormatted || '-'} (${props.profitPercent || '-'})`
-    ]],
-    theme: 'grid',
-    styles: { fontSize: 10 }
-  });
+    // Section 1: Portofolio Summary
+    doc.setFontSize(13);
+    doc.text('Ringkasan Portofolio', 14, 36); // lebih rapat
+    // Tambahkan info harga jual per di bawah Ringkasan Portofolio
+    doc.setFontSize(9);
+    doc.text(`Dihitung berdasarkan harga jual per: ${props.latestDate || '-'}`, 14, 41);
+    doc.setFontSize(13);
+    autoTable(doc, {
+      startY: 43,
+      head: [['Total Emas', 'Senilai', 'Rata-rata Harga Jual', 'Rata-rata Harga Beli', 'Potensi Profit']],
+      body: [[
+        props.totalGold?.toFixed(2) + ' gr' || '-',
+        'Rp ' + props.totalPorto || '-',
+        'Rp ' + props.latestPriceFormatted || '-',
+        'Rp ' + props.avgPriceFormatted || '-',
+        `${props.potentialProfitFormatted || '-'} (${props.profitPercent || '-'})`
+      ]],
+      theme: 'grid',
+      styles: { fontSize: 10 }
+    });
 
-  // Section 2: Komposisi Emas (Donut Chart as Image + Data Table)
-  let y = doc.lastAutoTable ? doc.lastAutoTable.finalY + 9 : 60;
-  doc.setFontSize(13);
-  doc.text('Komposisi Emas', 12, y);
-  y += 4;
-  // Ambil canvas donut chart
-  const donutCanvas = document.getElementById('donutChart');
-  if (donutCanvas) {
-    const chartImg = await html2canvas(donutCanvas).then(canvas => canvas.toDataURL('image/png'));
-    doc.addImage(chartImg, 'PNG', 14, y, 80, 50);
-    y += 54;
-    // Tambahkan persentase komposisi emas horizontal di bawah grafik
-    if (props.donutBrands && props.donutBrands.length) {
-      const totalGram = props.donutBrands.reduce((sum, b) => sum + (props.donutData[b]?.gram || 0), 0);
-      doc.setFontSize(9);
-      let percentText = props.donutBrands.map(brand => {
-        const percent = totalGram ? ((props.donutData[brand]?.gram || 0) / totalGram * 100).toFixed(1) : '0.0';
-        return `${brand}: ${percent}%`;
-      }).join('   ');
-      const pageWidth = doc.internal.pageSize.getWidth();
-      const textWidth = doc.getTextWidth(percentText);
-      doc.text(percentText, (pageWidth - textWidth) / 2, y + 8);
+    // Section 2: Komposisi Emas (Donut Chart as Image + Data Table)
+    let y = doc.lastAutoTable ? doc.lastAutoTable.finalY + 9 : 60;
+    doc.setFontSize(10);
+    doc.text('Komposisi Emas', 14, y);
+    y += 4;
+    // Ambil canvas donut chart
+    const donutCanvas = document.getElementById('donutChart');
+    if (donutCanvas) {
+      const chartImg = await html2canvas(donutCanvas).then(canvas => canvas.toDataURL('image/png'));
+      doc.addImage(chartImg, 'PNG', 14, y, 80, 50);
+      y += 54;
+      // Tambahkan persentase komposisi emas horizontal di bawah grafik
+      if (props.donutBrands && props.donutBrands.length) {
+        const totalGram = props.donutBrands.reduce((sum, b) => sum + (props.donutData[b]?.gram || 0), 0);
+        doc.setFontSize(9);
+        let percentText = props.donutBrands.map(brand => {
+          const percent = totalGram ? ((props.donutData[brand]?.gram || 0) / totalGram * 100).toFixed(1) : '0.0';
+          return `${brand}: ${percent}%`;
+        }).join('   ');
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const textWidth = doc.getTextWidth(percentText);
+        doc.text(percentText, (pageWidth - textWidth) / 2, y + 8);
+        y += 14;
+      }
+    } else {
+      doc.text('(Chart tidak tersedia)', 14, y + 10);
       y += 14;
     }
-  } else {
-    doc.text('(Chart tidak tersedia)', 14, y + 10);
-    y += 14;
-  }
-  // Tambahkan tabel data komposisi emas
-  const komposisiRows = (props.donutBrands && props.donutBrands.length)
-    ? props.donutBrands.map(brand => [
-        brand,
-        props.donutData?.[brand]?.gram?.toFixed(2) + ' gr' || '-',
-        'Rp ' +  props.numberWithCommas?.(props.donutData?.[brand]?.nominal) || '-'
-      ])
-    : [['-', '-', '-']];
-  autoTable(doc, {
-    startY: y,
-    head: [['Brand', 'Gram', 'Senilai (Rp)']],
-    body: komposisiRows,
-    theme: 'grid',
-    styles: { fontSize: 10 }
-  });
-  y = doc.lastAutoTable ? doc.lastAutoTable.finalY + 8 : y + 30;
-
-  // Section 3: Riwayat Transaksi (ambil data dari TransactionHistory)
-  doc.setFontSize(13);
-  doc.text('Riwayat Transaksi', 14, y + 8);
-  y += 12;
-  // Ambil data dari props.transactions (harus sama dengan yang dilempar ke TransactionHistory)
-  let txs = [];
-  if (Array.isArray(props.transactions) && props.transactions.length) {
-    txs = props.transactions;
-  }
-  autoTable(doc, {
-    startY: y,
-    head: [['Tanggal', 'Jenis', 'Brand', 'Denom (gr)', 'Jumlah', 'Harga/gram', 'Total (Rp)']],
-    body: txs.length
-      ? txs.map(tx => [
-          tx.date || '-',
-          tx.type || '-',
-          tx.brand || '-',
-          tx.denom || '-',
-          tx.count || '-',
-          tx.price ? `Rp ${props.numberWithCommas?.(tx.price)}` : '-',
-          tx.total_price ? `Rp ${props.numberWithCommas?.(tx.total_price)}` : '-'
+    // Tambahkan tabel data komposisi emas
+    const komposisiRows = (props.donutBrands && props.donutBrands.length)
+      ? props.donutBrands.map(brand => [
+          brand,
+          props.donutData?.[brand]?.gram?.toFixed(2) + ' gr' || '-',
+          'Rp ' +  props.numberWithCommas?.(props.donutData?.[brand]?.nominal) || '-'
         ])
-      : [['-', '-', '-', '-', '-', '-', '-']],
-    theme: 'grid',
-    styles: { fontSize: 9 },
-    headStyles: { fillColor: [11, 107, 58] }
-  });
+      : [['-', '-', '-']];
+    autoTable(doc, {
+      startY: y,
+      head: [['Brand', 'Gram', 'Senilai (Rp)']],
+      body: komposisiRows,
+      theme: 'grid',
+      styles: { fontSize: 10 }
+    });
+    y = doc.lastAutoTable ? doc.lastAutoTable.finalY + 8 : y + 30;
 
-  doc.save('Laporan_Portofolio_Emas.pdf');
+    // Section 3: Riwayat Transaksi (ambil data dari TransactionHistory)
+    doc.setFontSize(13);
+    doc.text('Riwayat Transaksi', 14, y + 8);
+    y += 12;
+    // Ambil data dari props.transactions (harus sama dengan yang dilempar ke TransactionHistory)
+    let txs = [];
+    if (Array.isArray(props.transactions) && props.transactions.length) {
+      txs = props.transactions;
+    }
+    autoTable(doc, {
+      startY: y,
+      head: [['Tanggal', 'Jenis', 'Brand', 'Denom (gr)', 'Jumlah', 'Harga/gram', 'Total (Rp)']],
+      body: txs.length
+        ? txs.map(tx => [
+            tx.date || '-',
+            tx.type || '-',
+            tx.brand || '-',
+            tx.denom || '-',
+            tx.count || '-',
+            tx.price ? `Rp ${props.numberWithCommas?.(tx.price)}` : '-',
+            tx.total_price ? `Rp ${props.numberWithCommas?.(tx.total_price)}` : '-'
+          ])
+        : [['-', '-', '-', '-', '-', '-', '-']],
+      theme: 'grid',
+      styles: { fontSize: 9 },
+      headStyles: { fillColor: [11, 107, 58] }
+    });
+
+    doc.save('Laporan_Portofolio_Emas.pdf');
+  } finally {
+    isLoading.value = false;
+  }
 }
 </script>
