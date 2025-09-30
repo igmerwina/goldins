@@ -77,20 +77,28 @@ async function generateReport() {
   doc.setFontSize(16);
   doc.setFont(undefined, 'bold');
   doc.text('Laporan Portofolio Emas', 14, 16);
+  doc.setLineWidth(0.6);
+  doc.line(14, 18, 196, 18); // garis horizontal tipis di bawah judul
   doc.setFont(undefined, 'normal');
   doc.setFontSize(11);
-  doc.text(`Nama: ${props.user.name || '-'}`, 14, 24);
-  doc.text(`No HP: ${props.user.phone || '-'}`, 14, 30);
+  doc.text(`Nama: ${props.user.name || '-'}`, 14, 22); // lebih rapat
+  doc.text(`No HP: ${props.user.phone || '-'}`, 14, 27);
+  // Tanggal Cetak di kanan
+  const pageWidth = doc.internal.pageSize.getWidth();
   const tglCetak = new Date();
   const bulan = tglCetak.toLocaleString('id-ID', { month: 'long' });
   const tglStr = `${tglCetak.getDate()} ${bulan} ${tglCetak.getFullYear()}`;
-  doc.text(`Tanggal Cetak: ${tglStr}`, 14, 36);
+  doc.text(`Tanggal Cetak: ${tglStr}`, pageWidth - 14 - doc.getTextWidth(`Tanggal Cetak: ${tglStr}`), 22);
 
   // Section 1: Portofolio Summary
   doc.setFontSize(13);
-  doc.text('Ringkasan Portofolio', 14, 48);
+  doc.text('Ringkasan Portofolio', 14, 36); // lebih rapat
+  // Tambahkan info harga jual per di bawah Ringkasan Portofolio
+  doc.setFontSize(9);
+  doc.text(`Dihitung berdasarkan harga jual per: ${props.latestDate || '-'}`, 14, 41);
+  doc.setFontSize(13);
   autoTable(doc, {
-    startY: 52,
+    startY: 43,
     head: [['Total Emas', 'Senilai', 'Rata-rata Harga Jual', 'Rata-rata Harga Beli', 'Potensi Profit']],
     body: [[
       props.totalGold?.toFixed(2) + ' gr' || '-',
@@ -106,7 +114,7 @@ async function generateReport() {
   // Section 2: Komposisi Emas (Donut Chart as Image + Data Table)
   let y = doc.lastAutoTable ? doc.lastAutoTable.finalY + 9 : 60;
   doc.setFontSize(13);
-  doc.text('Komposisi Emas', 14, y);
+  doc.text('Komposisi Emas', 12, y);
   y += 4;
   // Ambil canvas donut chart
   const donutCanvas = document.getElementById('donutChart');
@@ -114,6 +122,19 @@ async function generateReport() {
     const chartImg = await html2canvas(donutCanvas).then(canvas => canvas.toDataURL('image/png'));
     doc.addImage(chartImg, 'PNG', 14, y, 80, 50);
     y += 54;
+    // Tambahkan persentase komposisi emas horizontal di bawah grafik
+    if (props.donutBrands && props.donutBrands.length) {
+      const totalGram = props.donutBrands.reduce((sum, b) => sum + (props.donutData[b]?.gram || 0), 0);
+      doc.setFontSize(9);
+      let percentText = props.donutBrands.map(brand => {
+        const percent = totalGram ? ((props.donutData[brand]?.gram || 0) / totalGram * 100).toFixed(1) : '0.0';
+        return `${brand}: ${percent}%`;
+      }).join('   ');
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const textWidth = doc.getTextWidth(percentText);
+      doc.text(percentText, (pageWidth - textWidth) / 2, y + 8);
+      y += 14;
+    }
   } else {
     doc.text('(Chart tidak tersedia)', 14, y + 10);
     y += 14;
