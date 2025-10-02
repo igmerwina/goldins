@@ -19,15 +19,17 @@
           <div class="text-h5 font-weight-black text-secondary">Rp {{ totalPorto }}</div>
         </v-col>
         <v-col cols="12" sm="3" class="text-sm-right py-1">
-            <div class="text-caption text-medium-emphasis">Rata-rata Harga Jual <br/>{{ latestDate }}</div>
+            <div class="text-caption text-medium-emphasis">Rata-rata harga jual(per gram)<br/>{{ latestDate }}</div>
             <div class="text-subtitle-1 font-weight-bold">Rp {{ latestPriceFormatted }}</div>
         </v-col>
       </v-row>
       <v-divider class="my-3"></v-divider>
       <v-row justify="space-between">
         <v-col cols="6" class="py-1">
-          <div class="text-caption text-medium-emphasis">Rata-rata Harga Beli /gram</div>
-          <div class="text-subtitle-1 font-weight-bold">Rp {{ avgPriceFormatted }}</div>
+          <div class="text-caption text-medium-emphasis">Total Emas yang dibeli</div>
+          <div class="text-subtitle-1 font-weight-bold">Rp {{ totalEmasDibeliFormatted }}</div>
+          <div class="text-caption text-medium-emphasis">Rata-rata harga beli(per gram)</div>
+          <div class="text-subtitle-1 font-weight-bold">Rp {{ avgHargaBeliFormatted }}</div>
         </v-col>
         <v-col cols="6" class="text-right py-1">
           <div class="text-caption text-medium-emphasis">Potensi Profit</div>
@@ -59,7 +61,7 @@
   </v-card>
 </template>
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import html2canvas from 'html2canvas';
@@ -81,6 +83,46 @@ const props = defineProps({
 });
 
 const isLoading = ref(false);
+
+// Hitung total pembelian emas (sum total_price dari transaksi 'beli')
+const totalEmasDibeli = computed(() => {
+  if (!props.transactions || !props.transactions.length) return 0;
+  return props.transactions
+    .filter(tx => tx.type === 'beli')
+    .reduce((sum, tx) => sum + (Number(tx.total_price) || 0), 0);
+});
+
+// Format totalEmasDibeli ke rupiah
+const totalEmasDibeliFormatted = computed(() => {
+  return props.numberWithCommas ? props.numberWithCommas(totalEmasDibeli.value) : totalEmasDibeli.value.toLocaleString('id-ID');
+});
+
+// Hitung rata-rata harga beli per 1 gram dari transaksi 'beli'
+const avgHargaBeli = computed(() => {
+  if (!props.transactions || !props.transactions.length) return 0;
+  const beli = props.transactions.filter(tx => tx.type === 'beli');
+  const totalPrice = beli.reduce((sum, tx) => sum + (Number(tx.total_price) || 0), 0);
+  const totalGram = beli.reduce((sum, tx) => sum + (Number(tx.denom) * Number(tx.count)), 0);
+  if (totalGram === 0) return 0;
+  return Math.round(totalPrice / totalGram);
+});
+const avgHargaBeliFormatted = computed(() => {
+  return props.numberWithCommas ? props.numberWithCommas(avgHargaBeli.value) : avgHargaBeli.value.toLocaleString('id-ID');
+});
+
+// Potensi profit = Senilai - Total Emas yang dibeli
+const potentialProfit = computed(() => {
+  const senilai = Number((props.totalPorto || '').replace(/[^\d]/g, ''));
+  return senilai - totalEmasDibeli.value;
+});
+const potentialProfitFormatted = computed(() => {
+  return props.numberWithCommas ? props.numberWithCommas(potentialProfit.value) : potentialProfit.value.toLocaleString('id-ID');
+});
+const profitPercent = computed(() => {
+  if (!totalEmasDibeli.value) return '-';
+  const percent = (potentialProfit.value / totalEmasDibeli.value) * 100;
+  return percent.toFixed(1) + '%';
+});
 
 async function generateReport() {
   isLoading.value = true;

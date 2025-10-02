@@ -54,7 +54,7 @@
           <v-col cols="12" sm="8" md="6">
             <v-text-field
               v-model="transaction.manualPrice"
-              :label="transaction.type === 'beli' ? 'Harga Beli Emas' : 'Harga Jual Emas'"
+              :label="transaction.type === 'beli' ? 'Harga Beli Emas (per gram)' : 'Harga Jual Emas (per gram)'"
               :placeholder="transaction.type === 'beli' ? 'Masukkan harga beli' : 'Masukkan harga jual'"
               :rules="[
                 v => !!v || 'Harga wajib diisi',
@@ -149,7 +149,10 @@ onMounted(() => {
   setDefaultManualPrice(props.transaction.date);
 });
 
-watch(() => [props.transaction.date, props.transaction.brand, props.transaction.type], ([date, brand, type]) => {
-  setDefaultManualPrice(date);
-});
+watch(
+  () => [props.transaction.date, props.transaction.brand, props.transaction.type, props.transaction.denom],
+  ([date, brand, type, denom]) => {
+    setDefaultManualPrice(date);
+  }
+);
 </script>
