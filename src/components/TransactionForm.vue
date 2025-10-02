@@ -149,7 +149,10 @@ onMounted(() => {
   setDefaultManualPrice(props.transaction.date);
 });
 
-watch(() => [props.transaction.date, props.transaction.brand, props.transaction.type], ([date, brand, type]) => {
-  setDefaultManualPrice(date);
-});
+watch(
+  () => [props.transaction.date, props.transaction.brand, props.transaction.type, props.transaction.denom],
+  ([date, brand, type, denom]) => {
+    setDefaultManualPrice(date);
+  }
+);
 </script>
