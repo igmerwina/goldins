@@ -155,7 +155,7 @@ async function addTransaction() {
   // Integrasi Supabase: simpan ke table transaction
   try {
     const price = Number(tx.manualPrice && tx.manualPrice.toString().replace(/[^\d]/g, '')) || 0;
-    const total_price = price * tx.count;
+    const total_price = price * tx.count * tx.denom;
     const { error } = await supabase.from('transactions').insert([
       {
         user_phone: props.user.phone,
