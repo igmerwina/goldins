@@ -16,11 +16,11 @@
           </v-icon>
         </template>
         <v-list-item-title class="font-weight-bold">
-          {{ tx.brand }} • {{ tx.type.toUpperCase() }}
-          <span class="text-caption font-weight-regular ml-2 text-medium-emphasis">{{ tx.date }}</span>
+          {{ tx.type.toUpperCase() }} • Rp {{ numberWithCommas(tx.total_price) }}
+          <span class="text-caption font-weight-regular ml-2 text-medium-emphasis">{{ formatDate(tx.date) }}</span>
         </v-list-item-title>
         <v-list-item-subtitle>
-          {{ tx.denom }} g × {{ tx.count }} keping
+          {{ tx.denom }} gr × {{ tx.count }} keping
         </v-list-item-subtitle>
         <template v-slot:append>
           <div class="text-right d-flex align-center" style="gap:6px;">
@@ -71,5 +71,17 @@ function doDelete() {
   }
   showConfirm.value = false;
   txToDelete = null;
+}
+// --- Computed Properties ---
+function numberWithCommas(x) { 
+    if(x == null || isNaN(x)) return '-'; 
+    return Math.round(x).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.'); 
+}
+function formatDate(dateStr) {
+  if (!dateStr) return '-';
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+  const d = new Date(dateStr);
+  if (isNaN(d)) return dateStr;
+  return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
 }
 </script>

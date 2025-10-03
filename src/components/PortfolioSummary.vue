@@ -19,7 +19,7 @@
           <div class="text-h5 font-weight-black text-secondary">Rp {{ totalPorto }}</div>
         </v-col>
         <v-col cols="12" sm="3" class="text-sm-right py-1">
-            <div class="text-caption text-medium-emphasis">Rata-rata harga jual(per gram)<br/>{{ latestDate }}</div>
+            <div class="text-caption text-medium-emphasis">Rata-rata harga jual(per gram)<br/>{{ formatDateIndo(latestDate) }}</div>
             <div class="text-subtitle-1 font-weight-bold">Rp {{ latestPriceFormatted }}</div>
         </v-col>
       </v-row>
@@ -189,6 +189,16 @@ const profitPercent = computed(() => {
   const percent = (potentialProfit.value / totalEmasDibeli.value) * 100;
   return percent.toFixed(1) + '%';
 });
+
+function formatDateIndo(dateStr) {
+  if (!dateStr) return '-';
+  // Support both yyyy-mm-dd and yyyy-mm-ddTHH:mm:ss
+  const match = dateStr.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (!match) return dateStr;
+  const [_, y, m, d] = match;
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+  return `${Number(d)} ${months[Number(m)-1]} ${y}`;
+}
 
 async function generateReport() {
   isLoading.value = true;
