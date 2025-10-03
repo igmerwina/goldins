@@ -27,7 +27,6 @@
           :transaction="transaction"
           :today="today"
           :addTransaction="addTransaction"
-          :isBackdate="isBackdate"
           :formatRupiah="formatRupiah"
           :unformatRupiah="unformatRupiah"
         />
@@ -63,7 +62,7 @@
 <script setup>
 import { ref, onMounted, computed, defineProps, watch } from 'vue';
 import axios from 'axios';
-import { Chart, DoughnutController, ArcElement, Tooltip, Legend, LineController, LineElement, PointElement, CategoryScale, LinearScale } from 'chart.js';
+import { Chart, DoughnutController, ArcElement, Tooltip, Legend, LineController, LineElement, PointElement, CategoryScale, LinearScale, Filler } from 'chart.js';
 import { supabase } from '../lib/SupabaseClient';
 
 import PortfolioSummary from './PortfolioSummary.vue';
@@ -73,7 +72,7 @@ import TransactionHistory from './TransactionHistory.vue';
 import GoldComposition from './GoldComposition.vue';
 import AppFeedback from './AppFeedback.vue';
 
-Chart.register(DoughnutController, ArcElement, Tooltip, Legend, LineController, LineElement, PointElement, CategoryScale, LinearScale);
+Chart.register(DoughnutController, ArcElement, Tooltip, Legend, LineController, LineElement, PointElement, CategoryScale, LinearScale, Filler);
 
 const props = defineProps({
   user: Object

@@ -99,12 +99,6 @@
           </v-btn>
         </v-col>
       </v-row>
-      <!-- Komposisi Emas sekarang benar-benar di dalam section portofolio emas -->
-      <GoldComposition
-        :donutBrands="donutBrands"
-        :donutData="donutData"
-        :numberWithCommas="numberWithCommas"
-      />
     </v-card-text>
   </v-card>
 </template>
