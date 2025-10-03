@@ -220,8 +220,7 @@ async function generateReport() {
 
     // Section 1: Portofolio Summary
     doc.setFontSize(13);
-    doc.text('Ringkasan Portofolio', 14, 36); // lebih rapat
-    // Tambahkan info harga jual per di bawah Ringkasan Portofolio
+    doc.text('Ringkasan Portofolio', 14, 38);
     doc.setFontSize(9);
     doc.text(`Dihitung berdasarkan harga jual per: ${tglHargaJualStr}`, 14, 41);
     doc.setFontSize(13);
@@ -233,7 +232,7 @@ async function generateReport() {
         'Rp ' + props.totalPorto || '-',
         'Rp ' + props.latestPriceFormatted || '-',
         'Rp ' + props.avgPriceFormatted || '-',
-        `${props.potentialProfitFormatted || '-'} (${props.profitPercent || '-'})`
+        'Rp ' + `${props.potentialProfitFormatted || '-'} (${props.profitPercent || '-'})`
       ]],
       theme: 'grid',
       styles: { fontSize: 10 }
@@ -295,13 +294,19 @@ async function generateReport() {
     }
     autoTable(doc, {
       startY: y,
-      head: [['Tanggal', 'Jenis', 'Brand', 'Denom (gr)', 'Jumlah', 'Harga/gram', 'Total (Rp)']],
+      head: [['Tanggal', 'Jenis', 'Merk', 'Denominasi', 'Jumlah', 'Harga (per gram)', 'Total']],
       body: txs.length
         ? txs.map(tx => [
-            tx.date || '-',
+            tx.date ? (() => {
+              const d = new Date(tx.date);
+              const day = d.getDate().toString().padStart(2, '0');
+              const month = (d.getMonth() + 1).toString().padStart(2, '0');
+              const year = d.getFullYear();
+              return `${day}-${month}-${year}`;
+            })() : '-',
             tx.type || '-',
             tx.brand || '-',
-            tx.denom || '-',
+            tx.denom + ' gr'|| '-',
             tx.count || '-',
             tx.price ? `Rp ${props.numberWithCommas?.(tx.price)}` : '-',
             tx.total_price ? `Rp ${props.numberWithCommas?.(tx.total_price)}` : '-'
