@@ -37,26 +37,68 @@
             Rp {{ potentialProfitFormatted }}
           </div>
           <div class="text-caption text-medium-emphasis">({{ profitPercent }})</div>
-          <v-btn color="primary" variant="tonal" class="mt-2" @click="generateReport" :disabled="isLoading">
-            <v-icon start>mdi-file-pdf-box</v-icon>
+          <v-tooltip
+            v-if="!canDownloadReport"
+            v-model="showTooltip"
+            location="bottom"
+            :color="'grey-lighten-2'"
+            :text="'Report bisa didownload setelah mengisi Form Feedback'"
+            :open-on-click="true"
+            :open-on-hover="true"
+            :arrow="true"
+          >
+            <template #activator="{ props }">
+              <v-btn
+                v-bind="props"
+                ref="downloadBtnRef"
+                color="primary"
+                variant="tonal"
+                class="mt-2"
+                @click="onDownloadClick"
+                :loading="isLoading || isEnabling"
+                :style="!canDownloadReport ? 'color:#bdbdbd;background:#f5f5f5;border:1px solid #e0e0e0;cursor:not-allowed;' : ''"
+              >
+                <v-icon start :color="!canDownloadReport ? 'grey' : 'primary'">mdi-file-pdf-box</v-icon>
+                <v-progress-circular
+                  v-if="isLoading || isEnabling"
+                  indeterminate
+                  color="white"
+                  size="18"
+                  class="mr-2"
+                />
+                <span :style="!canDownloadReport ? 'color:#bdbdbd' : ''">
+                  <template v-if="!isLoading && !isEnabling">Download Report</template>
+                  <template v-else-if="isEnabling">Tunggu 3 Detik</template>
+                  <template v-else>Downloading</template>
+                </span>
+              </v-btn>
+            </template>
+          </v-tooltip>
+          <v-btn
+            v-else
+            ref="downloadBtnRef"
+            color="primary"
+            variant="tonal"
+            class="mt-2"
+            @click="onDownloadClick"
+            :loading="isLoading || isEnabling"
+          >
+            <v-icon start color="primary">mdi-file-pdf-box</v-icon>
             <v-progress-circular
-              v-if="isLoading"
+              v-if="isLoading || isEnabling"
               indeterminate
               color="white"
               size="18"
               class="mr-2"
             />
-            <span v-if="!isLoading">Download Report</span>
-            <span v-else>Mengunduh...</span>
+            <span>
+              <template v-if="!isLoading && !isEnabling">Download Report</template>
+              <template v-else-if="isEnabling">Tunggu 3 Detik</template>
+              <template v-else>Downloading</template>
+            </span>
           </v-btn>
         </v-col>
       </v-row>
-      <!-- Komposisi Emas sekarang benar-benar di dalam section portofolio emas -->
-      <GoldComposition
-        :donutBrands="donutBrands"
-        :donutData="donutData"
-        :numberWithCommas="numberWithCommas"
-      />
     </v-card-text>
   </v-card>
 </template>
@@ -83,6 +125,30 @@ const props = defineProps({
 });
 
 const isLoading = ref(false);
+const canDownloadReport = ref(false);
+const isEnabling = ref(false);
+const showTooltip = ref(false);
+
+function onDownloadClick(e) {
+  if (!canDownloadReport.value) {
+    showTooltip.value = true;
+    setTimeout(() => { showTooltip.value = false; }, 2200);
+    return;
+  }
+  generateReport();
+}
+
+// Fungsi ini akan dipanggil dari parent (Dashboard) setelah feedback diklik
+function enableDownloadReportWithDelay() {
+  isEnabling.value = true;
+  setTimeout(() => {
+    canDownloadReport.value = true;
+    isEnabling.value = false;
+  }, 3000);
+}
+
+// Agar parent bisa memanggil fungsi ini via ref
+defineExpose({ enableDownloadReportWithDelay });
 
 // Hitung total pembelian emas (sum total_price dari transaksi 'beli')
 const totalEmasDibeli = computed(() => {

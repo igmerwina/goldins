@@ -6,7 +6,7 @@
         Kami sangat menghargai masukan Anda untuk pengembangan aplikasi ini.<br>
         Silakan isi form singkat berikut untuk memberikan saran, kritik, atau laporan bug.
       </div>
-      <v-btn color="primary" variant="flat" href="https://forms.gle/4QDPbSSaVjfqPBEV9" target="_blank" rel="noopener">
+      <v-btn color="primary" variant="flat" href="https://forms.gle/4QDPbSSaVjfqPBEV9" target="_blank" rel="noopener" @click="emitFeedback">
         <v-icon start>mdi-message-text</v-icon>
         Isi Feedback
       </v-btn>
@@ -14,5 +14,10 @@
   </v-card>
 </template>
 <script setup>
+import { defineEmits } from 'vue';
+const emit = defineEmits(['feedback-given']);
+function emitFeedback() {
+  emit('feedback-given');
+}
 // Komponen ini hanya menampilkan tombol feedback ke Google Form eksternal
-</script>
+</script> 

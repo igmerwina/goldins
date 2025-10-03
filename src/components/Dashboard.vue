@@ -3,6 +3,7 @@
     <v-row>
       <v-col cols="12" sm="12" md="10" lg="9" xl="8">
         <PortfolioSummary
+          ref="portfolioSummaryRef"
           :user="user"
           :totalGold="totalGold"
           :totalPorto="totalPorto"
@@ -26,7 +27,6 @@
           :transaction="transaction"
           :today="today"
           :addTransaction="addTransaction"
-          :isBackdate="isBackdate"
           :formatRupiah="formatRupiah"
           :unformatRupiah="unformatRupiah"
         />
@@ -43,7 +43,7 @@
           :transactions="transactions"
           :brandColor="brandColor"
         />
-        <AppFeedback />
+        <AppFeedback @feedback-given="onFeedbackGiven" />
       </v-col>
     </v-row>
     <!-- Alerts tetap di root -->
@@ -62,7 +62,7 @@
 <script setup>
 import { ref, onMounted, computed, defineProps, watch } from 'vue';
 import axios from 'axios';
-import { Chart, DoughnutController, ArcElement, Tooltip, Legend, LineController, LineElement, PointElement, CategoryScale, LinearScale } from 'chart.js';
+import { Chart, DoughnutController, ArcElement, Tooltip, Legend, LineController, LineElement, PointElement, CategoryScale, LinearScale, Filler } from 'chart.js';
 import { supabase } from '../lib/SupabaseClient';
 
 import PortfolioSummary from './PortfolioSummary.vue';
@@ -72,7 +72,7 @@ import TransactionHistory from './TransactionHistory.vue';
 import GoldComposition from './GoldComposition.vue';
 import AppFeedback from './AppFeedback.vue';
 
-Chart.register(DoughnutController, ArcElement, Tooltip, Legend, LineController, LineElement, PointElement, CategoryScale, LinearScale);
+Chart.register(DoughnutController, ArcElement, Tooltip, Legend, LineController, LineElement, PointElement, CategoryScale, LinearScale, Filler);
 
 const props = defineProps({
   user: Object
@@ -101,6 +101,8 @@ const selectedBrand = ref('Galeri24');
 const goldBrands = ref(['Galeri24', 'Antam', 'UBS']);
 const denomOptions = [0.5, 1, 2, 5, 10, 25, 50, 100];
 const selectedDenom = ref(1);
+
+const portfolioSummaryRef = ref(null);
 
 async function fetchGoldPricesFromSupabase(brand = 'Galeri24', denom = 1) {
   // Ambil 7 data terakhir untuk merk dan denominasi tertentu
@@ -414,6 +416,12 @@ function formatRupiah(value) {
 
 function unformatRupiah(value) {
   return value ? value.toString().replace(/[^\d]/g, '') : '';
+}
+
+function onFeedbackGiven() {
+  if (portfolioSummaryRef.value && portfolioSummaryRef.value.enableDownloadReportWithDelay) {
+    portfolioSummaryRef.value.enableDownloadReportWithDelay();
+  }
 }
 </script>
 
