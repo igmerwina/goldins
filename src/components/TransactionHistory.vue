@@ -23,18 +23,53 @@
           {{ tx.denom }} g × {{ tx.count }} keping
         </v-list-item-subtitle>
         <template v-slot:append>
-          <div class="text-right">
+          <div class="text-right d-flex align-center" style="gap:6px;">
             <div class="font-weight-black text-subtitle-1">{{ (tx.denom * tx.count).toFixed(2) }} gr</div>
             <v-chip size="small" :color="brandColor(tx.brand)" label>{{ tx.brand }}</v-chip>
+            <v-btn icon size="x-small" color="error" variant="text" @click.stop="confirmDelete(tx)">
+              <v-icon size="18">mdi-delete</v-icon>
+            </v-btn>
           </div>
         </template>
       </v-list-item>
     </v-list>
+    <template v-if="showDeleteNotif">
+      <v-alert type="success" class="mt-2 mb-0" border="start" elevation="6" prominent>
+        Data berhasil dihapus
+      </v-alert>
+    </template>
+    <v-dialog v-model="showConfirm" max-width="340">
+      <v-card>
+        <v-card-title class="text-h6 font-weight-bold">Yakin hapus transaksi ini?</v-card-title>
+        <v-card-actions class="justify-end">
+          <v-btn color="grey" variant="text" @click="showConfirm = false">Batal</v-btn>
+          <v-btn color="error" variant="flat" @click="doDelete">Hapus</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-card>
 </template>
 <script setup>
+import { ref } from 'vue';
 const props = defineProps({
   transactions: Array,
   brandColor: Function
 });
+const emit = defineEmits(['delete-transaction']);
+const showDeleteNotif = ref(false);
+const showConfirm = ref(false);
+let txToDelete = null;
+function confirmDelete(tx) {
+  txToDelete = tx;
+  showConfirm.value = true;
+}
+function doDelete() {
+  if (txToDelete) {
+    emit('delete-transaction', txToDelete);
+    showDeleteNotif.value = true;
+    setTimeout(() => { showDeleteNotif.value = false; }, 1500);
+  }
+  showConfirm.value = false;
+  txToDelete = null;
+}
 </script>

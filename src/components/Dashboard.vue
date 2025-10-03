@@ -42,6 +42,7 @@
         <TransactionHistory
           :transactions="transactions"
           :brandColor="brandColor"
+          @delete-transaction="deleteTransaction"
         />
         <AppFeedback @feedback-given="onFeedbackGiven" />
       </v-col>
@@ -189,6 +190,25 @@ async function addTransaction() {
 
   // Reset form dengan tanggal baru
   transaction.value = { date: new Date().toISOString().split('T')[0], type: 'beli', brand: 'Galeri24', denom: 1, count: 1 };
+}
+
+async function deleteTransaction(tx) {
+  // Hapus dari Supabase jika ada id unik di database
+  if (tx.id) {
+    try {
+      await supabase.from('transactions').delete().eq('id', tx.id);
+    } catch (e) {
+      // fallback: tetap hapus dari array meski gagal hapus di db
+    }
+  }
+  // Hapus dari array lokal
+  const idx = transactions.value.findIndex(t => t.id === tx.id);
+  if (idx !== -1) {
+    transactions.value.splice(idx, 1);
+  }
+  // Sinkronisasi ulang jika perlu
+  // await fetchTransactionsFromSupabase();
+  // Notifikasi sudah dihandle di child
 }
 
 function clearAll() { 
