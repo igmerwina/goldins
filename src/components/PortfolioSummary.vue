@@ -37,17 +37,18 @@
             Rp {{ potentialProfitFormatted }}
           </div>
           <div class="text-caption text-medium-emphasis">({{ profitPercent }})</div>
-          <v-btn color="primary" variant="tonal" class="mt-2" @click="generateReport" :disabled="isLoading">
+          <v-btn color="primary" variant="tonal" class="mt-2" @click="generateReport" :disabled="!canDownloadReport || isLoading || isEnabling">
             <v-icon start>mdi-file-pdf-box</v-icon>
             <v-progress-circular
-              v-if="isLoading"
+              v-if="isLoading || isEnabling"
               indeterminate
               color="white"
               size="18"
               class="mr-2"
             />
-            <span v-if="!isLoading">Download Report</span>
-            <span v-else>Mengunduh...</span>
+            <span v-if="!isLoading && !isEnabling">Download Report</span>
+            <span v-else-if="isEnabling">Tunggu 3 Detik</span>
+            <span v-else>Downloading</span>
           </v-btn>
         </v-col>
       </v-row>
@@ -83,6 +84,20 @@ const props = defineProps({
 });
 
 const isLoading = ref(false);
+const canDownloadReport = ref(false);
+const isEnabling = ref(false);
+
+// Fungsi ini akan dipanggil dari parent (Dashboard) setelah feedback diklik
+function enableDownloadReportWithDelay() {
+  isEnabling.value = true;
+  setTimeout(() => {
+    canDownloadReport.value = true;
+    isEnabling.value = false;
+  }, 3000);
+}
+
+// Agar parent bisa memanggil fungsi ini via ref
+defineExpose({ enableDownloadReportWithDelay });
 
 // Hitung total pembelian emas (sum total_price dari transaksi 'beli')
 const totalEmasDibeli = computed(() => {
