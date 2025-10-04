@@ -8,13 +8,15 @@
     <div :class="{ 'blur-bg': showLoader }">
       <v-app-bar app color="primary" flat>
         <div style="width:100vw;display:flex;justify-content:center;align-items:center;position:relative;">
-          <v-container class="d-flex align-center px-0" style="max-width:900px;width:100%;">
+          <v-container class="d-flex align-center px-0 header-container">
             <v-icon size="32" class="mr-2" color="secondary">mdi-treasure-chest</v-icon>
             <v-toolbar-title class="white--text">
-              <span class="font-weight-bold text-h6">Gold Insight by Pegadaian</span>
+              <span class="font-weight-bold text-h6 d-none d-sm-inline">Gold Insight by Pegadaian</span>
+              <span class="font-weight-bold text-h6 d-inline d-sm-none">Gold Insight</span>
               <p class="text-caption mt-n1 hidden-sm-and-down">Membantu mengelola aset emasmu dengan lebih mudah</p>
             </v-toolbar-title>
-            <v-btn v-if="hasUser" color="secondary" variant="flat" style="margin-left:auto;margin-right:22%;" @click="logout" prepend-icon="mdi-logout" class="logout-btn">
+            <v-spacer />
+            <v-btn v-if="hasUser" color="secondary" variant="flat" @click="logout" prepend-icon="mdi-logout" class="logout-btn">
               <span class="logout-text">Logout</span>
             </v-btn>
           </v-container>
@@ -208,5 +210,17 @@ function logout() {
 }
 .fade-loader-enter-to, .fade-loader-leave-from {
   opacity: 1;
+}
+
+.header-container {
+  max-width: 900px;
+  width: 100%;
+}
+@media (max-width: 600px) {
+  .header-container {
+    max-width: 100vw !important;
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+  }
 }
 </style>

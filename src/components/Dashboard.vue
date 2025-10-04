@@ -1,6 +1,6 @@
 <template>
   <v-container fluid>
-    <v-row>
+    <v-row justify="center">
       <v-col cols="12" sm="12" md="10" lg="9" xl="8">
         <PortfolioSummary
           ref="portfolioSummaryRef"
