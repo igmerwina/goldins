@@ -316,15 +316,21 @@ const profitPercent = computed(() => {
 
 const donutData = computed(() => {
   const result = {};
-  transactions.value
-    .filter(t => t.type === 'beli')
-    .forEach(t => {
-      const b = t.brand || 'Other';
-      if (!result[b]) result[b] = { gram: 0, nominal: 0 };
-      result[b].gram += Number(t.denom) * Number(t.count);
-      // Nominal = gram * harga terakhir (per gram) * 100
-      result[b].nominal += Number(t.denom) * Number(t.count) * latestPrice.value * 100;
-    });
+  transactions.value.forEach(t => {
+    const b = t.brand || 'Other';
+    if (!result[b]) result[b] = { gram: 0, nominal: 0 };
+    // Gram: akumulasi beli - jual
+    const gram = Number(t.denom) * Number(t.count) * (t.type === 'beli' ? 1 : -1);
+    result[b].gram += gram;
+    // Nominal: akumulasi total_price beli - jual
+    const nominal = Number(t.total_price) * (t.type === 'beli' ? 1 : -1);
+    result[b].nominal += nominal;
+  });
+  // Pastikan tidak negatif
+  Object.keys(result).forEach(b => {
+    result[b].gram = Math.max(result[b].gram, 0);
+    result[b].nominal = Math.max(result[b].nominal, 0);
+  });
   return result;
 });
 const donutBrands = computed(() => Object.keys(donutData.value));
