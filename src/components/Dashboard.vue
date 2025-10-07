@@ -147,6 +147,43 @@ async function addTransaction() {
     errorMsg.value = 'Harga Beli Emas wajib diisi!';
     return;
   }
+  // Validasi jual: cek saldo gram & keping seperti di TransactionForm.vue
+  if (transaction.value.type === 'jual') {
+    const brand = transaction.value.brand;
+    // Hitung saldo gram dan keping user untuk brand ini
+    let totalGram = 0;
+    let totalKeping = 0;
+    if (Array.isArray(transactions.value)) {
+      transactions.value.forEach(t => {
+        if (t.brand === brand && t.user_phone === props.user.phone) {
+          const gram = Number(t.denom) * Number(t.count);
+          if (t.type === 'beli') {
+            totalGram += gram;
+            totalKeping += Number(t.count);
+          } else if (t.type === 'jual') {
+            totalGram -= gram;
+            totalKeping -= Number(t.count);
+          }
+        }
+      });
+    }
+    // Validasi: apakah user punya keping emas merek ini
+    const hasAny = Array.isArray(transactions.value) && transactions.value.some(t => t.brand === brand && t.user_phone === props.user.phone && t.type === 'beli');
+    if (!hasAny) {
+      showError.value = true;
+      errorMsg.value = `Anda tidak punya keping emas merek ${brand}`;
+      setTimeout(() => { showError.value = false; }, 2000);
+      return;
+    }
+    const jualGram = Number(transaction.value.denom) * Number(transaction.value.count);
+    const jualKeping = Number(transaction.value.count);
+    if (totalGram < jualGram || totalKeping < jualKeping) {
+      showError.value = true;
+      errorMsg.value = `Jumlah jual melebihi saldo emas ${brand} Anda (${totalGram.toFixed(2)} gr, ${totalKeping} keping)`;
+      setTimeout(() => { showError.value = false; }, 2000);
+      return;
+    }
+  }
   const tx = { 
     ...transaction.value, 
     id: Date.now(),
