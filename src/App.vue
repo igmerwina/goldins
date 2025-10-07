@@ -6,7 +6,7 @@
       </div>
     </transition>
     <div :class="{ 'blur-bg': showLoader }">
-      <v-app-bar app color="primary" flat>
+      <v-app-bar app flat class="gradient-header">
         <div style="width:100vw;display:flex;justify-content:center;align-items:center;position:relative;">
           <v-container class="d-flex align-center px-0 header-container">
             <v-icon size="32" class="mr-2" color="secondary">mdi-treasure-chest</v-icon>
@@ -222,5 +222,11 @@ function logout() {
     padding-left: 8px !important;
     padding-right: 8px !important;
   }
+}
+
+.gradient-header {
+  background: linear-gradient(135deg, #41782b 0%, #6bb13f 100%) !important;
+  color: #fff !important;
+  border-bottom: none;
 }
 </style>
