@@ -1,7 +1,21 @@
 <template>
-  <v-container fluid>
+  <v-container fluid class="dashboard-container">
     <v-row justify="center">
-      <v-col cols="12" sm="12" md="10" lg="9" xl="8">
+      <v-col cols="12" sm="12" md="10" lg="9" xl="8" class="dashboard-content">
+        <!-- Welcome Banner Animation -->
+        <transition name="slide-fade">
+          <div v-if="showWelcomeBanner" class="welcome-banner">
+            <v-icon size="32" color="white" class="mr-3">mdi-hand-wave</v-icon>
+            <div>
+              <div class="text-h6 font-weight-bold">Selamat Datang, {{ user.name }}!</div>
+              <div class="text-caption">Kelola portofolio emas Anda dengan mudah</div>
+            </div>
+            <v-btn icon size="small" variant="text" color="white" @click="showWelcomeBanner = false" class="ml-auto">
+              <v-icon>mdi-close</v-icon>
+            </v-btn>
+          </div>
+        </transition>
+
         <PortfolioSummary
           ref="portfolioSummaryRef"
           :user="user"
@@ -45,6 +59,24 @@
           @delete-transaction="deleteTransaction"
         />
         <AppFeedback @feedback-given="onFeedbackGiven" />
+        
+        <!-- Back to Top Button -->
+        <transition name="scale-fade">
+          <v-btn
+            v-if="showBackToTop"
+            fab
+            fixed
+            bottom
+            right
+            color="#0B6B3A"
+            elevation="8"
+            size="large"
+            class="back-to-top-btn"
+            @click="scrollToTop"
+          >
+            <v-icon size="28" color="white">mdi-chevron-up</v-icon>
+          </v-btn>
+        </transition>
       </v-col>
     </v-row>
     <!-- Alerts tetap di root -->
@@ -61,7 +93,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, defineProps, watch } from 'vue';
+import { ref, onMounted, computed, defineProps, watch, nextTick } from 'vue';
 import axios from 'axios';
 import { Chart, DoughnutController, ArcElement, Tooltip, Legend, LineController, LineElement, PointElement, CategoryScale, LinearScale, Filler } from 'chart.js';
 import { supabase } from '../lib/SupabaseClient';
@@ -105,6 +137,9 @@ const selectedDenom = ref(1);
 
 const portfolioSummaryRef = ref(null);
 
+const showWelcomeBanner = ref(true);
+const showBackToTop = ref(false);
+
 async function fetchGoldPricesFromSupabase(brand = 'Galeri24', denom = 1) {
   // Ambil 7 data terakhir untuk merk dan denominasi tertentu
   const { data, error } = await supabase
@@ -138,6 +173,14 @@ onMounted(async () => {
       setTimeout(() => { showWelcome.value = false; }, 2000);
     }
   }
+  
+  // Handle scroll for back-to-top button
+  window.addEventListener('scroll', handleScroll);
+  
+  // Hide welcome banner after 5 seconds
+  setTimeout(() => {
+    showWelcomeBanner.value = false;
+  }, 5000);
 });
 
 // --- Data & Persistence Functions ---
@@ -486,6 +529,17 @@ function onFeedbackGiven() {
     portfolioSummaryRef.value.enableDownloadReportWithDelay();
   }
 }
+
+function handleScroll() {
+  showBackToTop.value = window.scrollY > 300;
+}
+
+function scrollToTop() {
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth'
+  });
+}
 </script>
 
 <style scoped>
@@ -509,5 +563,122 @@ function onFeedbackGiven() {
   10% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
   90% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
   100% { opacity: 0; transform: translate(-50%, -60%) scale(0.95); }
+}
+
+.dashboard-container {
+  padding: 16px 8px;
+  background: linear-gradient(180deg, #f8f9fa 0%, #ffffff 100%);
+  min-height: 100vh;
+}
+
+.dashboard-content {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.welcome-banner {
+  display: flex;
+  align-items: center;
+  padding: 20px 24px;
+  margin-bottom: 24px;
+  background: linear-gradient(135deg, #0B6B3A 0%, #1aa251 100%);
+  color: white;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(11, 107, 58, 0.25);
+  animation: slideDown 0.5s ease-out;
+}
+
+.back-to-top-btn {
+  position: fixed !important;
+  bottom: 24px !important;
+  right: 24px !important;
+  z-index: 999;
+  box-shadow: 0 8px 24px rgba(11, 107, 58, 0.35) !important;
+  transition: all 0.3s ease;
+}
+
+.back-to-top-btn:hover {
+  transform: translateY(-4px) scale(1.05);
+  box-shadow: 0 12px 32px rgba(11, 107, 58, 0.45) !important;
+}
+
+.back-to-top-btn:active {
+  transform: translateY(0) scale(0.95);
+}
+
+/* Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.slide-fade-enter-active {
+  transition: all 0.5s ease;
+}
+
+.slide-fade-leave-active {
+  transition: all 0.3s ease;
+}
+
+.slide-fade-enter-from {
+  opacity: 0;
+  transform: translateY(-20px);
+}
+
+.slide-fade-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+.scale-fade-enter-active {
+  transition: all 0.3s ease;
+}
+
+.scale-fade-leave-active {
+  transition: all 0.2s ease;
+}
+
+.scale-fade-enter-from {
+  opacity: 0;
+  transform: scale(0.8);
+}
+
+.scale-fade-leave-to {
+  opacity: 0;
+  transform: scale(0.8);
+}
+
+/* Mobile Optimizations */
+@media (max-width: 600px) {
+  .dashboard-container {
+    padding: 12px 4px;
+  }
+  
+  .welcome-banner {
+    padding: 16px 20px;
+    margin-bottom: 16px;
+    font-size: 0.9rem;
+  }
+  
+  .back-to-top-btn {
+    bottom: 16px !important;
+    right: 16px !important;
+  }
 }
 </style>
