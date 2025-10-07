@@ -106,28 +106,49 @@
   </v-card>
 </template>
 <script setup>
+import { ref, watch, onMounted, nextTick, computed } from 'vue';
+import { Chart, LineController, LineElement, PointElement, CategoryScale, LinearScale, Filler, Tooltip, Legend } from 'chart.js';
+import { supabase } from '../lib/SupabaseClient';
+
+Chart.register(LineController, LineElement, PointElement, CategoryScale, LinearScale, Filler, Tooltip, Legend);
+
 const props = defineProps({
-  selectedBrand: String,
   goldBrands: Array,
-  selectedDenom: Number,
-  denomOptions: Array,
-  priceHistory: Array
+  denomOptions: Array
 });
-defineEmits(['update:selectedBrand', 'update:selectedDenom']);
 
-// Get highest price from price history
+// State
+const selectedBrand = ref('Galeri24');
+const selectedDenom = ref(1);
+const goldPriceHistory = ref([]);
+let lineChartInstance = null;
+
+// Constants
+const BRAND_COLORS = { 
+  Galeri24: '#0B6B3A', 
+  Antam: '#C69C2F', 
+  UBS: '#6B6B6B' 
+};
+
+// Computed
+const priceHistory = computed(() => goldPriceHistory.value);
+
+// Helper Functions
+function numberWithCommas(x) { 
+  if (x == null || isNaN(x)) return '-'; 
+  return Math.round(x).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.'); 
+}
+
 function getHighestPrice() {
-  if (!props.priceHistory || props.priceHistory.length === 0) return 0;
-  return Math.max(...props.priceHistory.map(p => p.price_buyback || p.price_sell || 0));
+  if (!priceHistory.value || priceHistory.value.length === 0) return 0;
+  return Math.max(...priceHistory.value.map(p => p.price_buyback || p.price_sell || 0));
 }
 
-// Get lowest price from price history
 function getLowestPrice() {
-  if (!props.priceHistory || props.priceHistory.length === 0) return 0;
-  return Math.min(...props.priceHistory.map(p => p.price_buyback || p.price_sell || 0));
+  if (!priceHistory.value || priceHistory.value.length === 0) return 0;
+  return Math.min(...priceHistory.value.map(p => p.price_buyback || p.price_sell || 0));
 }
 
-// Format price to IDR
 function formatPrice(price) {
   return new Intl.NumberFormat('id-ID', {
     style: 'currency',
@@ -136,6 +157,93 @@ function formatPrice(price) {
     maximumFractionDigits: 0
   }).format(price);
 }
+
+// API Functions
+async function fetchGoldPricesFromSupabase(brand = 'Galeri24', denom = 1) {
+  const { data, error } = await supabase
+    .from('gold_prices')
+    .select('*')
+    .eq('brand', brand)
+    .eq('denom', denom)
+    .order('date', { ascending: false })
+    .limit(7);
+    
+  if (!error && data) {
+    goldPriceHistory.value = data.sort((a, b) => new Date(a.date) - new Date(b.date));
+  } else {
+    goldPriceHistory.value = [];
+  }
+}
+
+// Chart Drawing
+function drawLineChart() {
+  const ctx = document.getElementById('lineChart');
+  if (!ctx) return;
+  
+  const labels = goldPriceHistory.value.map(p => p.date);
+  const data = goldPriceHistory.value.map(p => p.price_buyback);
+  
+  const config = {
+    type: 'line',
+    data: {
+      labels: labels.length > 0 ? labels : ['-'],
+      datasets: [{
+        label: `Harga Jual /gram (Rp) - ${selectedBrand.value}`,
+        data: data.length > 0 ? data : [0],
+        borderColor: BRAND_COLORS[selectedBrand.value] || '#0B6B3A',
+        tension: 0,
+        pointRadius: 5,
+        fill: true,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { 
+          callbacks: { 
+            label: (context) => `Rp ${numberWithCommas(context.raw)}` 
+          } 
+        }
+      },
+      scales: {
+        y: { 
+          beginAtZero: false, 
+          ticks: { 
+            callback: (value) => `Rp ${numberWithCommas(value)}` 
+          } 
+        },
+        x: { reverse: false }
+      }
+    }
+  };
+  
+  if (lineChartInstance) {
+    lineChartInstance.data.labels = config.data.labels;
+    lineChartInstance.data.datasets[0].data = config.data.datasets[0].data;
+    lineChartInstance.data.datasets[0].borderColor = config.data.datasets[0].borderColor;
+    lineChartInstance.update();
+  } else {
+    lineChartInstance = new Chart(ctx, config);
+  }
+}
+
+// Lifecycle
+onMounted(async () => {
+  await fetchGoldPricesFromSupabase(selectedBrand.value, selectedDenom.value);
+  nextTick(() => {
+    drawLineChart();
+  });
+});
+
+// Watchers
+watch([selectedBrand, selectedDenom], async ([brand, denom]) => {
+  await fetchGoldPricesFromSupabase(brand, denom);
+  nextTick(() => {
+    drawLineChart();
+  });
+});
 </script>
 
 <style scoped>

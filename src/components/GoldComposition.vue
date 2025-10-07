@@ -70,28 +70,119 @@
   </v-card>
 </template>
 <script setup>
-import { computed } from 'vue';
+import { computed, watch, onMounted, nextTick } from 'vue';
+import { Chart, DoughnutController, ArcElement, Tooltip, Legend } from 'chart.js';
+import { useFormatters } from '../composables/useFormatters';
+import { useBrands } from '../composables/useBrands';
+
+Chart.register(DoughnutController, ArcElement, Tooltip, Legend);
 
 const props = defineProps({
-  donutBrands: Array,
-  donutData: Object,
-  numberWithCommas: Function
+  transactions: {
+    type: Array,
+    required: true
+  }
 });
 
+// Use composables
+const { numberWithCommas } = useFormatters();
+const { BRAND_CHART_COLORS, getBrandColor } = useBrands();
+
+let donutChartInstance = null;
+
+// Computed: Calculate donut data from transactions
+const donutData = computed(() => {
+  const result = {};
+  props.transactions.forEach(t => {
+    const b = t.brand || 'Other';
+    if (!result[b]) result[b] = { gram: 0, nominal: 0 };
+    
+    // Gram: accumulate buy - sell
+    const gram = Number(t.denom) * Number(t.count) * (t.type === 'beli' ? 1 : -1);
+    result[b].gram += gram;
+    
+    // Nominal: accumulate total_price buy - sell
+    const nominal = Number(t.total_price) * (t.type === 'beli' ? 1 : -1);
+    result[b].nominal += nominal;
+  });
+  
+  // Ensure no negative values
+  Object.keys(result).forEach(b => {
+    result[b].gram = Math.max(result[b].gram, 0);
+    result[b].nominal = Math.max(result[b].nominal, 0);
+  });
+  
+  return result;
+});
+
+const donutBrands = computed(() => Object.keys(donutData.value));
+
+// Helper Functions
 function getPercentage(brand) {
-  const totalGram = props.donutBrands.reduce((sum, b) => sum + (props.donutData[b]?.gram || 0), 0);
+  const totalGram = donutBrands.value.reduce((sum, b) => sum + (donutData.value[b]?.gram || 0), 0);
   if (totalGram === 0) return '0.0';
-  return ((props.donutData[brand]?.gram || 0) / totalGram * 100).toFixed(1);
+  return ((donutData.value[brand]?.gram || 0) / totalGram * 100).toFixed(1);
 }
 
-function getBrandColor(brand) {
-  const colors = {
-    'Galeri24': '#4CAF50',
-    'Antam': '#2196F3',
-    'UBS': '#FF9800'
+// Chart Drawing Function
+function drawDonutChart() {
+  const ctx = document.getElementById('donutChart');
+  if (!ctx) return;
+  
+  const groups = {};
+  props.transactions
+    .filter(t => t.type === 'beli') // Only count gold owned (beli)
+    .forEach(t => { 
+      const b = t.brand || 'Other'; 
+      groups[b] = (groups[b] || 0) + (Number(t.denom) * Number(t.count)); 
+    });
+    
+  const labels = Object.keys(groups);
+  const data = labels.map(l => groups[l]);
+  const colors = labels.map(l => BRAND_CHART_COLORS[l] || '#999');
+
+  const config = {
+    type: 'doughnut',
+    data: {
+      labels: labels.length > 0 ? labels : ['No Data'], 
+      datasets: [{ 
+        data: labels.length > 0 ? data : [1], 
+        backgroundColor: labels.length > 0 ? colors : ['#e6f6ec'] 
+      }] 
+    },
+    options: { 
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { 
+        legend: { 
+          position: 'right' 
+        } 
+      } 
+    }
   };
-  return colors[brand] || '#9E9E9E';
+
+  if (donutChartInstance) {
+    donutChartInstance.data.labels = config.data.labels;
+    donutChartInstance.data.datasets[0].data = config.data.datasets[0].data;
+    donutChartInstance.data.datasets[0].backgroundColor = config.data.datasets[0].backgroundColor;
+    donutChartInstance.update();
+  } else {
+    donutChartInstance = new Chart(ctx, config);
+  }
 }
+
+// Lifecycle & Watchers
+onMounted(() => {
+  nextTick(() => {
+    drawDonutChart();
+  });
+});
+
+watch(() => props.transactions, () => {
+  nextTick(() => {
+    drawDonutChart();
+  });
+}, { deep: true });
 </script>
 
 <style scoped>

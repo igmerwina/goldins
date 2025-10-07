@@ -59,18 +59,28 @@
 </template>
 <script setup>
 import { ref } from 'vue';
+import { useFormatters } from '../composables/useFormatters';
+import { useBrands } from '../composables/useBrands';
+
 const props = defineProps({
-  transactions: Array,
-  brandColor: Function
+  transactions: Array
 });
+
 const emit = defineEmits(['delete-transaction']);
+
 const showDeleteNotif = ref(false);
 const showConfirm = ref(false);
 let txToDelete = null;
+
+// Use composables
+const { numberWithCommas, formatDate } = useFormatters();
+const { getBrandColor: brandColor } = useBrands();
+
 function confirmDelete(tx) {
   txToDelete = tx;
   showConfirm.value = true;
 }
+
 function doDelete() {
   if (txToDelete) {
     emit('delete-transaction', txToDelete);
@@ -79,18 +89,6 @@ function doDelete() {
   }
   showConfirm.value = false;
   txToDelete = null;
-}
-// --- Computed Properties ---
-function numberWithCommas(x) { 
-    if(x == null || isNaN(x)) return '-'; 
-    return Math.round(x).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.'); 
-}
-function formatDate(dateStr) {
-  if (!dateStr) return '-';
-  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
-  const d = new Date(dateStr);
-  if (isNaN(d)) return dateStr;
-  return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
 }
 </script>
 
