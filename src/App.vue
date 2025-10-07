@@ -37,7 +37,6 @@
                     <v-icon size="48" color="#0B6B3A">mdi-shield-check</v-icon>
                   </div>
                   <v-card-title class="text-h4 font-weight-bold mb-2 px-0 login-title">Selamat Datang</v-card-title>
-                  <p class="text-body-1 mb-4 px-0 login-subtitle">Masukkan data Anda untuk memulai pengelolaan portofolio emas yang lebih baik</p>
                 </div>
 
                 <!-- Onboarding Carousel - Inside Card -->
@@ -77,6 +76,7 @@
                   </button>
                 </div>
                 
+                <p class="text-body-1 mb-4 px-0 login-subtitle">Masukkan data Anda untuk memulai pengelolaan portofolio emas yang lebih baik</p>
                 <div class="input-group">
                   <v-text-field
                     v-model="user.name"
