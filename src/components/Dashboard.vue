@@ -147,6 +147,43 @@ async function addTransaction() {
     errorMsg.value = 'Harga Beli Emas wajib diisi!';
     return;
   }
+  // Validasi jual: cek saldo gram & keping seperti di TransactionForm.vue
+  if (transaction.value.type === 'jual') {
+    const brand = transaction.value.brand;
+    // Hitung saldo gram dan keping user untuk brand ini
+    let totalGram = 0;
+    let totalKeping = 0;
+    if (Array.isArray(transactions.value)) {
+      transactions.value.forEach(t => {
+        if (t.brand === brand && t.user_phone === props.user.phone) {
+          const gram = Number(t.denom) * Number(t.count);
+          if (t.type === 'beli') {
+            totalGram += gram;
+            totalKeping += Number(t.count);
+          } else if (t.type === 'jual') {
+            totalGram -= gram;
+            totalKeping -= Number(t.count);
+          }
+        }
+      });
+    }
+    // Validasi: apakah user punya keping emas merek ini
+    const hasAny = Array.isArray(transactions.value) && transactions.value.some(t => t.brand === brand && t.user_phone === props.user.phone && t.type === 'beli');
+    if (!hasAny) {
+      showError.value = true;
+      errorMsg.value = `Anda tidak punya keping emas merek ${brand}`;
+      setTimeout(() => { showError.value = false; }, 2000);
+      return;
+    }
+    const jualGram = Number(transaction.value.denom) * Number(transaction.value.count);
+    const jualKeping = Number(transaction.value.count);
+    if (totalGram < jualGram || totalKeping < jualKeping) {
+      showError.value = true;
+      errorMsg.value = `Jumlah jual melebihi saldo emas ${brand} Anda (${totalGram.toFixed(2)} gr, ${totalKeping} keping)`;
+      setTimeout(() => { showError.value = false; }, 2000);
+      return;
+    }
+  }
   const tx = { 
     ...transaction.value, 
     id: Date.now(),
@@ -316,15 +353,21 @@ const profitPercent = computed(() => {
 
 const donutData = computed(() => {
   const result = {};
-  transactions.value
-    .filter(t => t.type === 'beli')
-    .forEach(t => {
-      const b = t.brand || 'Other';
-      if (!result[b]) result[b] = { gram: 0, nominal: 0 };
-      result[b].gram += Number(t.denom) * Number(t.count);
-      // Nominal = gram * harga terakhir (per gram) * 100
-      result[b].nominal += Number(t.denom) * Number(t.count) * latestPrice.value * 100;
-    });
+  transactions.value.forEach(t => {
+    const b = t.brand || 'Other';
+    if (!result[b]) result[b] = { gram: 0, nominal: 0 };
+    // Gram: akumulasi beli - jual
+    const gram = Number(t.denom) * Number(t.count) * (t.type === 'beli' ? 1 : -1);
+    result[b].gram += gram;
+    // Nominal: akumulasi total_price beli - jual
+    const nominal = Number(t.total_price) * (t.type === 'beli' ? 1 : -1);
+    result[b].nominal += nominal;
+  });
+  // Pastikan tidak negatif
+  Object.keys(result).forEach(b => {
+    result[b].gram = Math.max(result[b].gram, 0);
+    result[b].nominal = Math.max(result[b].nominal, 0);
+  });
   return result;
 });
 const donutBrands = computed(() => Object.keys(donutData.value));
