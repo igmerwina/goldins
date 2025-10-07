@@ -187,7 +187,7 @@ function enableDownloadReportWithDelay() {
 }
 
 // Agar parent bisa memanggil fungsi ini via ref
-defineExpose({ enableDownloadReportWithDelay });
+defineExpose({ enableDownloadReportWithDelay, generateReport });
 
 // Hitung total pembelian emas (sum total_price dari transaksi 'beli')
 const totalEmasDibeli = computed(() => {

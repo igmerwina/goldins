@@ -58,7 +58,10 @@
           :brandColor="brandColor"
           @delete-transaction="deleteTransaction"
         />
-        <AppFeedback @feedback-given="onFeedbackGiven" />
+        <AppFeedback 
+          @feedback-given="onFeedbackGiven" 
+          @download-report="onDownloadReport"
+        />
         
         <!-- Back to Top Button -->
         <transition name="scale-fade">
@@ -527,6 +530,13 @@ function unformatRupiah(value) {
 function onFeedbackGiven() {
   if (portfolioSummaryRef.value && portfolioSummaryRef.value.enableDownloadReportWithDelay) {
     portfolioSummaryRef.value.enableDownloadReportWithDelay();
+  }
+}
+
+function onDownloadReport() {
+  // Trigger download report dari PortfolioSummary
+  if (portfolioSummaryRef.value && portfolioSummaryRef.value.generateReport) {
+    portfolioSummaryRef.value.generateReport();
   }
 }
 
