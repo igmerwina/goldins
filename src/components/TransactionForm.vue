@@ -1,43 +1,74 @@
 <template>
-  <v-card class="mb-4 transaction-card" rounded="xl" elevation="0" style="background: #f8f9fa; border: 1px solid #e8e8e8;">
-    <v-card-title class="d-flex align-center px-4 py-4">
-      <div class="icon-container mr-3">
-        <v-icon size="28" color="white">mdi-swap-horizontal</v-icon>
+  <v-card class="mb-4 transaction-card" rounded="xl" elevation="8" style="background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%); border: 1px solid #e0e0e0; overflow: hidden;">
+    <div class="card-accent"></div>
+    <v-card-title class="d-flex align-center justify-space-between px-4 py-4">
+      <div class="d-flex align-center">
+        <div class="icon-container mr-3">
+          <v-icon size="28" color="white">mdi-swap-horizontal</v-icon>
+        </div>
+        <div>
+          <div class="text-h6 font-weight-bold" style="color: #2e2e2e;">Tambah Transaksi</div>
+          <div class="text-caption" style="color: #6b6b6b;">Catat pembelian atau penjualan emas</div>
+        </div>
       </div>
-      <div>
-        <div class="text-h6 font-weight-bold" style="color: #2e2e2e;">Tambah Transaksi</div>
-        <div class="text-caption" style="color: #6b6b6b;">Catat pembelian atau penjualan emas</div>
-      </div>
+      <v-chip 
+        :color="transaction.type === 'beli' ? '#4CAF50' : '#F44336'" 
+        size="small" 
+        variant="flat"
+        v-if="transaction.type"
+      >
+        <v-icon start size="16">{{ transaction.type === 'beli' ? 'mdi-arrow-up-circle' : 'mdi-arrow-down-circle' }}</v-icon>
+        {{ transaction.type.toUpperCase() }}
+      </v-chip>
     </v-card-title>
-    <v-divider></v-divider>
-    <v-card-text class="px-4 py-4">
-      <v-form @submit.prevent="wrappedAddTransaction">
+    <v-divider class="mx-4"></v-divider>
+    <v-card-text class="px-4 py-6">
+      <v-form @submit.prevent="wrappedAddTransaction" class="transaction-form">
         <v-row>
           <v-col cols="12" sm="6" md="3">
             <v-select
               v-model="transaction.type"
-              :items="['beli', 'jual']"
-              label="Jenis"
+              :items="[{title: 'Beli', value: 'beli'}, {title: 'Jual', value: 'jual'}]"
+              label="Jenis Transaksi"
               variant="outlined"
-            ></v-select>
+              color="#0B6B3A"
+              prepend-inner-icon="mdi-swap-horizontal"
+              class="custom-input"
+            >
+              <template v-slot:item="{ props, item }">
+                <v-list-item v-bind="props">
+                  <template v-slot:prepend>
+                    <v-icon :color="item.raw.value === 'beli' ? '#4CAF50' : '#F44336'">
+                      {{ item.raw.value === 'beli' ? 'mdi-arrow-up-circle' : 'mdi-arrow-down-circle' }}
+                    </v-icon>
+                  </template>
+                </v-list-item>
+              </template>
+            </v-select>
           </v-col>
           <v-col cols="12" sm="6" md="4">
             <v-select
               v-model="transaction.brand"
               :items="['Galeri24', 'Antam', 'UBS']"
-              label="Merk"
+              label="Merk Emas"
               variant="outlined"
+              color="#0B6B3A"
+              prepend-inner-icon="mdi-tag"
+              class="custom-input"
             ></v-select>
           </v-col>
           <v-col cols="12" sm="6" md="5">
             <v-text-field
               v-model="transaction.date"
-              label="Tanggal"
+              label="Tanggal Transaksi"
               type="date"
               variant="outlined"
+              color="#0B6B3A"
               required
               :min="'1900-01-01'"
               :max="today"
+              prepend-inner-icon="mdi-calendar"
+              class="custom-input"
             ></v-text-field>
           </v-col>
         </v-row>
@@ -46,8 +77,11 @@
             <v-select
               v-model.number="transaction.denom"
               :items="[0.1, 0.2, 0.5, 1, 2, 5, 10, 25, 50, 100]"
-              label="Denominasi (g)"
+              label="Denominasi (gram)"
               variant="outlined"
+              color="#0B6B3A"
+              prepend-inner-icon="mdi-weight-gram"
+              class="custom-input"
             ></v-select>
           </v-col>
           <v-col cols="12" sm="6" md="4">
@@ -57,14 +91,17 @@
               type="number"
               min="1"
               variant="outlined"
+              color="#0B6B3A"
               required
+              prepend-inner-icon="mdi-numeric"
+              class="custom-input"
             ></v-text-field>
           </v-col>
           <v-col cols="12" sm="8" md="6">
             <v-text-field
               v-model="transaction.manualPrice"
-              :label="transaction.type === 'beli' ? 'Harga Beli Emas (per gram)' : 'Harga Jual Emas (per gram)'"
-              :placeholder="transaction.type === 'beli' ? 'Masukkan harga beli' : 'Masukkan harga jual'"
+              :label="transaction.type === 'beli' ? 'Harga Beli per Gram' : 'Harga Jual per Gram'"
+              :placeholder="transaction.type === 'beli' ? 'Contoh: Rp 1.500.000' : 'Contoh: Rp 1.450.000'"
               :rules="[
                 v => !!v || 'Harga wajib diisi',
                 v => {
@@ -74,37 +111,60 @@
               ]"
               maxlength="20"
               clearable
-              prepend-inner-icon="mdi-cash"
+              prepend-inner-icon="mdi-cash-multiple"
               variant="outlined"
               type="text"
               inputmode="numeric"
+              color="#0B6B3A"
               :formatter="formatRupiah"
               :model-value="formatRupiah(transaction.manualPrice)"
               @update:model-value="val => transaction.manualPrice = unformatRupiah(val)"
+              class="custom-input"
             ></v-text-field>
           </v-col>
           <v-col cols="12" md="3" class="d-flex align-center">
-            <div class="text-subtitle-1 font-weight-bold">Total: {{ (transaction.denom * transaction.count).toFixed(2) }} gr</div>
+            <v-chip color="#0B6B3A" variant="tonal" class="total-chip">
+              <v-icon start size="18">mdi-scale-balance</v-icon>
+              <span class="font-weight-bold">{{ (transaction.denom * transaction.count).toFixed(2) }} gr</span>
+            </v-chip>
           </v-col>
         </v-row>
-        <v-card-actions class="justify-end px-0 mt-2">
+        
+        <!-- Transaction Summary -->
+        <v-alert v-if="transaction.denom && transaction.count && transaction.manualPrice" 
+          type="info" 
+          variant="tonal" 
+          class="mt-4 summary-alert"
+          rounded="lg"
+        >
+          <div class="d-flex align-items-center justify-space-between flex-wrap">
+            <div>
+              <strong>Total Transaksi:</strong> 
+              <span class="ml-2">{{ transaction.denom * transaction.count }} gram</span>
+            </div>
+            <div>
+              <strong>Total Harga:</strong>
+              <span class="text-h6 font-weight-bold ml-2" style="color: #0B6B3A;">
+                Rp {{ formatTotal() }}
+              </span>
+            </div>
+          </div>
+        </v-alert>
+        
+        <v-card-actions class="justify-end px-0 mt-4">
           <v-btn
-            color="primary"
-            variant="tonal"
+            color="#0B6B3A"
+            variant="flat"
             type="submit"
-            class="save-btn"
+            size="x-large"
+            rounded="xl"
+            elevation="2"
+            class="submit-btn"
             :disabled="!transaction.date || transaction.count < 1 || isLoading"
             :loading="isLoading"
           >
-            <v-icon start color="primary">mdi-content-save</v-icon>
-            <v-progress-circular
-              v-if="isLoading"
-              indeterminate
-              color="primary"
-              size="18"
-              class="mr-2"
-            />
-            <span>
+            <v-icon start size="22">{{ isLoading ? 'mdi-loading' : 'mdi-content-save' }}</v-icon>
+            <span class="btn-text">
               <template v-if="!isLoading">Simpan Transaksi</template>
               <template v-else>Menyimpan...</template>
             </span>
@@ -123,10 +183,19 @@ const props = defineProps({
   unformatRupiah: Function
 });
 
-import { ref, watch, onMounted } from 'vue';
+import { ref, watch, onMounted, computed } from 'vue';
 import { supabase } from '../lib/SupabaseClient';
 
 const isLoading = ref(false);
+
+function formatTotal() {
+  if (!props.transaction.denom || !props.transaction.count || !props.transaction.manualPrice) {
+    return '0';
+  }
+  const price = props.unformatRupiah(props.transaction.manualPrice);
+  const total = props.transaction.denom * props.transaction.count * price;
+  return total.toLocaleString('id-ID');
+}
 
 // Ganti addTransaction agar set isLoading true/false
 const originalAddTransaction = props.addTransaction;
@@ -173,11 +242,74 @@ watch(
 .transaction-card {
   animation: slideInUp 0.4s ease-out;
   transition: all 0.3s ease;
+  position: relative;
+  box-shadow: 0 4px 16px rgba(11, 107, 58, 0.08) !important;
 }
 
 .transaction-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(11, 107, 58, 0.15) !important;
+}
+
+.card-accent {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #0B6B3A 0%, #1aa251 50%, #4CAF50 100%);
+}
+
+.transaction-form {
+  animation: fadeIn 0.5s ease-out;
+}
+
+.custom-input {
+  transition: all 0.3s ease;
+}
+
+.custom-input:focus-within {
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(11, 107, 58, 0.12) !important;
+}
+
+.total-chip {
+  font-size: 1rem;
+  padding: 12px 16px;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.summary-alert {
+  animation: slideInUp 0.4s ease-out;
+  border-left: 4px solid #0B6B3A;
+}
+
+.submit-btn {
+  background: linear-gradient(135deg, #0B6B3A 0%, #1aa251 100%) !important;
+  color: white !important;
+  transition: all 0.3s ease;
+  text-transform: none !important;
+  letter-spacing: 0.5px;
+  font-weight: 600 !important;
+  min-width: 200px;
+}
+
+.submit-btn .btn-text {
+  font-size: 1.05rem;
+}
+
+.submit-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(11, 107, 58, 0.35) !important;
+  background: linear-gradient(135deg, #0d7d43 0%, #1eb758 100%) !important;
+}
+
+.submit-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .icon-container {

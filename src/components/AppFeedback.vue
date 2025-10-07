@@ -16,7 +16,7 @@
         href="https://forms.gle/4QDPbSSaVjfqPBEV9" 
         target="_blank" 
         rel="noopener" 
-        @click="emitFeedback"
+        @click="handleFeedbackClick"
         class="feedback-btn"
         rounded="pill"
         style="color: #B8860B; font-weight: 600; text-transform: none; min-width: 200px;"
@@ -24,16 +24,45 @@
         <v-icon start size="22">mdi-message-text</v-icon>
         Isi Feedback Sekarang
       </v-btn>
+      
+      <!-- Download Report Button - appears after feedback click -->
+      <transition name="slide-fade">
+        <v-btn 
+          v-if="showDownloadButton"
+          color="white" 
+          size="large"
+          variant="outlined"
+          @click="handleDownloadClick"
+          class="download-btn mt-4"
+          rounded="pill"
+          style="color: white; border-color: white; font-weight: 600; text-transform: none; min-width: 200px;"
+        >
+          <v-icon start size="20">mdi-download</v-icon>
+          Download Report PDF
+        </v-btn>
+      </transition>
     </v-card-text>
   </v-card>
 </template>
 <script setup>
-import { defineEmits } from 'vue';
-const emit = defineEmits(['feedback-given']);
-function emitFeedback() {
+import { ref, defineEmits } from 'vue';
+
+const emit = defineEmits(['feedback-given', 'download-report']);
+
+const showDownloadButton = ref(false);
+
+function handleFeedbackClick() {
+  // Show download button after 3 seconds
+  setTimeout(() => {
+    showDownloadButton.value = true;
+  }, 3000);
+  
   emit('feedback-given');
 }
-// Komponen ini hanya menampilkan tombol feedback ke Google Form eksternal
+
+function handleDownloadClick() {
+  emit('download-report');
+}
 </script>
 
 <style scoped>
@@ -92,6 +121,41 @@ function emitFeedback() {
   transform: translateY(0) scale(1);
 }
 
+.download-btn {
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 16px rgba(255, 255, 255, 0.2);
+}
+
+.download-btn:hover {
+  background: white !important;
+  color: #B8860B !important;
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 8px 24px rgba(255, 255, 255, 0.3) !important;
+}
+
+.download-btn:active {
+  transform: translateY(0) scale(1);
+}
+
+/* Transition for download button */
+.slide-fade-enter-active {
+  transition: all 0.5s ease-out;
+}
+
+.slide-fade-leave-active {
+  transition: all 0.3s ease-in;
+}
+
+.slide-fade-enter-from {
+  opacity: 0;
+  transform: translateY(-20px) scale(0.9);
+}
+
+.slide-fade-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
 @keyframes scaleIn {
   from {
     opacity: 0;
@@ -140,7 +204,8 @@ function emitFeedback() {
     font-size: 42px !important;
   }
   
-  .feedback-btn {
+  .feedback-btn,
+  .download-btn {
     min-width: 100%;
   }
 }
