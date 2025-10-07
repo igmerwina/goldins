@@ -109,11 +109,11 @@ function formatDate(dateStr) {
   width: 48px;
   height: 48px;
   border-radius: 12px;
-  background: linear-gradient(135deg, #42A5F5 0%, #1976D2 100%);
+  background: linear-gradient(135deg, #D4AF37 0%, #B8860B 100%);
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 12px rgba(66, 165, 245, 0.3);
+  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.4);
 }
 
 .transaction-item {

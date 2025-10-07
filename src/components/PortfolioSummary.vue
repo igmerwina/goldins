@@ -1,5 +1,5 @@
 <template>
-  <v-card class="mb-4 portfolio-card" rounded="xl" elevation="0" style="background: linear-gradient(135deg, #0B6B3A 0%, #1aa251 100%); color: white;">
+  <v-card class="mb-4 portfolio-card" rounded="xl" elevation="8" style="background: linear-gradient(135deg, #0B6B3A 0%, #1aa251 100%); color: white; box-shadow: 0 8px 24px rgba(11, 107, 58, 0.25);">
     <v-card-title class="d-flex justify-space-between align-center py-4 px-4">
       <div>
         <div class="text-caption" style="opacity: 0.9;">Halo, <strong style="font-size: 1.1em;">{{ user.name || user.phone }}</strong></div>
@@ -13,22 +13,25 @@
     <v-card-text class="px-4 py-4">
       <v-row align="center" justify="space-between" class="mb-3">
         <v-col cols="12" sm="4" class="py-2">
-          <div class="stat-card">
+          <div class="stat-card stat-card-1">
             <div class="text-caption mb-1" style="opacity: 0.7;">Total Emas Fisik</div>
             <div class="text-h4 font-weight-black">{{ totalGold.toFixed(2) }} gr</div>
             <v-icon class="stat-icon">mdi-gold</v-icon>
           </div>
         </v-col>
         <v-col cols="12" sm="4" class="py-2">
-          <div class="stat-card">
-            <div class="text-caption mb-1" style="opacity: 0.7;">Senilai Nominal</div>
-            <div class="text-h5 font-weight-black">Rp {{ totalPorto }}</div>
+          <div class="stat-card stat-card-2">
+            <div class="text-caption mb-1" style="opacity: 0.7;">Senilai Nominal (Rp)</div>
+            <div class="text-h5 font-weight-black">{{ totalPorto }}</div>
             <v-icon class="stat-icon">mdi-currency-usd</v-icon>
           </div>
         </v-col>
         <v-col cols="12" sm="4" class="text-sm-right py-2">
-          <div class="stat-card">
-            <div class="text-caption mb-1" style="opacity: 0.7;">Rata-rata harga jual (per gram)<br/>{{ formatDateIndo(latestDate) }}</div>
+          <div class="stat-card stat-card-3">
+            <div class="text-caption mb-1" style="opacity: 0.7; line-height: 1.3;">
+              Harga Jual/gram<br/>
+              <span style="font-size: 0.75rem; opacity: 0.8;">{{ formatDateIndo(latestDate) }}</span>
+            </div>
             <div class="text-subtitle-1 font-weight-bold">Rp {{ latestPriceFormatted }}</div>
             <v-icon class="stat-icon">mdi-trending-up</v-icon>
           </div>
@@ -48,9 +51,9 @@
         </v-col>
         <v-col cols="12" md="6" class="text-md-right py-2">
           <div class="profit-box">
-            <div class="text-caption mb-2" style="color: #6b6b6b;">Potensi Profit</div>
+            <div class="text-caption mb-2" style="color: #6b6b6b;">Potensi Profit (Rp)</div>
             <div :class="['text-h4 font-weight-black profit-amount', potentialProfit >= 0 ? 'profit-positive' : 'profit-negative']">
-              Rp {{ potentialProfitFormatted }}
+              {{ potentialProfitFormatted }}
             </div>
             <div class="text-body-1 mt-1 d-flex align-center justify-end" style="color: #2e2e2e;">
               <span>({{ profitPercent }})</span>
@@ -385,10 +388,15 @@ async function generateReport() {
 
 <style scoped>
 .portfolio-card {
-  animation: fadeInScale 0.5s ease-out;
+  animation: slideInLeft 0.5s ease-out;
   transition: all 0.3s ease;
   overflow: hidden;
   position: relative;
+}
+
+.portfolio-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(11, 107, 58, 0.35) !important;
 }
 
 .portfolio-card::before {
@@ -409,11 +417,26 @@ async function generateReport() {
   background: rgba(255, 255, 255, 0.15);
   backdrop-filter: blur(10px);
   transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  animation: fadeInScale 0.5s ease-out backwards;
+}
+
+.stat-card-1 {
+  animation-delay: 0.1s;
+}
+
+.stat-card-2 {
+  animation-delay: 0.2s;
+}
+
+.stat-card-3 {
+  animation-delay: 0.3s;
 }
 
 .stat-card:hover {
   background: rgba(255, 255, 255, 0.25);
-  transform: translateY(-2px);
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
 }
 
 .stat-icon {
@@ -426,6 +449,11 @@ async function generateReport() {
 
 .info-box {
   padding: 8px 0;
+  transition: all 0.3s ease;
+}
+
+.info-box:hover {
+  transform: translateX(5px);
 }
 
 .profit-box {
@@ -435,6 +463,14 @@ async function generateReport() {
   background: #ffffff;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
   border: 2px solid rgba(255, 255, 255, 0.3);
+  transition: all 0.3s ease;
+  animation: fadeInUp 0.6s ease-out 0.2s backwards;
+}
+
+.profit-box:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 8px 24px rgba(11, 107, 58, 0.2);
+  opacity: 1;
 }
 
 .profit-amount {
@@ -475,6 +511,28 @@ async function generateReport() {
   }
   50% {
     transform: translateY(-3px);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
