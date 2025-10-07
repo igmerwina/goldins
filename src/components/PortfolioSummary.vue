@@ -197,9 +197,18 @@ const totalEmasDibeli = computed(() => {
     .reduce((sum, tx) => sum + (Number(tx.total_price) || 0), 0);
 });
 
+const totalEmasDijual = computed(() => {
+  if (!props.transactions || !props.transactions.length) return 0;
+  return props.transactions
+    .filter(tx => tx.type === 'jual')
+    .reduce((sum, tx) => sum + (Number(tx.total_price) || 0), 0);
+});
+
+const totalEmasBeliFinal = computed(() => totalEmasDibeli.value - totalEmasDijual.value);
+
 // Format totalEmasDibeli ke rupiah
 const totalEmasDibeliFormatted = computed(() => {
-  return props.numberWithCommas ? props.numberWithCommas(totalEmasDibeli.value) : totalEmasDibeli.value.toLocaleString('id-ID');
+  return props.numberWithCommas ? props.numberWithCommas(totalEmasBeliFinal.value) : totalEmasBeliFinal.value.toLocaleString('id-ID');
 });
 
 // Hitung rata-rata harga beli per 1 gram dari transaksi 'beli'

@@ -288,9 +288,13 @@ async function saveUser() {
 
 function loadUser() {
   const raw = localStorage.getItem('pg_user');
+  console.log('App.vue: Loading user from localStorage:', raw);
   if (raw) {
     user.value = JSON.parse(raw);
     hasUser.value = true;
+    console.log('App.vue: User loaded:', user.value);
+  } else {
+    console.log('App.vue: No user in localStorage');
   }
 }
 
