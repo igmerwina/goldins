@@ -1,15 +1,23 @@
 <template>
-  <v-card class="mb-4 elevation-4" rounded="lg">
-    <v-card-title class="text-subtitle-1 d-flex justify-space-between align-center font-weight-bold">
-      Riwayat Transaksi
-      <span class="text-caption text-medium-emphasis">{{ transactions.length }} transaksi</span>
+  <v-card class="mb-4 history-card" rounded="xl" elevation="0" style="background: #f8f9fa; border: 1px solid #e8e8e8;">
+    <v-card-title class="d-flex justify-space-between align-center px-4 py-4">
+      <div class="d-flex align-center">
+        <div class="icon-container mr-3">
+          <v-icon size="28" color="white">mdi-history</v-icon>
+        </div>
+        <div>
+          <div class="text-h6 font-weight-bold" style="color: #2e2e2e;">Riwayat Transaksi</div>
+          <div class="text-caption" style="color: #6b6b6b;">{{ transactions.length }} transaksi tercatat</div>
+        </div>
+      </div>
     </v-card-title>
     <v-divider></v-divider>
-    <v-card-text v-if="transactions.length === 0" class="text-center text-medium-emphasis">
-      Tidak ada portofolio — tambahkan transaksi untuk melihat ringkasan.
+    <v-card-text v-if="transactions.length === 0" class="text-center py-8">
+      <v-icon size="64" color="grey-lighten-1" class="mb-4">mdi-clipboard-text-outline</v-icon>
+      <div class="text-body-1" style="color: #9e9e9e;">Tidak ada transaksi — tambahkan transaksi untuk melihat riwayat.</div>
     </v-card-text>
-    <v-list v-else dense>
-      <v-list-item v-for="tx in transactions" :key="tx.id" :class="tx.type === 'beli' ? 'bg-green-lighten-5' : 'bg-red-lighten-5'">
+    <v-list v-else class="pa-2" style="background: transparent;">
+      <v-list-item v-for="(tx, index) in transactions" :key="tx.id" class="transaction-item mb-2" :class="tx.type === 'beli' ? 'tx-buy' : 'tx-sell'" :style="{ animationDelay: `${index * 0.05}s` }">
         <template v-slot:prepend>
           <v-icon :color="tx.type === 'beli' ? 'primary' : 'error'">
             {{ tx.type === 'beli' ? 'mdi-arrow-up-circle-outline' : 'mdi-arrow-down-circle-outline' }}
@@ -85,3 +93,88 @@ function formatDate(dateStr) {
   return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
 }
 </script>
+
+<style scoped>
+.history-card {
+  animation: slideInLeft 0.6s ease-out;
+  transition: all 0.3s ease;
+}
+
+.history-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(11, 107, 58, 0.12) !important;
+}
+
+.icon-container {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #D4AF37 0%, #B8860B 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.4);
+}
+
+.transaction-item {
+  border-radius: 12px !important;
+  background: white;
+  border: 1px solid #e8e8e8;
+  margin-bottom: 8px;
+  padding: 12px 16px !important;
+  transition: all 0.3s ease;
+  animation: fadeInSlide 0.5s ease-out forwards;
+  opacity: 0;
+}
+
+.transaction-item:hover {
+  transform: translateX(4px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.tx-buy {
+  border-left: 4px solid #4CAF50;
+}
+
+.tx-buy:hover {
+  background: #f1f8f4;
+  border-left-width: 6px;
+}
+
+.tx-sell {
+  border-left: 4px solid #F44336;
+}
+
+.tx-sell:hover {
+  background: #fef5f5;
+  border-left-width: 6px;
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeInSlide {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 600px) {
+  .transaction-item {
+    padding: 10px 12px !important;
+  }
+}
+</style>

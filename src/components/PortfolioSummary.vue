@@ -1,42 +1,80 @@
 <template>
-  <v-card class="mb-4 elevation-4" rounded="lg">
-    <v-card-title class="text-h6 d-flex justify-space-between align-center py-3">
+  <v-card class="mb-4 portfolio-card" rounded="xl" elevation="8" style="background: linear-gradient(135deg, #0B6B3A 0%, #1aa251 100%); color: white; box-shadow: 0 8px 24px rgba(11, 107, 58, 0.25);">
+    <v-card-title class="d-flex justify-space-between align-center py-4 px-4">
       <div>
-        <div class="text-caption text-medium-emphasis">Halo, <strong>{{ user.name || user.phone }}</strong></div>
-        <div class="text-subtitle-1 font-weight-bold">Portofolio Emas</div>
+        <div class="text-caption" style="opacity: 0.9;">Halo, <strong style="font-size: 1.1em;">{{ user.name || user.phone }}</strong></div>
+        <div class="text-h5 font-weight-bold mt-1">Portofolio Emas</div>
       </div>
-      <v-chip color="secondary" label>No HP: {{ user.phone }}</v-chip>
+      <v-chip color="white" variant="flat" label style="color: #0B6B3A; font-weight: 600;">
+        <v-icon start size="18">mdi-phone</v-icon>
+        {{ user.phone }}
+      </v-chip>
     </v-card-title>
-    <v-divider></v-divider>
-    <v-card-text>
-      <v-row align="center" justify="space-between" class="mb-4">
-        <v-col cols="12" sm="4" class="py-1">
-          <div class="text-caption text-medium-emphasis">Total Emas Fisik</div>
-          <div class="text-h4 font-weight-black text-primary">{{ totalGold.toFixed(2) }} gr</div>
+    <v-card-text class="px-4 py-4">
+      <v-row align="center" justify="space-between" class="mb-3">
+        <v-col cols="12" sm="4" class="py-2">
+          <div class="stat-card stat-card-1">
+            <div class="text-caption mb-1" style="opacity: 0.7;">Total Emas Fisik</div>
+            <div class="text-h4 font-weight-black">{{ totalGold.toFixed(2) }} gr</div>
+            <v-icon class="stat-icon">mdi-gold</v-icon>
+          </div>
         </v-col>
-        <v-col cols="12" sm="5" class="py-1">
-          <div class="text-caption text-medium-emphasis">Senilai Nominal</div>
-          <div class="text-h5 font-weight-black text-secondary">Rp {{ totalPorto }}</div>
+        <v-col cols="12" sm="4" class="py-2">
+          <div class="stat-card stat-card-2">
+            <div class="text-caption mb-1" style="opacity: 0.7;">Senilai Nominal (Rp)</div>
+            <div class="text-h5 font-weight-black">{{ totalPorto }}</div>
+            <v-icon class="stat-icon">mdi-currency-usd</v-icon>
+          </div>
         </v-col>
-        <v-col cols="12" sm="3" class="text-sm-right py-1">
-            <div class="text-caption text-medium-emphasis">Rata-rata harga jual(per gram)<br/>{{ formatDateIndo(latestDate) }}</div>
+        <v-col cols="12" sm="4" class="text-sm-right py-2">
+          <div class="stat-card stat-card-3">
+            <div class="text-caption mb-1" style="opacity: 0.7; line-height: 1.3;">
+              Harga Jual/gram<br/>
+              <span style="font-size: 0.75rem; opacity: 0.8;">{{ formatDateIndo(latestDate) }}</span>
+            </div>
             <div class="text-subtitle-1 font-weight-bold">Rp {{ latestPriceFormatted }}</div>
+            <v-icon class="stat-icon">mdi-trending-up</v-icon>
+          </div>
         </v-col>
       </v-row>
-      <v-divider class="my-3"></v-divider>
-      <v-row justify="space-between">
-        <v-col cols="6" class="py-1">
-          <div class="text-caption text-medium-emphasis">Total Emas yang dibeli</div>
-          <div class="text-subtitle-1 font-weight-bold">Rp {{ totalEmasDibeliFormatted }}</div>
-          <div class="text-caption text-medium-emphasis">Rata-rata harga beli(per gram)</div>
-          <div class="text-subtitle-1 font-weight-bold">Rp {{ avgHargaBeliFormatted }}</div>
-        </v-col>
-        <v-col cols="6" class="text-right py-1">
-          <div class="text-caption text-medium-emphasis">Potensi Profit</div>
-          <div :class="['text-h6 font-weight-black', potentialProfit >= 0 ? 'text-success' : 'text-error']">
-            Rp {{ potentialProfitFormatted }}
+      <v-divider class="my-3" style="opacity: 0.3;"></v-divider>
+      <v-row justify="space-between" class="mt-2">
+        <v-col cols="12" md="6" class="py-2">
+          <div class="info-box mb-3">
+            <div class="text-caption mb-1" style="opacity: 0.8;">Total Emas yang dibeli</div>
+            <div class="text-h6 font-weight-bold">Rp {{ totalEmasDibeliFormatted }}</div>
           </div>
-          <div class="text-caption text-medium-emphasis">({{ profitPercent }})</div>
+          <div class="info-box mb-3">
+            <div class="text-caption mb-1" style="opacity: 0.8;">Rata-rata harga beli (per gram)</div>
+            <div class="text-h6 font-weight-bold">Rp {{ avgHargaBeliFormatted }}</div>
+          </div>
+        </v-col>
+        <v-col cols="12" md="6" class="text-md-right py-2">
+          <div class="profit-box">
+            <div class="text-caption mb-2" style="color: #6b6b6b;">Potensi Profit (Rp)</div>
+            <div :class="['text-h4 font-weight-black profit-amount', potentialProfit >= 0 ? 'profit-positive' : 'profit-negative']">
+              {{ potentialProfitFormatted }}
+            </div>
+            <div class="text-body-1 mt-1 d-flex align-center justify-end" style="color: #2e2e2e;">
+              <span>({{ profitPercent }})</span>
+              <v-icon 
+                v-if="potentialProfit >= 0" 
+                size="20" 
+                color="#0B6B3A" 
+                class="ml-1 profit-icon"
+              >
+                mdi-arrow-up
+              </v-icon>
+              <v-icon 
+                v-else 
+                size="20" 
+                color="#d32f2f" 
+                class="ml-1 profit-icon"
+              >
+                mdi-arrow-down
+              </v-icon>
+            </div>
+          </div>
           <v-tooltip
             v-if="!canDownloadReport"
             v-model="showTooltip"
@@ -51,22 +89,22 @@
               <v-btn
                 v-bind="props"
                 ref="downloadBtnRef"
-                color="primary"
-                variant="tonal"
-                class="mt-2"
+                color="white"
+                variant="flat"
+                class="mt-2 download-btn"
                 @click="onDownloadClick"
                 :loading="isLoading || isEnabling"
-                :style="!canDownloadReport ? 'color:#bdbdbd;background:#f5f5f5;border:1px solid #e0e0e0;cursor:not-allowed;' : ''"
+                :style="!canDownloadReport ? 'color:#bdbdbd;background:#f5f5f5;border:1px solid #e0e0e0;cursor:not-allowed;' : 'color:#0B6B3A;'"
               >
-                <v-icon start :color="!canDownloadReport ? 'grey' : 'primary'">mdi-file-pdf-box</v-icon>
+                <v-icon start :color="!canDownloadReport ? 'grey' : '#0B6B3A'">mdi-file-pdf-box</v-icon>
                 <v-progress-circular
                   v-if="isLoading || isEnabling"
                   indeterminate
-                  color="white"
+                  color="#0B6B3A"
                   size="18"
                   class="mr-2"
                 />
-                <span :style="!canDownloadReport ? 'color:#bdbdbd' : ''">
+                <span :style="!canDownloadReport ? 'color:#bdbdbd' : 'color:#0B6B3A;font-weight:600;'">
                   <template v-if="!isLoading && !isEnabling">Download Report</template>
                   <template v-else-if="isEnabling">Tunggu 3 Detik</template>
                   <template v-else>Downloading</template>
@@ -77,21 +115,22 @@
           <v-btn
             v-else
             ref="downloadBtnRef"
-            color="primary"
-            variant="tonal"
-            class="mt-2"
+            color="white"
+            variant="flat"
+            class="mt-2 download-btn"
             @click="onDownloadClick"
             :loading="isLoading || isEnabling"
+            style="color:#0B6B3A;"
           >
-            <v-icon start color="primary">mdi-file-pdf-box</v-icon>
+            <v-icon start color="#0B6B3A">mdi-file-pdf-box</v-icon>
             <v-progress-circular
               v-if="isLoading || isEnabling"
               indeterminate
-              color="white"
+              color="#0B6B3A"
               size="18"
               class="mr-2"
             />
-            <span>
+            <span style="color:#0B6B3A;font-weight:600;">
               <template v-if="!isLoading && !isEnabling">Download Report</template>
               <template v-else-if="isEnabling">Tunggu 3 Detik</template>
               <template v-else>Downloading</template>
@@ -346,3 +385,180 @@ async function generateReport() {
   }
 }
 </script>
+
+<style scoped>
+.portfolio-card {
+  animation: slideInLeft 0.5s ease-out;
+  transition: all 0.3s ease;
+  overflow: hidden;
+  position: relative;
+}
+
+.portfolio-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(11, 107, 58, 0.35) !important;
+}
+
+.portfolio-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 200px;
+  height: 200px;
+  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.stat-card {
+  position: relative;
+  padding: 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  animation: fadeInScale 0.5s ease-out backwards;
+}
+
+.stat-card-1 {
+  animation-delay: 0.1s;
+}
+
+.stat-card-2 {
+  animation-delay: 0.2s;
+}
+
+.stat-card-3 {
+  animation-delay: 0.3s;
+}
+
+.stat-card:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+.stat-icon {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  opacity: 0.2;
+  font-size: 32px !important;
+}
+
+.info-box {
+  padding: 8px 0;
+  transition: all 0.3s ease;
+}
+
+.info-box:hover {
+  transform: translateX(5px);
+}
+
+.profit-box {
+  padding: 20px;
+  border-radius: 16px;
+  opacity: 0.76;
+  background: #ffffff;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  transition: all 0.3s ease;
+  animation: fadeInUp 0.6s ease-out 0.2s backwards;
+}
+
+.profit-box:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 8px 24px rgba(11, 107, 58, 0.2);
+  opacity: 1;
+}
+
+.profit-amount {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.profit-positive {
+  color: #0B6B3A !important;
+  text-shadow: 0 2px 8px rgba(11, 107, 58, 0.2);
+}
+
+.profit-negative {
+  color: #d32f2f !important;
+  text-shadow: 0 2px 8px rgba(211, 47, 47, 0.2);
+}
+
+.profit-icon {
+  animation: bounce 1.5s ease-in-out infinite;
+}
+
+.download-btn {
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.download-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(11, 107, 58, 0.2) !important;
+}
+
+.download-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+}
+
+@media (max-width: 600px) {
+  .stat-card {
+    margin-bottom: 8px;
+  }
+}
+</style>
