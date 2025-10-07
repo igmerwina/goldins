@@ -433,7 +433,7 @@ function drawLine() {
         label: `Harga Jual /gram (Rp) - ${selectedBrand.value}`,
         data: data.length > 0 ? data : [0],
         borderColor: BRAND_COLORS[selectedBrand.value] || '#0B6B3A',
-        backgroundColor: BRAND_COLORS[selectedBrand.value] || '#0B6B3A',
+        // backgroundColor: BRAND_COLORS[selectedBrand.value] || '#0B6B3A',
         tension: 0,
         pointRadius: 5,
         fill: true,

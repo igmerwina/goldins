@@ -1,7 +1,16 @@
 <template>
-  <v-card class="mb-4 elevation-4" rounded="lg">
-    <v-card-title class="text-subtitle-1 font-weight-bold">Tambah Transaksi</v-card-title>
-    <v-card-text>
+  <v-card class="mb-4 transaction-card" rounded="xl" elevation="0" style="background: #f8f9fa; border: 1px solid #e8e8e8;">
+    <v-card-title class="d-flex align-center px-4 py-4">
+      <div class="icon-container mr-3">
+        <v-icon size="28" color="white">mdi-swap-horizontal</v-icon>
+      </div>
+      <div>
+        <div class="text-h6 font-weight-bold" style="color: #2e2e2e;">Tambah Transaksi</div>
+        <div class="text-caption" style="color: #6b6b6b;">Catat pembelian atau penjualan emas</div>
+      </div>
+    </v-card-title>
+    <v-divider></v-divider>
+    <v-card-text class="px-4 py-4">
       <v-form @submit.prevent="wrappedAddTransaction">
         <v-row>
           <v-col cols="12" sm="6" md="3">
@@ -78,24 +87,27 @@
             <div class="text-subtitle-1 font-weight-bold">Total: {{ (transaction.denom * transaction.count).toFixed(2) }} gr</div>
           </v-col>
         </v-row>
-        <v-card-actions class="justify-end px-0">
+        <v-card-actions class="justify-end px-0 mt-2">
           <v-btn
-            variant="tonal"
             color="primary"
+            variant="tonal"
             type="submit"
-            size="large"
+            class="save-btn"
             :disabled="!transaction.date || transaction.count < 1 || isLoading"
+            :loading="isLoading"
           >
-            <v-icon start>mdi-content-save</v-icon>
+            <v-icon start color="primary">mdi-content-save</v-icon>
             <v-progress-circular
               v-if="isLoading"
               indeterminate
-              color="white"
-              size="20"
+              color="primary"
+              size="18"
               class="mr-2"
             />
-            <span v-if="!isLoading">Simpan Transaksi</span>
-            <span v-else>Menyimpan...</span>
+            <span>
+              <template v-if="!isLoading">Simpan Transaksi</template>
+              <template v-else>Menyimpan...</template>
+            </span>
           </v-btn>
         </v-card-actions>
       </v-form>
@@ -156,3 +168,56 @@ watch(
   }
 );
 </script>
+
+<style scoped>
+.transaction-card {
+  animation: slideInUp 0.4s ease-out;
+  transition: all 0.3s ease;
+}
+
+.transaction-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(11, 107, 58, 0.12) !important;
+}
+
+.icon-container {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #0B6B3A 0%, #1aa251 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(11, 107, 58, 0.2);
+}
+
+.save-btn {
+  min-width: 180px;
+  transition: all 0.3s ease;
+}
+
+.save-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.save-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 600px) {
+  .save-btn {
+    min-width: 100%;
+  }
+}
+</style>

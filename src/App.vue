@@ -13,12 +13,15 @@
             <v-toolbar-title class="white--text">
               <span class="font-weight-bold text-h6 d-none d-sm-inline">Gold Insight by Pegadaian</span>
               <span class="font-weight-bold text-h6 d-inline d-sm-none">Gold Insight</span>
-              <p class="text-caption mt-n1 hidden-sm-and-down">Membantu mengelola aset emasmu dengan lebih mudah</p>
+              <p class="text-caption mt-n1 hidden-sm-and-down">Kelola portofolio emas Anda dengan lebih mudah</p>
             </v-toolbar-title>
             <v-spacer />
-            <v-btn v-if="hasUser" color="secondary" variant="flat" @click="logout" prepend-icon="mdi-logout" class="logout-btn">
-              <span class="logout-text">Logout</span>
-            </v-btn>
+            <transition name="fade-in-btn">
+              <v-btn v-if="hasUser" color="secondary" variant="flat" @click="logout" class="logout-btn">
+                <v-icon class="logout-icon">mdi-logout</v-icon>
+                <span class="logout-text">Logout</span>
+              </v-btn>
+            </transition>
           </v-container>
         </div>
       </v-app-bar>
@@ -27,12 +30,49 @@
         <v-container>
           <v-row justify="center">
             <v-col cols="12" sm="12" md="10" lg="9" xl="8">
-              <v-card v-if="!hasUser" class="pa-4 pa-sm-6 elevation-8" rounded="lg">
-                <v-card-title class="text-h5 font-weight-bold mb-4">Input Data Nasabah</v-card-title>
+              <!-- Onboarding Carousel - Separated -->
+              <div v-if="!hasUser" class="onboarding-carousel mb-4">
+                <button class="carousel-arrow left" @click="prevSlide" :disabled="currentSlide === 0">
+                  <v-icon color="white">mdi-chevron-left</v-icon>
+                </button>
+                
+                <div class="carousel-container">
+                  <div class="carousel-track" :style="{ transform: `translateX(-${currentSlide * 100}%)` }">
+                    <div class="carousel-slide">
+                      <img src="/src/assets/onboarding1.png" alt="Onboarding 1" class="carousel-img" />
+                    </div>
+                    <div class="carousel-slide">
+                      <img src="/src/assets/onboarding2.png" alt="Onboarding 2" class="carousel-img" />
+                    </div>
+                    <div class="carousel-slide">
+                      <img src="/src/assets/onboarding3.png" alt="Onboarding 3" class="carousel-img" />
+                    </div>
+                  </div>
+                  
+                  <!-- Dots Indicator -->
+                  <div class="carousel-dots">
+                    <span 
+                      v-for="n in 3" 
+                      :key="`dot-${n}`" 
+                      :class="['dot', { active: currentSlide === n - 1 }]"
+                      @click="goToSlide(n - 1)"
+                    ></span>
+                  </div>
+                </div>
+                
+                <button class="carousel-arrow right" @click="nextSlide" :disabled="currentSlide === 2">
+                  <v-icon color="white">mdi-chevron-right</v-icon>
+                </button>
+              </div>
+
+              <!-- Login Card - Separated -->
+              <v-card v-if="!hasUser" class="pa-4 pa-sm-6 onboarding-card login-card" rounded="xl" elevation="4" style="background: white; border: 1px solid #e8e8e8;">
+                <v-card-title class="text-h5 font-weight-bold mb-2 px-0" style="color: #2e2e2e;">Masuk Aplikasi</v-card-title>
+                <p class="text-body-2 mb-4 px-0" style="color: #6b6b6b;">Masukkan data Anda untuk memulai mengelola portofolio emas</p>
                 <v-text-field
                   v-model="user.name"
-                  label="Nama Nasabah"
-                  placeholder="Nama lengkap"
+                  label="Masukkan Nama Anda"
+                  placeholder="Masukkan Nama Anda"
                   :rules="[
                     v => !!v || 'Nama wajib diisi',
                     v => /^[a-zA-Z\s]*$/.test(v) || 'Nama hanya boleh huruf dan spasi'
@@ -45,8 +85,8 @@
                 
                 <v-text-field
                   v-model="user.phone"
-                  label="No HP (angka saja)"
-                  placeholder="08xxxxxxxx"
+                  label="Masukkan No HP Anda (angka saja)"
+                  placeholder="Masukkan No HP Anda"
                   :rules="[v => !!v || 'No HP wajib diisi', v => /^\d*$/.test(v) || 'Hanya angka yang diizinkan']"
                   :maxlength="13"
                   clearable
@@ -55,8 +95,19 @@
                   @input="filterPhone"
                 ></v-text-field>
                 
-                <v-card-actions class="justify-end px-0">
-                  <v-btn color="primary" size="large" @click="saveUser" :disabled="!user.name || !user.phone" block>
+                <v-card-actions class="justify-end px-0 mt-4">
+                  <v-btn 
+                    color="#0B6B3A" 
+                    size="x-large" 
+                    @click="saveUser" 
+                    :disabled="!user.name || !user.phone" 
+                    block
+                    rounded="pill"
+                    elevation="2"
+                    class="onboarding-btn"
+                    style="text-transform: none; font-weight: 600; letter-spacing: 0.5px;"
+                  >
+                    <v-icon start size="22">mdi-arrow-right-circle</v-icon>
                     Lanjut ke Dashboard
                   </v-btn>
                 </v-card-actions>
@@ -91,6 +142,7 @@ const showWelcome = ref(false);
 const errorMsg = ref('');
 const showError = ref(false);
 const showLoader = ref(true);
+const currentSlide = ref(0);
 
 onMounted(() => {
   setTimeout(() => {
@@ -98,6 +150,22 @@ onMounted(() => {
   }, 780); // Loader tampil 1.2 detik, bisa diubah sesuai kebutuhan
   loadUser();
 });
+
+function nextSlide() {
+  if (currentSlide.value < 2) {
+    currentSlide.value++;
+  }
+}
+
+function prevSlide() {
+  if (currentSlide.value > 0) {
+    currentSlide.value--;
+  }
+}
+
+function goToSlide(index) {
+  currentSlide.value = index;
+}
 
 function filterPhone() {
   user.value.phone = user.value.phone.replace(/[^0-9]/g, '');
@@ -159,20 +227,87 @@ function logout() {
 </script>
 
 <style scoped>
-/* No scoped styles needed as Vuetify handles most styling */
-.logout-btn .logout-text {
-  display: none;
-  opacity: 0;
-  transition: opacity 1.85s, margin-left 0.85s;
+.onboarding-card {
+  animation: cardFadeIn 0.6s ease-out;
 }
-.logout-btn:hover .logout-text {
-  display: inline;
-  margin-left: 8px;
-  opacity: 1;
-  transition: opacity 0.25s, margin-left 0.25s;
+
+.login-card {
+  max-width: 700px;
+  margin: 0 auto;
 }
-.logout-btn .v-btn__prepend {
+
+.onboarding-btn {
+  background: linear-gradient(135deg, #0B6B3A 0%, #1aa251 100%) !important;
+  color: white !important;
+  transition: all 0.3s ease;
+}
+
+.onboarding-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(11, 107, 58, 0.3) !important;
+}
+
+.onboarding-btn:active {
+  transform: translateY(0);
+}
+
+.logout-btn {
+  overflow: hidden;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.logout-btn .logout-icon {
+  transition: all 0.3s ease;
   margin-right: 0;
+}
+
+.logout-btn .logout-text {
+  max-width: 0;
+  opacity: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  transition: all 0.3s ease;
+  margin-left: 0;
+}
+
+.logout-btn:hover .logout-icon {
+  margin-right: 8px;
+}
+
+.logout-btn:hover .logout-text {
+  max-width: 100px;
+  opacity: 1;
+  margin-left: 0;
+}
+
+.logout-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+.logout-btn:active {
+  transform: translateY(0);
+}
+
+/* Fade in animation for button appearance */
+.fade-in-btn-enter-active {
+  animation: fadeInSlide 0.5s ease-out;
+}
+
+.fade-in-btn-leave-active {
+  animation: fadeInSlide 0.3s ease-in reverse;
+}
+
+@keyframes fadeInSlide {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 .loader-overlay {
@@ -225,8 +360,203 @@ function logout() {
 }
 
 .gradient-header {
-  background: linear-gradient(135deg, #41782b 0%, #6bb13f 100%) !important;
+  background: linear-gradient(135deg, #0B6B3A 30%, #1aa251 60%) !important;
   color: #fff !important;
   border-bottom: none;
+}
+
+.onboarding-carousel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 100%;
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 20px 0;
+  gap: 12px;
+  animation: fadeInDown 0.6s ease-out;
+}
+
+.carousel-container {
+  position: relative;
+  width: 100%;
+  max-width: 500px;
+  overflow: hidden;
+  border-radius: 24px;
+  box-shadow: 0 8px 32px rgba(11, 107, 58, 0.15);
+  background: white;
+}
+
+.carousel-track {
+  display: flex;
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.carousel-slide {
+  min-width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.carousel-img {
+  width: 100%;
+  height: auto;
+  max-height: 320px;
+  object-fit: contain;
+  display: block;
+  animation: slideInCarousel 0.5s ease-out;
+}
+
+.carousel-dots {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 10px;
+  z-index: 10;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 2px solid rgba(11, 107, 58, 0.3);
+}
+
+.dot:hover {
+  background: rgba(255, 255, 255, 0.8);
+  transform: scale(1.2);
+}
+
+.dot.active {
+  background: #0B6B3A;
+  border-color: #fff;
+  width: 28px;
+  border-radius: 5px;
+}
+
+.carousel-arrow {
+  background: linear-gradient(135deg, #0B6B3A 0%, #1aa251 100%);
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(11, 107, 58, 0.3);
+  transition: all 0.3s ease;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.carousel-arrow:hover:not(:disabled) {
+  background: linear-gradient(135deg, #1aa251 0%, #0B6B3A 100%);
+  transform: scale(1.1);
+  box-shadow: 0 6px 16px rgba(11, 107, 58, 0.4);
+}
+
+.carousel-arrow:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.carousel-arrow:disabled {
+  background: #e0e0e0;
+  cursor: not-allowed;
+  opacity: 0.5;
+  box-shadow: none;
+}
+
+@keyframes cardFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInCarousel {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@media (max-width: 960px) {
+  .carousel-img {
+    max-height: 260px;
+  }
+}
+
+@media (max-width: 600px) {
+  .carousel-container {
+    max-width: 100%;
+    border-radius: 16px;
+  }
+  
+  .carousel-img {
+    max-height: 200px;
+  }
+  
+  .carousel-arrow {
+    width: 36px;
+    height: 36px;
+  }
+  
+  .onboarding-carousel {
+    padding: 12px 0;
+    gap: 8px;
+  }
+  
+  .carousel-dots {
+    bottom: 12px;
+    gap: 8px;
+  }
+  
+  .dot {
+    width: 8px;
+    height: 8px;
+  }
+  
+  .dot.active {
+    width: 24px;
+  }
+}
+
+@media (max-width: 400px) {
+  .carousel-arrow {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .carousel-img {
+    max-height: 160px;
+  }
 }
 </style>
