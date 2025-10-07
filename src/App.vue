@@ -61,6 +61,7 @@
                     </div>
                     
                     <!-- Dots Indicator -->
+                    <br>
                     <div class="carousel-dots">
                       <span 
                         v-for="n in 3" 
@@ -168,9 +169,9 @@ let carouselInterval = null;
 
 const carouselSlides = [
   {
-    image: '/src/assets/onboarding1.png',
+    image: 'https://private-user-images.githubusercontent.com/8059548/498189584-77f9a1c0-eb0a-4c7a-8e41-e4dfd3e54689.png?jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3NTk4MjYwOTEsIm5iZiI6MTc1OTgyNTc5MSwicGF0aCI6Ii84MDU5NTQ4LzQ5ODE4OTU4NC03N2Y5YTFjMC1lYjBhLTRjN2EtOGU0MS1lNGRmZDNlNTQ2ODkucG5nP1gtQW16LUFsZ29yaXRobT1BV1M0LUhNQUMtU0hBMjU2JlgtQW16LUNyZWRlbnRpYWw9QUtJQVZDT0RZTFNBNTNQUUs0WkElMkYyMDI1MTAwNyUyRnVzLWVhc3QtMSUyRnMzJTJGYXdzNF9yZXF1ZXN0JlgtQW16LURhdGU9MjAyNTEwMDdUMDgyOTUxWiZYLUFtei1FeHBpcmVzPTMwMCZYLUFtei1TaWduYXR1cmU9MDRmNWM2Y2FlYWM3NTdmNDZhOGJkOWU0MTBmNWNiYzRkMTNmNmE0NDhkNGYwMTJiMzRlY2IyNmVkY2FmMDlmMSZYLUFtei1TaWduZWRIZWFkZXJzPWhvc3QifQ.QkhMC52IooQwaTuc4i0TvaFcW2-TCHwjHs7ifnRPE1w',
     title: 'Monitor Harga Emas',
-    description: 'Pantau pergerakan harga emas real-time setiap hari'
+    description: 'Pantau pergerakan harga emas'
   },
   {
     image: '/src/assets/onboarding2.png',
@@ -178,9 +179,9 @@ const carouselSlides = [
     description: 'Catat dan kelola investasi emas Anda dengan mudah'
   },
   {
-    image: '/src/assets/onboarding3.png',
+    image: 'https://private-user-images.githubusercontent.com/8059548/498189582-c4c2475f-ff36-4d7e-b11d-fabd6bea1877.png?jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3NTk4MjYwOTEsIm5iZiI6MTc1OTgyNTc5MSwicGF0aCI6Ii84MDU5NTQ4LzQ5ODE4OTU4Mi1jNGMyNDc1Zi1mZjM2LTRkN2UtYjExZC1mYWJkNmJlYTE4NzcucG5nP1gtQW16LUFsZ29yaXRobT1BV1M0LUhNQUMtU0hBMjU2JlgtQW16LUNyZWRlbnRpYWw9QUtJQVZDT0RZTFNBNTNQUUs0WkElMkYyMDI1MTAwNyUyRnVzLWVhc3QtMSUyRnMzJTJGYXdzNF9yZXF1ZXN0JlgtQW16LURhdGU9MjAyNTEwMDdUMDgyOTUxWiZYLUFtei1FeHBpcmVzPTMwMCZYLUFtei1TaWduYXR1cmU9MTZjYWRjYzIxMWVhZWY0OGRhMzgxMGI4YTY2ZmVkNmI3MDk3OGU1OWJkODc2M2Q2Mzc1MzVlOGZkYzY4ZjIzYSZYLUFtei1TaWduZWRIZWFkZXJzPWhvc3QifQ.ByQP1N1YD1PND8dshj42zd15TQ9Y87TfPp9e3Oe2wJ8',
     title: 'Analisis Keuntungan',
-    description: 'Lihat profit dan performance investasi Anda'
+    description: 'Lihat profit dan pergerakan investasi Anda'
   }
 ];
 
