@@ -260,8 +260,8 @@ async function generateReport() {
     doc.line(14, 18, 196, 18); // garis horizontal tipis di bawah judul
     doc.setFont(undefined, 'normal');
     doc.setFontSize(11);
-    doc.text(`Nama: ${props.user.name || '-'}`, 14, 23); 
-    doc.text(`No HP: ${props.user.phone || '-'}`, 14, 28);
+    doc.text(`Nama: ${props.user.name || '-'}`, 14, 24); 
+    doc.text(`No HP: ${props.user.phone || '-'}`, 14, 29);
     // Tanggal Cetak di kanan
     const pageWidth = doc.internal.pageSize.getWidth();
     // Format tanggal cetak dan tanggal harga jual per ke format 30 Sep 2025
@@ -280,10 +280,10 @@ async function generateReport() {
     doc.setFontSize(13);
     doc.text('Ringkasan Portofolio', 14, 38);
     doc.setFontSize(9);
-    doc.text(`Dihitung berdasarkan harga jual per: ${tglHargaJualStr}`, 14, 41);
+    doc.text(`Dihitung berdasarkan harga jual per: ${tglHargaJualStr}`, 14, 43);
     doc.setFontSize(13);
     autoTable(doc, {
-      startY: 43,
+      startY: 45,
       head: [['Total Emas', 'Senilai', 'Rata-rata Harga Jual', 'Rata-rata Harga Beli', 'Potensi Profit']],
       body: [[
         props.totalGold?.toFixed(2) + ' gr' || '-',
@@ -293,7 +293,8 @@ async function generateReport() {
         'Rp ' + `${props.potentialProfitFormatted || '-'} (${props.profitPercent || '-'})`
       ]],
       theme: 'grid',
-      styles: { fontSize: 10 }
+      styles: { fontSize: 10 },
+      headStyles: { fillColor: [11, 107, 58] }
     });
 
     // Section 2: Komposisi Emas (Donut Chart as Image + Data Table)
@@ -337,7 +338,8 @@ async function generateReport() {
       head: [['Brand', 'Gram', 'Senilai (Rp)']],
       body: komposisiRows,
       theme: 'grid',
-      styles: { fontSize: 10 }
+      styles: { fontSize: 10 },
+      headStyles: { fillColor: [11, 107, 58] }
     });
     y = doc.lastAutoTable ? doc.lastAutoTable.finalY + 8 : y + 30;
 
