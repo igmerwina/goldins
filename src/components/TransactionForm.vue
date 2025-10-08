@@ -49,12 +49,14 @@
           <v-col cols="12" sm="6" md="4">
             <v-select
               v-model="transaction.brand"
-              :items="['Galeri24', 'Antam', 'UBS']"
+              :items="brands"
               label="Merk Emas"
               variant="outlined"
               color="#0B6B3A"
               prepend-inner-icon="mdi-tag"
               class="custom-input"
+              :loading="isLoadingData"
+              :disabled="isLoadingData"
             ></v-select>
           </v-col>
           <v-col cols="12" sm="6" md="5">
@@ -76,12 +78,14 @@
           <v-col cols="12" sm="6" md="5">
             <v-select
               v-model.number="transaction.denom"
-              :items="[0.1, 0.2, 0.5, 1, 2, 5, 10, 25, 50, 100]"
+              :items="denominations"
               label="Denominasi (gram)"
               variant="outlined"
               color="#0B6B3A"
               prepend-inner-icon="mdi-weight-gram"
               class="custom-input"
+              :loading="isLoadingData"
+              :disabled="isLoadingData"
             ></v-select>
           </v-col>
           <v-col cols="12" sm="6" md="4">
@@ -187,6 +191,65 @@ import { ref, watch, onMounted, computed } from 'vue';
 import { supabase } from '../lib/SupabaseClient';
 
 const isLoading = ref(false);
+const brands = ref([]);
+const denominations = ref([]);
+const isLoadingData = ref(false);
+
+// Fetch brands from Supabase
+async function fetchBrands() {
+  isLoadingData.value = true;
+  try {
+    const { data, error } = await supabase
+      .from('brands')
+      .select('brand')
+      .order('brand', { ascending: true });
+    
+    if (error) {
+      console.error('Error fetching brands:', error);
+      // Fallback to default brands if table doesn't exist
+      brands.value = ['Galeri24', 'Antam', 'UBS'];
+    } else {
+      // Get unique brands using Set to remove duplicates
+      const uniqueBrands = [...new Set(data.map(b => b.brand))];
+      brands.value = uniqueBrands;
+    }
+  } catch (err) {
+    console.error('Exception fetching brands:', err);
+    // Fallback to default brands
+    brands.value = ['Galeri24', 'Antam', 'UBS'];
+  } finally {
+    isLoadingData.value = false;
+  }
+}
+
+// Fetch available denominations from gold_prices table
+async function fetchDenominations() {
+  try {
+    const { data, error } = await supabase
+      .from('gold_prices')
+      .select('denom')
+      .order('denom', { ascending: true });
+    
+    if (error) {
+      console.error('Error fetching denominations:', error);
+      // Fallback to default denominations
+      denominations.value = [0.1, 0.2, 0.5, 1, 2, 5, 10, 25, 50, 100];
+    } else {
+      // Get unique denominations
+      const uniqueDenoms = [...new Set(data.map(d => Number(d.denom)))];
+      denominations.value = uniqueDenoms.sort((a, b) => a - b);
+      
+      // If no data, use defaults
+      if (denominations.value.length === 0) {
+        denominations.value = [0.1, 0.2, 0.5, 1, 2, 5, 10, 25, 50, 100];
+      }
+    }
+  } catch (err) {
+    console.error('Exception fetching denominations:', err);
+    // Fallback to default denominations
+    denominations.value = [0.1, 0.2, 0.5, 1, 2, 5, 10, 25, 50, 100];
+  }
+}
 
 function formatTotal() {
   if (!props.transaction.denom || !props.transaction.count || !props.transaction.manualPrice) {
@@ -208,25 +271,48 @@ async function wrappedAddTransaction(...args) {
   }
 }
 
+// Fetch price based on brand, denom, date, and transaction type
 async function setDefaultManualPrice(dateStr) {
-  // Ambil harga default sesuai jenis transaksi
-  let price = '';
-  if (!dateStr) return;
-  const field = props.transaction.type === 'beli' ? 'price_buyback' : 'price_sell';
-  const { data, error } = await supabase
-    .from('gold_prices')
-    .select(`${field}, date`)
-    .eq('brand', props.transaction.brand || 'Galeri24')
-    .lte('date', dateStr)
-    .order('date', { ascending: false })
-    .limit(1);
-  if (!error && data && data.length > 0) {
-    price = data[0][field];
+  if (!dateStr || !props.transaction.brand || !props.transaction.denom) return;
+  
+  const field = props.transaction.type === 'beli' ? 'price_sell' : 'price_buyback'; ;
+  
+  try {
+    const { data, error } = await supabase
+      .from('gold_prices')
+      .select(`${field}, date`)
+      .eq('brand', props.transaction.brand)
+      .eq('denom', props.transaction.denom)
+      .lte('date', dateStr)
+      .order('date', { ascending: false })
+      .limit(1);
+    
+    if (error) {
+      console.error('Error fetching price:', error);
+      return;
+    }
+    
+    if (data && data.length > 0) {
+      const price = data[0][field];
+      if (price) {
+        props.transaction.manualPrice = price;
+      }
+    } else {
+      console.warn(`No price found for ${props.transaction.brand} ${props.transaction.denom}gr on ${dateStr}`);
+    }
+  } catch (err) {
+    console.error('Exception fetching price:', err);
   }
-  if (price) props.transaction.manualPrice = price;
 }
 
-onMounted(() => {
+onMounted(async () => {
+  // Fetch brands and denominations first
+  await Promise.all([
+    fetchBrands(),
+    fetchDenominations()
+  ]);
+  
+  // Then set default price
   setDefaultManualPrice(props.transaction.date);
 });
 

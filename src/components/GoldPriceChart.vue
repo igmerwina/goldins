@@ -32,13 +32,14 @@
             <span class="text-caption font-weight-bold" style="color: #2e2e2e;">Pilih Merk</span>
           </div>
           <v-select
-            :model-value="selectedBrand"
-            @update:model-value="$emit('update:selectedBrand', $event)"
+            v-model="selectedBrand"
             :items="goldBrands"
             variant="outlined"
             density="comfortable"
             hide-details
             class="custom-select"
+            :loading="isLoadingData"
+            :disabled="isLoadingData"
           >
             <template v-slot:prepend-inner>
               <v-icon color="#0B6B3A">mdi-briefcase</v-icon>
@@ -51,13 +52,14 @@
             <span class="text-caption font-weight-bold" style="color: #2e2e2e;">Pilih Denominasi (g)</span>
           </div>
           <v-select
-            :model-value="selectedDenom"
-            @update:model-value="$emit('update:selectedDenom', $event)"
+            v-model="selectedDenom"
             :items="denomOptions"
             variant="outlined"
             density="comfortable"
             hide-details
             class="custom-select"
+            :loading="isLoadingData"
+            :disabled="isLoadingData"
           >
             <template v-slot:prepend-inner>
               <v-icon color="#0B6B3A">mdi-scale-balance</v-icon>
@@ -112,15 +114,13 @@ import { supabase } from '../lib/SupabaseClient';
 
 Chart.register(LineController, LineElement, PointElement, CategoryScale, LinearScale, Filler, Tooltip, Legend);
 
-const props = defineProps({
-  goldBrands: Array,
-  denomOptions: Array
-});
-
 // State
 const selectedBrand = ref('Galeri24');
 const selectedDenom = ref(1);
 const goldPriceHistory = ref([]);
+const goldBrands = ref([]);
+const denomOptions = ref([]);
+const isLoadingData = ref(false);
 let lineChartInstance = null;
 
 // Constants
@@ -156,6 +156,69 @@ function formatPrice(price) {
     minimumFractionDigits: 0,
     maximumFractionDigits: 0
   }).format(price);
+}
+
+// Fetch brands from Supabase
+async function fetchBrands() {
+  isLoadingData.value = true;
+  try {
+    const { data, error } = await supabase
+      .from('brands')
+      .select('brand')
+      .order('brand', { ascending: true });
+    
+    if (error) {
+      console.error('Error fetching brands for chart:', error);
+      // Fallback to default brands
+      goldBrands.value = ['Galeri24', 'Antam', 'UBS'];
+    } else {
+      // Get unique brands
+      goldBrands.value = [...new Set(data.map(b => b.brand))];
+      
+      // Set default if available
+      if (goldBrands.value.length > 0 && !goldBrands.value.includes(selectedBrand.value)) {
+        selectedBrand.value = goldBrands.value[0];
+      }
+    }
+  } catch (err) {
+    console.error('Exception fetching brands for chart:', err);
+    goldBrands.value = ['Galeri24', 'Antam', 'UBS'];
+  } finally {
+    isLoadingData.value = false;
+  }
+}
+
+// Fetch denominations from gold_prices table
+async function fetchDenominations() {
+  try {
+    const { data, error } = await supabase
+      .from('gold_prices')
+      .select('denom')
+      .order('denom', { ascending: true });
+    
+    if (error) {
+      console.error('Error fetching denominations for chart:', error);
+      // Fallback to default denominations
+      denomOptions.value = [0.1, 0.2, 0.5, 1, 2, 5, 10, 25, 50, 100];
+    } else {
+      // Get unique denominations
+      const uniqueDenoms = [...new Set(data.map(d => Number(d.denom)))];
+      denomOptions.value = uniqueDenoms.sort((a, b) => a - b);
+      
+      // If no data, use defaults
+      if (denomOptions.value.length === 0) {
+        denomOptions.value = [0.1, 0.2, 0.5, 1, 2, 5, 10, 25, 50, 100];
+      }
+      
+      // Set default if available
+      if (denomOptions.value.length > 0 && !denomOptions.value.includes(selectedDenom.value)) {
+        selectedDenom.value = denomOptions.value[0];
+      }
+    }
+  } catch (err) {
+    console.error('Exception fetching denominations for chart:', err);
+    denomOptions.value = [0.1, 0.2, 0.5, 1, 2, 5, 10, 25, 50, 100];
+  }
 }
 
 // API Functions
@@ -231,7 +294,15 @@ function drawLineChart() {
 
 // Lifecycle
 onMounted(async () => {
+  // Fetch brands and denominations first
+  await Promise.all([
+    fetchBrands(),
+    fetchDenominations()
+  ]);
+  
+  // Then fetch price history
   await fetchGoldPricesFromSupabase(selectedBrand.value, selectedDenom.value);
+  
   nextTick(() => {
     drawLineChart();
   });
