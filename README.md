@@ -1,6 +1,10 @@
 # Gold Insight 🏆
 
-![Dashboard Screenshot](src/assets/ss_v2.png)
+<p align="center">
+  <img src="src/assets/ss_v2.png"/>
+</p>
+
+<!-- ![Dashboard Screenshot](src/assets/ss_v2.png) -->
 
 **Gold Insight** adalah aplikasi web modern berbasis **Vue 3** + **Vuetify** untuk mengelola dan menganalisis portofolio emas fisik. Dilengkapi dengan dashboard interaktif, grafik harian, dan integrasi ke  (supabase) untuk pengalaman pengelolaan investasi emas fisik.
 
