@@ -203,9 +203,9 @@ const portfolioSummaryRef = ref(null);
 // Collapsible sections state - all expanded by default
 const expandedSections = ref({
   composition: true,
-  form: true,
-  chart: true,
-  history: true
+  form: false,
+  chart: false,
+  history: false
 });
 
 // Transaction State
