@@ -194,6 +194,7 @@ const isLoading = ref(false);
 const brands = ref([]);
 const denominations = ref([]);
 const isLoadingData = ref(false);
+const DEFAULT_GRAM = 1
 
 // Fetch brands from Supabase
 async function fetchBrands() {
@@ -282,7 +283,7 @@ async function setDefaultManualPrice(dateStr) {
       .from('gold_prices')
       .select(`${field}, date`)
       .eq('brand', props.transaction.brand)
-      .eq('denom', props.transaction.denom)
+      .eq('denom', DEFAULT_GRAM)
       .lte('date', dateStr)
       .order('date', { ascending: false })
       .limit(1);

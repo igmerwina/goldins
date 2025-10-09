@@ -215,7 +215,8 @@ const totalEmasDibeliFormatted = computed(() => {
 const avgHargaBeli = computed(() => {
   if (!props.transactions || !props.transactions.length) return 0;
   const beli = props.transactions.filter(tx => tx.type === 'beli');
-  const totalPrice = beli.reduce((sum, tx) => sum + (Number(tx.total_price) || 0), 0);
+  if (beli.length === 0) return 0;
+  const totalPrice = beli.reduce((sum, tx) => sum + (Number(tx.price) || 0), 0);
   const totalGram = beli.reduce((sum, tx) => sum + (Number(tx.denom) * Number(tx.count)), 0);
   if (totalGram === 0) return 0;
   return Math.round(totalPrice / totalGram);
