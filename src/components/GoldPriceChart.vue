@@ -570,37 +570,103 @@ watch([selectedBrand, selectedDenom], async ([brand, denom]) => {
 }
 
 @media (max-width: 600px) {
+  .chart-card .v-card-title {
+    padding: 12px 16px !important;
+  }
+  
+  .chart-card .v-card-text {
+    padding: 16px 12px !important;
+  }
+  
+  .chart-card .text-h6 {
+    font-size: 1rem !important;
+  }
+  
+  .chart-card .text-caption {
+    font-size: 0.7rem !important;
+  }
+  
   .chart-card:hover {
     transform: translateY(-2px);
   }
   
   .icon-container {
-    width: 44px;
-    height: 44px;
+    width: 40px;
+    height: 40px;
+  }
+  
+  .filter-row .v-col {
+    padding: 4px 8px !important;
+  }
+  
+  .filter-label {
+    margin-bottom: 6px !important;
+  }
+  
+  .filter-label .text-caption {
+    font-size: 0.7rem !important;
+  }
+  
+  .custom-select {
+    font-size: 0.85rem;
   }
   
   .chart-wrapper {
-    padding: 16px;
+    padding: 12px;
+  }
+  
+  .chart-header {
+    margin-bottom: 12px !important;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .chart-info-chip {
+    font-size: 0.75rem;
+    height: 24px;
   }
   
   .chart-container-line {
-    height: 240px;
+    height: 200px;
   }
   
   .empty-state {
-    height: 240px;
+    height: 200px;
+  }
+  
+  .empty-state .v-icon {
+    font-size: 48px !important;
+  }
+  
+  .empty-state .text-h6 {
+    font-size: 0.9rem !important;
+  }
+  
+  .empty-state .text-body-2 {
+    font-size: 0.75rem !important;
   }
   
   .stats-group {
-    padding: 6px 12px;
+    padding: 6px 10px;
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .stat-item {
+    gap: 2px;
   }
   
   .stat-value {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
   }
   
   .stat-label {
-    font-size: 0.6rem;
+    font-size: 0.55rem;
+  }
+  
+  .pulse-chip {
+    font-size: 0.7rem !important;
+    height: 24px !important;
   }
 }
 </style>
