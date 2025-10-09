@@ -32,21 +32,104 @@
           :numberWithCommas="numberWithCommas"
           :transactions="transactions"
         />
-        <GoldComposition
-          :transactions="transactions"
-        />
-        <TransactionForm
-          :transaction="transaction"
-          :today="today"
-          :addTransaction="addTransaction"
-          :formatRupiah="formatRupiah"
-          :unformatRupiah="unformatRupiah"
-        />
-        <GoldPriceChart />
-        <TransactionHistory
-          :transactions="transactions"
-          @delete-transaction="deleteTransaction"
-        />
+        
+        <!-- Collapsible GoldComposition -->
+        <div class="collapsible-section">
+          <div class="section-header" @click="toggleSection('composition')">
+            <div class="section-title">
+              <v-icon size="24" color="#0B6B3A" class="mr-2">mdi-chart-donut</v-icon>
+              <span class="text-h6 font-weight-bold">Komposisi Emas</span>
+            </div>
+            <v-icon 
+              size="24" 
+              color="#0B6B3A" 
+              :class="['caret-icon', { 'caret-expanded': expandedSections.composition }]"
+            >
+              mdi-chevron-down
+            </v-icon>
+          </div>
+          <transition name="collapse">
+            <div v-show="expandedSections.composition" class="section-content">
+              <GoldComposition :transactions="transactions" />
+            </div>
+          </transition>
+        </div>
+
+        <!-- Collapsible TransactionForm -->
+        <div class="collapsible-section">
+          <div class="section-header" @click="toggleSection('form')">
+            <div class="section-title">
+              <v-icon size="24" color="#0B6B3A" class="mr-2">mdi-plus-circle</v-icon>
+              <span class="text-h6 font-weight-bold">Tambah Transaksi</span>
+            </div>
+            <v-icon 
+              size="24" 
+              color="#0B6B3A" 
+              :class="['caret-icon', { 'caret-expanded': expandedSections.form }]"
+            >
+              mdi-chevron-down
+            </v-icon>
+          </div>
+          <transition name="collapse">
+            <div v-show="expandedSections.form" class="section-content">
+              <TransactionForm
+                :transaction="transaction"
+                :today="today"
+                :addTransaction="addTransaction"
+                :formatRupiah="formatRupiah"
+                :unformatRupiah="unformatRupiah"
+              />
+            </div>
+          </transition>
+        </div>
+
+        <!-- Collapsible GoldPriceChart -->
+        <div class="collapsible-section">
+          <div class="section-header" @click="toggleSection('chart')">
+            <div class="section-title">
+              <v-icon size="24" color="#0B6B3A" class="mr-2">mdi-chart-line</v-icon>
+              <span class="text-h6 font-weight-bold">Grafik Harga Emas</span>
+            </div>
+            <v-icon 
+              size="24" 
+              color="#0B6B3A" 
+              :class="['caret-icon', { 'caret-expanded': expandedSections.chart }]"
+            >
+              mdi-chevron-down
+            </v-icon>
+          </div>
+          <transition name="collapse">
+            <div v-show="expandedSections.chart" class="section-content">
+              <GoldPriceChart />
+            </div>
+          </transition>
+        </div>
+
+        <!-- Collapsible TransactionHistory -->
+        <div class="collapsible-section">
+          <div class="section-header" @click="toggleSection('history')">
+            <div class="section-title">
+              <v-icon size="24" color="#0B6B3A" class="mr-2">mdi-history</v-icon>
+              <span class="text-h6 font-weight-bold">Riwayat Transaksi</span>
+            </div>
+            <v-icon 
+              size="24" 
+              color="#0B6B3A" 
+              :class="['caret-icon', { 'caret-expanded': expandedSections.history }]"
+            >
+              mdi-chevron-down
+            </v-icon>
+          </div>
+          <transition name="collapse">
+            <div v-show="expandedSections.history" class="section-content">
+              <TransactionHistory
+                :transactions="transactions"
+                @delete-transaction="deleteTransaction"
+              />
+            </div>
+          </transition>
+        </div>
+
         <AppFeedback 
           @feedback-given="onFeedbackGiven" 
           @download-report="onDownloadReport"
@@ -116,6 +199,14 @@ const showSuccess = ref(false);
 const showWelcomeBanner = ref(true);
 const showBackToTop = ref(false);
 const portfolioSummaryRef = ref(null);
+
+// Collapsible sections state - all expanded by default
+const expandedSections = ref({
+  composition: true,
+  form: true,
+  chart: true,
+  history: true
+});
 
 // Transaction State
 const transaction = ref({ 
@@ -299,6 +390,11 @@ function scrollToTop() {
     behavior: 'smooth'
   });
 }
+
+// Toggle collapsible sections
+function toggleSection(section) {
+  expandedSections.value[section] = !expandedSections.value[section];
+}
 </script>
 
 <style scoped>
@@ -423,6 +519,100 @@ function scrollToTop() {
   transform: scale(0.8);
 }
 
+/* Collapsible Section Styles */
+.collapsible-section {
+  margin-bottom: 24px;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.collapsible-section:hover {
+  box-shadow: 0 4px 20px rgba(11, 107, 58, 0.12);
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  cursor: pointer;
+  user-select: none;
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  border-bottom: 1px solid #e9ecef;
+  transition: all 0.3s ease;
+}
+
+.section-header:hover {
+  background: linear-gradient(135deg, #f0f8f5 0%, #f8f9fa 100%);
+}
+
+.section-header:active {
+  transform: scale(0.99);
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  color: #0B6B3A;
+}
+
+.section-title span {
+  color: #212529;
+  font-size: 1.1rem;
+}
+
+.caret-icon {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.caret-expanded {
+  transform: rotate(180deg);
+}
+
+.section-content {
+  padding: 0;
+}
+
+/* Collapse Animation */
+.collapse-enter-active {
+  animation: collapse-in 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+}
+
+.collapse-leave-active {
+  animation: collapse-out 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+}
+
+@keyframes collapse-in {
+  0% {
+    max-height: 0;
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  100% {
+    max-height: 2000px;
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes collapse-out {
+  0% {
+    max-height: 2000px;
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    max-height: 0;
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+}
+
 /* Mobile Optimizations */
 @media (max-width: 600px) {
   .dashboard-container {
@@ -438,6 +628,19 @@ function scrollToTop() {
   .back-to-top-btn {
     bottom: 16px !important;
     right: 16px !important;
+  }
+  
+  .collapsible-section {
+    margin-bottom: 16px;
+    border-radius: 12px;
+  }
+  
+  .section-header {
+    padding: 16px 20px;
+  }
+  
+  .section-title span {
+    font-size: 1rem;
   }
 }
 </style>
