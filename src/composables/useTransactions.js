@@ -10,10 +10,8 @@ export function useTransactions(userPhone) {
   // Fetch transactions from Supabase
   async function fetchTransactions() {
     const phone = unref(userPhone);
-    console.log('useTransactions: fetchTransactions called with phone:', phone);
     
     if (!phone) {
-      console.warn('useTransactions: userPhone is empty');
       return;
     }
     
@@ -21,7 +19,6 @@ export function useTransactions(userPhone) {
     error.value = null;
     
     try {
-      console.log('useTransactions: Querying Supabase for user_phone:', phone);
       const { data, error: fetchError } = await supabase
         .from('transactions')
         .select('*')
@@ -29,12 +26,9 @@ export function useTransactions(userPhone) {
         .order('date', { ascending: false });
         
       if (fetchError) {
-        console.error('useTransactions: Supabase error:', fetchError);
         throw fetchError;
       }
       
-      console.log('useTransactions: Fetched data:', data);
-      console.log('useTransactions: Number of transactions:', data?.length || 0);
       transactions.value = data || [];
     } catch (err) {
       error.value = err.message;

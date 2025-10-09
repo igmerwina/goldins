@@ -1,7 +1,7 @@
 <template>
   <v-card class="mb-4 composition-card" rounded="xl" elevation="8" style="background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%); border: 1px solid #e0e0e0; overflow: hidden;">
     <div class="card-accent"></div>
-    <v-card-title class="d-flex align-center px-4 py-4">
+    <v-card-title class="d-flex align-center px-4 py-4 title-wrapper">
       <div class="icon-container mr-3">
         <v-icon size="28" color="white">mdi-chart-donut</v-icon>
       </div>
@@ -14,7 +14,7 @@
         size="small" 
         color="#0B6B3A" 
         variant="flat"
-        class="pulse-chip"
+        class="pulse-chip brand-count-chip"
       >
         <v-icon start size="16">mdi-chart-pie</v-icon>
         {{ donutBrands.length }} Merk
@@ -551,6 +551,25 @@ watch(() => props.transactions, () => {
   
   .composition-card .v-card-text {
     padding: 16px !important;
+  }
+
+  /* Mobile: Move brand count chip below subtitle */
+  .title-wrapper {
+    flex-wrap: wrap;
+  }
+
+  .brand-count-chip {
+    order: 3;
+    margin-top: 8px;
+    margin-left: 60px;
+  }
+
+  .icon-container {
+    order: 1;
+  }
+
+  .flex-grow-1 {
+    order: 2;
   }
 }
 </style>
