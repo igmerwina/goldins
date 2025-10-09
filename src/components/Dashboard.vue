@@ -253,17 +253,12 @@ const { formatRupiah, unformatRupiah } = useFormatters();
 
 // Lifecycle
 onMounted(async () => {
-  console.log('Dashboard mounted, user:', props.user);
-  console.log('User phone:', props.user?.phone);
-  
   // Fetch initial data
   try {
     await Promise.all([
       fetchTransactions(),
       fetchLatestPrice()
     ]);
-    console.log('Data fetched - Transactions:', transactions.value.length);
-    console.log('Latest price:', latestPrice.value);
   } catch (err) {
     console.error('Error fetching data:', err);
   }

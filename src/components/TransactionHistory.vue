@@ -17,7 +17,7 @@
       <div class="text-body-1" style="color: #9e9e9e;">Tidak ada transaksi — tambahkan transaksi untuk melihat riwayat.</div>
     </v-card-text>
     <v-list v-else class="pa-2" style="background: transparent;">
-      <v-list-item v-for="(tx, index) in transactions" :key="tx.id" class="transaction-item mb-2" :class="tx.type === 'beli' ? 'tx-buy' : 'tx-sell'" :style="{ animationDelay: `${index * 0.05}s` }">
+      <v-list-item v-for="(tx, index) in paginatedTransactions" :key="tx.id" class="transaction-item mb-2" :class="tx.type === 'beli' ? 'tx-buy' : 'tx-sell'" :style="{ animationDelay: `${index * 0.05}s` }">
         <template v-slot:prepend>
           <v-icon :color="tx.type === 'beli' ? 'primary' : 'error'">
             {{ tx.type === 'beli' ? 'mdi-arrow-up-circle-outline' : 'mdi-arrow-down-circle-outline' }}
@@ -41,6 +41,19 @@
         </template>
       </v-list-item>
     </v-list>
+    
+    <!-- Pagination -->
+    <v-card-actions v-if="totalPages > 1" class="justify-center py-4">
+      <v-pagination
+        v-model="currentPage"
+        :length="totalPages"
+        :total-visible="5"
+        rounded="circle"
+        color="#0B6B3A"
+        size="small"
+        class="pagination-custom"
+      ></v-pagination>
+    </v-card-actions>
     <template v-if="showDeleteNotif">
       <v-alert type="success" class="mt-2 mb-0" border="start" elevation="6" prominent>
         Data berhasil dihapus
@@ -58,7 +71,7 @@
   </v-card>
 </template>
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useFormatters } from '../composables/useFormatters';
 import { useBrands } from '../composables/useBrands';
 
@@ -72,9 +85,24 @@ const showDeleteNotif = ref(false);
 const showConfirm = ref(false);
 let txToDelete = null;
 
+// Pagination
+const currentPage = ref(1);
+const itemsPerPage = 5;
+
 // Use composables
 const { numberWithCommas, formatDate } = useFormatters();
 const { getBrandColor: brandColor } = useBrands();
+
+// Computed pagination
+const totalPages = computed(() => {
+  return Math.ceil(props.transactions.length / itemsPerPage);
+});
+
+const paginatedTransactions = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage;
+  const end = start + itemsPerPage;
+  return props.transactions.slice(start, end);
+});
 
 function confirmDelete(tx) {
   txToDelete = tx;
@@ -86,6 +114,13 @@ function doDelete() {
     emit('delete-transaction', txToDelete);
     showDeleteNotif.value = true;
     setTimeout(() => { showDeleteNotif.value = false; }, 1500);
+    
+    // Adjust page if current page is empty after delete
+    const newTotal = props.transactions.length - 1;
+    const newTotalPages = Math.ceil(newTotal / itemsPerPage);
+    if (currentPage.value > newTotalPages && newTotalPages > 0) {
+      currentPage.value = newTotalPages;
+    }
   }
   showConfirm.value = false;
   txToDelete = null;
@@ -277,5 +312,35 @@ function doDelete() {
     font-size: 0.7rem;
     height: 20px;
   }
+  
+  .pagination-custom {
+    margin-top: 8px;
+  }
+  
+  .pagination-custom :deep(.v-pagination__item) {
+    min-width: 32px;
+    height: 32px;
+    font-size: 0.85rem;
+  }
+  
+  .pagination-custom :deep(.v-pagination__prev),
+  .pagination-custom :deep(.v-pagination__next) {
+    min-width: 32px;
+    height: 32px;
+  }
+}
+
+/* Pagination styling */
+.pagination-custom {
+  animation: fadeIn 0.5s ease-out;
+}
+
+
+.pagination-custom :deep(.v-pagination__item) {
+  transition: all 0.3s ease;
+}
+
+.pagination-custom :deep(.v-pagination__item:hover) {
+  transform: translateY(-2px);
 }
 </style>

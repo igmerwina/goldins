@@ -191,7 +191,7 @@ const carouselSlides = [
 onMounted(() => {
   setTimeout(() => {
     showLoader.value = false;
-  }, 780); // Loader tampil 1.2 detik, bisa diubah sesuai kebutuhan
+  }, 780);
   loadUser();
   
   // Start auto-play carousel jika user belum login
@@ -288,13 +288,9 @@ async function saveUser() {
 
 function loadUser() {
   const raw = localStorage.getItem('pg_user');
-  console.log('App.vue: Loading user from localStorage:', raw);
   if (raw) {
     user.value = JSON.parse(raw);
     hasUser.value = true;
-    console.log('App.vue: User loaded:', user.value);
-  } else {
-    console.log('App.vue: No user in localStorage');
   }
 }
 
@@ -347,6 +343,7 @@ function logout() {
   color: #666;
   font-size: 1rem;
   line-height: 1.5;
+  text-align: center;
 }
 
 .input-group {
