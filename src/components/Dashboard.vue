@@ -155,9 +155,6 @@
       </v-col>
     </v-row>
     <!-- Alerts tetap di root -->
-    <v-alert v-if="showWelcome" type="success" class="welcome-fade center-popup" border="start" prominent elevation="10">
-      Selamat datang, <b>{{ welcomeName }}</b>!
-    </v-alert>
     <v-alert v-if="showError" type="error" class="welcome-fade center-popup" border="start" prominent elevation="10">
       {{ errorMsg }}
     </v-alert>
