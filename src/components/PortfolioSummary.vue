@@ -224,17 +224,17 @@ const avgHargaBeliFormatted = computed(() => {
   return props.numberWithCommas ? props.numberWithCommas(avgHargaBeli.value) : avgHargaBeli.value.toLocaleString('id-ID');
 });
 
-// Potensi profit = Senilai - Total Emas yang dibeli
+// Potensi profit = Senilai - Total Modal (Beli - Jual)
 const potentialProfit = computed(() => {
   const senilai = Number((props.totalPorto || '').replace(/[^\d]/g, ''));
-  return senilai - totalEmasDibeli.value;
+  return senilai - totalEmasBeliFinal.value;
 });
 const potentialProfitFormatted = computed(() => {
   return props.numberWithCommas ? props.numberWithCommas(potentialProfit.value) : potentialProfit.value.toLocaleString('id-ID');
 });
 const profitPercent = computed(() => {
-  if (!totalEmasDibeli.value) return '-';
-  const percent = (potentialProfit.value / totalEmasDibeli.value) * 100;
+  if (!totalEmasBeliFinal.value) return '-';
+  const percent = (potentialProfit.value / totalEmasBeliFinal.value) * 100;
   return percent.toFixed(1) + '%';
 });
 
