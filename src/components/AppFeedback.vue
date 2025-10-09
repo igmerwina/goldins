@@ -195,18 +195,54 @@ function handleDownloadClick() {
 }
 
 @media (max-width: 600px) {
+  .feedback-card {
+    border-radius: 16px !important;
+  }
+  
+  .feedback-card .v-card-text {
+    padding: 20px 16px !important;
+  }
+  
   .icon-wrapper {
-    width: 72px;
-    height: 72px;
+    width: 64px;
+    height: 64px;
+    margin-bottom: 12px !important;
   }
   
   .pulse-icon {
-    font-size: 42px !important;
+    font-size: 36px !important;
   }
   
-  .feedback-btn,
+  .text-h5 {
+    font-size: 1.1rem !important;
+    margin-bottom: 8px !important;
+  }
+  
+  .text-body-1 {
+    font-size: 0.85rem !important;
+    margin-bottom: 16px !important;
+    padding: 0 8px;
+  }
+  
+  .feedback-btn {
+    min-width: 100%;
+    font-size: 0.9rem !important;
+    height: 48px !important;
+  }
+  
+  .feedback-btn .v-icon {
+    font-size: 20px !important;
+  }
+  
   .download-btn {
     min-width: 100%;
+    font-size: 0.85rem !important;
+    height: 44px !important;
+    margin-top: 12px !important;
+  }
+  
+  .download-btn .v-icon {
+    font-size: 18px !important;
   }
 }
 </style>

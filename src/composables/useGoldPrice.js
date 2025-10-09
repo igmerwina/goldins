@@ -11,12 +11,10 @@ export function useGoldPrice() {
 
   // Fetch latest price from Supabase
   async function fetchLatestPrice() {
-    console.log('useGoldPrice: fetchLatestPrice called');
     apiStatus.value = 'loading';
     
     try {
       const todayStr = new Date().toISOString().split('T')[0];
-      console.log('useGoldPrice: Fetching for date:', todayStr);
       const prices = [];
       
       for (const brand of goldBrands) {
@@ -29,16 +27,9 @@ export function useGoldPrice() {
           .order('date', { ascending: false })
           .limit(1);
           
-        if (error) {
-          console.error(`useGoldPrice: Error fetching ${brand}:`, error);
-        }
-          
         if (!error && data && data.length > 0) {
-          console.log(`useGoldPrice: ${brand} price:`, data[0].price_buyback);
           prices.push(Number(data[0].price_buyback) || 0);
           latestDate.value = data[0].date;
-        } else {
-          console.warn(`useGoldPrice: No data for ${brand}`);
         }
       }
       
@@ -46,12 +37,10 @@ export function useGoldPrice() {
         latestPrice.value = Math.round(
           prices.reduce((a, b) => a + b, 0) / prices.length
         );
-        console.log('useGoldPrice: Average price:', latestPrice.value);
         apiStatus.value = 'ok';
       } else {
         latestPrice.value = 0;
         apiStatus.value = 'no-data';
-        console.warn('useGoldPrice: No prices found');
       }
     } catch (err) {
       console.error('useGoldPrice: fetchLatestPrice failed', err);

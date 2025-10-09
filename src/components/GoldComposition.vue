@@ -1,7 +1,7 @@
 <template>
   <v-card class="mb-4 composition-card" rounded="xl" elevation="8" style="background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%); border: 1px solid #e0e0e0; overflow: hidden;">
     <div class="card-accent"></div>
-    <v-card-title class="d-flex align-center px-4 py-4">
+    <v-card-title class="d-flex align-center px-4 py-4 title-wrapper">
       <div class="icon-container mr-3">
         <v-icon size="28" color="white">mdi-chart-donut</v-icon>
       </div>
@@ -14,7 +14,7 @@
         size="small" 
         color="#0B6B3A" 
         variant="flat"
-        class="pulse-chip"
+        class="pulse-chip brand-count-chip"
       >
         <v-icon start size="16">mdi-chart-pie</v-icon>
         {{ donutBrands.length }} Merk
@@ -30,40 +30,65 @@
         </v-col>
       </v-row>
       <template v-else>
-        <div class="chart-wrapper">
-          <div class="chart-container d-flex justify-center align-center">
-            <canvas id="donutChart"></canvas>
+        <!-- Desktop: Show chart + cards -->
+        <div class="desktop-view">
+          <div class="chart-wrapper">
+            <div class="chart-container d-flex justify-center align-center">
+              <canvas id="donutChart"></canvas>
+            </div>
+          </div>
+          <div class="mt-6">
+            <v-row>
+              <v-col v-for="(brand, index) in donutBrands" :key="brand" cols="12" sm="4" class="brand-col">
+                <div class="brand-card" :style="{ animationDelay: `${index * 0.1}s` }">
+                  <div class="brand-header">
+                    <div class="d-flex align-center mb-2">
+                      <div :class="['brand-dot', `brand-${brand.toLowerCase()}`]"></div>
+                      <div class="brand-name font-weight-bold ml-2">{{ brand }}</div>
+                    </div>
+                    <v-chip size="x-small" :color="getBrandColor(brand)" variant="tonal" class="percent-chip">
+                      {{ getPercentage(brand) }}%
+                    </v-chip>
+                  </div>
+                  <v-divider class="my-2"></v-divider>
+                  <div class="brand-stats">
+                    <div class="stat-item mb-1">
+                      <v-icon size="14" color="#0B6B3A" class="mr-1">mdi-weight-gram</v-icon>
+                      <span class="stat-value font-weight-bold">{{ donutData[brand].gram.toFixed(2) }} gr</span>
+                    </div>
+                    <div class="stat-item">
+                      <v-icon size="14" color="#D4AF37" class="mr-1">mdi-currency-usd</v-icon>
+                      <span class="stat-value font-weight-bold">Rp {{ numberWithCommas(donutData[brand].nominal) }}</span>
+                    </div>
+                  </div>
+                </div>
+              </v-col>
+            </v-row>
           </div>
         </div>
-        <div class="mt-6">
-          <v-row>
-            <v-col v-for="(brand, index) in donutBrands" :key="brand" cols="12" sm="4" class="mb-3">
-              <div class="brand-card" :style="{ animationDelay: `${index * 0.1}s` }">
-                <div class="brand-header">
-                  <div class="d-flex align-center mb-3">
-                    <div :class="['brand-dot', `brand-${brand.toLowerCase()}`]"></div>
-                    <div class="font-weight-bold ml-2 text-h6" style="color: #2e2e2e;">{{ brand }}</div>
-                  </div>
-                  <v-chip size="x-small" :color="getBrandColor(brand)" variant="tonal">
-                    {{ getPercentage(brand) }}%
-                  </v-chip>
-                </div>
-                <v-divider class="my-3"></v-divider>
-                <div class="brand-stats">
-                  <div class="stat-item mb-2">
-                    <v-icon size="16" color="#0B6B3A" class="mr-1">mdi-weight-gram</v-icon>
-                    <span class="text-caption" style="color: #6b6b6b;">Berat:</span>
-                    <span class="font-weight-bold ml-1" style="color: #2e2e2e;">{{ donutData[brand].gram.toFixed(2) }} gr</span>
-                  </div>
-                  <div class="stat-item">
-                    <v-icon size="16" color="#D4AF37" class="mr-1">mdi-currency-usd</v-icon>
-                    <span class="text-caption" style="color: #6b6b6b;">Nilai Rp:</span>
-                    <span class="font-weight-bold ml-1" style="color: #2e2e2e;">{{ numberWithCommas(donutData[brand].nominal) }}</span>
-                  </div>
+
+        <!-- Mobile: Compact chart + list -->
+        <div class="mobile-view">
+          <div class="chart-wrapper-mobile">
+            <div class="chart-container-mobile d-flex justify-center align-center">
+              <canvas id="donutChartMobile"></canvas>
+            </div>
+          </div>
+          <div class="brand-list-compact mt-4">
+            <div v-for="(brand, index) in donutBrands" :key="brand" class="brand-item-compact">
+              <div class="brand-info-left">
+                <div :class="['brand-dot-compact', `brand-${brand.toLowerCase()}`]"></div>
+                <div class="brand-details">
+                  <div class="brand-name-compact">{{ brand }}</div>
+                  <div class="brand-gram">{{ donutData[brand].gram.toFixed(2) }} gr</div>
                 </div>
               </div>
-            </v-col>
-          </v-row>
+              <div class="brand-info-right">
+                <div class="brand-percent">{{ getPercentage(brand) }}%</div>
+                <div class="brand-value">{{ formatCompactValue(donutData[brand].nominal) }}</div>
+              </div>
+            </div>
+          </div>
         </div>
       </template>
     </v-card-text>
@@ -89,6 +114,7 @@ const { numberWithCommas } = useFormatters();
 const { BRAND_CHART_COLORS, getBrandColor } = useBrands();
 
 let donutChartInstance = null;
+let donutChartMobileInstance = null;
 
 // Computed: Calculate donut data from transactions
 const donutData = computed(() => {
@@ -127,7 +153,16 @@ function getPercentage(brand) {
   return ((donutData.value[brand]?.gram || 0) / totalGram * 100).toFixed(1);
 }
 
-// Chart Drawing Function
+function formatCompactValue(value) {
+  if (value >= 1000000) {
+    return 'Rp ' + (value / 1000000).toFixed(1) + 'jt';
+  } else if (value >= 1000) {
+    return 'Rp ' + (value / 1000).toFixed(0) + 'k';
+  }
+  return 'Rp ' + numberWithCommas(value);
+}
+
+// Chart Drawing Functions
 function drawDonutChart() {
   const ctx = document.getElementById('donutChart');
   if (!ctx) return;
@@ -168,16 +203,63 @@ function drawDonutChart() {
   }
 }
 
+function drawDonutChartMobile() {
+  const ctx = document.getElementById('donutChartMobile');
+  if (!ctx) return;
+  
+  const labels = donutBrands.value;
+  const data = labels.map(brand => donutData.value[brand]?.gram|| 0);
+  const colors = labels.map(brand => BRAND_CHART_COLORS[brand] || '#999');
+
+  const config = {
+    type: 'doughnut',
+    data: {
+      labels: labels.length > 0 ? labels : ['No Data'], 
+      datasets: [{ 
+        data: labels.length > 0 ? data : [1], 
+        backgroundColor: labels.length > 0 ? colors : ['#e6f6ec'] 
+      }] 
+    },
+    options: { 
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { 
+        legend: { 
+          position: 'bottom',
+          labels: {
+            boxWidth: 12,
+            font: {
+              size: 10
+            },
+            padding: 8
+          }
+        }
+      } 
+    }
+  };
+
+  if (donutChartMobileInstance) {
+    donutChartMobileInstance.data.labels = config.data.labels;
+    donutChartMobileInstance.data.datasets[0].data = config.data.datasets[0].data;
+    donutChartMobileInstance.data.datasets[0].backgroundColor = config.data.datasets[0].backgroundColor;
+    donutChartMobileInstance.update();
+  } else {
+    donutChartMobileInstance = new Chart(ctx, config);
+  }
+}
+
 // Lifecycle & Watchers
 onMounted(() => {
   nextTick(() => {
     drawDonutChart();
+    drawDonutChartMobile();
   });
 });
 
 watch(() => props.transactions, () => {
   nextTick(() => {
     drawDonutChart();
+    drawDonutChartMobile();
   });
 }, { deep: true });
 </script>
@@ -341,6 +423,107 @@ watch(() => props.transactions, () => {
   }
 }
 
+/* Desktop / Mobile Views */
+.mobile-view {
+  display: none;
+}
+
+.desktop-view {
+  display: block;
+}
+
+/* Mobile Chart */
+.chart-wrapper-mobile {
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  padding: 12px;
+  border-radius: 12px;
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.chart-container-mobile {
+  height: 200px;
+  padding: 12px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* Mobile Compact List */
+.brand-list-compact {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.brand-item-compact {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e8e8e8;
+  transition: all 0.2s ease;
+}
+
+.brand-item-compact:hover {
+  border-color: #0B6B3A;
+  box-shadow: 0 2px 8px rgba(11, 107, 58, 0.1);
+}
+
+.brand-info-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.brand-dot-compact {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.brand-details {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.brand-name-compact {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #2e2e2e;
+  line-height: 1.2;
+}
+
+.brand-gram {
+  font-size: 0.75rem;
+  color: #6b6b6b;
+  line-height: 1.2;
+}
+
+.brand-info-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.brand-percent {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #0B6B3A;
+  line-height: 1.2;
+}
+
+.brand-value {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #D4AF37;
+  line-height: 1.2;
+}
+
 /* Mobile Responsive */
 @media (max-width: 960px) {
   .chart-wrapper {
@@ -349,33 +532,44 @@ watch(() => props.transactions, () => {
 }
 
 @media (max-width: 600px) {
-  .chart-container {
-    height: 240px;
-    padding: 12px;
+  .desktop-view {
+    display: none;
   }
   
-  .chart-wrapper {
-    padding: 16px;
-  }
-  
-  .brand-card {
-    padding: 16px;
-    margin-bottom: 12px;
-  }
-  
-  .brand-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
-  }
-  
-  .stat-item {
-    font-size: 0.85rem;
+  .mobile-view {
+    display: block;
   }
   
   .icon-container {
     width: 48px;
     height: 48px;
+  }
+  
+  .composition-card .v-card-title {
+    padding: 12px 16px !important;
+  }
+  
+  .composition-card .v-card-text {
+    padding: 16px !important;
+  }
+
+  /* Mobile: Move brand count chip below subtitle */
+  .title-wrapper {
+    flex-wrap: wrap;
+  }
+
+  .brand-count-chip {
+    order: 3;
+    margin-top: 8px;
+    margin-left: 60px;
+  }
+
+  .icon-container {
+    order: 1;
+  }
+
+  .flex-grow-1 {
+    order: 2;
   }
 }
 </style>

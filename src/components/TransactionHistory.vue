@@ -17,7 +17,7 @@
       <div class="text-body-1" style="color: #9e9e9e;">Tidak ada transaksi — tambahkan transaksi untuk melihat riwayat.</div>
     </v-card-text>
     <v-list v-else class="pa-2" style="background: transparent;">
-      <v-list-item v-for="(tx, index) in transactions" :key="tx.id" class="transaction-item mb-2" :class="tx.type === 'beli' ? 'tx-buy' : 'tx-sell'" :style="{ animationDelay: `${index * 0.05}s` }">
+      <v-list-item v-for="(tx, index) in paginatedTransactions" :key="tx.id" class="transaction-item mb-2" :class="tx.type === 'beli' ? 'tx-buy' : 'tx-sell'" :style="{ animationDelay: `${index * 0.05}s` }">
         <template v-slot:prepend>
           <v-icon :color="tx.type === 'beli' ? 'primary' : 'error'">
             {{ tx.type === 'beli' ? 'mdi-arrow-up-circle-outline' : 'mdi-arrow-down-circle-outline' }}
@@ -27,20 +27,33 @@
           {{ tx.type.toUpperCase() }} • Rp {{ numberWithCommas(tx.total_price) }}
           <span class="text-caption font-weight-regular ml-2 text-medium-emphasis">{{ formatDate(tx.date) }}</span>
         </v-list-item-title>
-        <v-list-item-subtitle>
-          {{ tx.denom }} gr × {{ tx.count }} keping
+        <v-list-item-subtitle class="subtitle-with-brand">
+          <span>{{ tx.denom }} gr × {{ tx.count }} keping</span>
+          <v-chip size="small" :color="brandColor(tx.brand)" label class="brand-chip-inline">{{ tx.brand }}</v-chip>
         </v-list-item-subtitle>
         <template v-slot:append>
-          <div class="text-right d-flex align-center" style="gap:6px;">
-            <div class="font-weight-black text-subtitle-1">{{ (tx.denom * tx.count).toFixed(2) }} gr</div>
-            <v-chip size="small" :color="brandColor(tx.brand)" label>{{ tx.brand }}</v-chip>
-            <v-btn icon size="x-small" color="error" variant="text" @click.stop="confirmDelete(tx)">
+          <div class="append-container">
+            <div class="gram-display font-weight-black text-subtitle-1">{{ (tx.denom * tx.count).toFixed(2) }} gr</div>
+            <v-btn icon size="small" color="error" variant="tonal" @click.stop="confirmDelete(tx)" class="delete-btn-styled">
               <v-icon size="18">mdi-delete</v-icon>
             </v-btn>
           </div>
         </template>
       </v-list-item>
     </v-list>
+    
+    <!-- Pagination -->
+    <v-card-actions v-if="totalPages > 1" class="justify-center py-4">
+      <v-pagination
+        v-model="currentPage"
+        :length="totalPages"
+        :total-visible="5"
+        rounded="circle"
+        color="#0B6B3A"
+        size="small"
+        class="pagination-custom"
+      ></v-pagination>
+    </v-card-actions>
     <template v-if="showDeleteNotif">
       <v-alert type="success" class="mt-2 mb-0" border="start" elevation="6" prominent>
         Data berhasil dihapus
@@ -58,7 +71,7 @@
   </v-card>
 </template>
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useFormatters } from '../composables/useFormatters';
 import { useBrands } from '../composables/useBrands';
 
@@ -72,9 +85,24 @@ const showDeleteNotif = ref(false);
 const showConfirm = ref(false);
 let txToDelete = null;
 
+// Pagination
+const currentPage = ref(1);
+const itemsPerPage = 5;
+
 // Use composables
 const { numberWithCommas, formatDate } = useFormatters();
 const { getBrandColor: brandColor } = useBrands();
+
+// Computed pagination
+const totalPages = computed(() => {
+  return Math.ceil(props.transactions.length / itemsPerPage);
+});
+
+const paginatedTransactions = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage;
+  const end = start + itemsPerPage;
+  return props.transactions.slice(start, end);
+});
 
 function confirmDelete(tx) {
   txToDelete = tx;
@@ -86,6 +114,13 @@ function doDelete() {
     emit('delete-transaction', txToDelete);
     showDeleteNotif.value = true;
     setTimeout(() => { showDeleteNotif.value = false; }, 1500);
+    
+    // Adjust page if current page is empty after delete
+    const newTotal = props.transactions.length - 1;
+    const newTotalPages = Math.ceil(newTotal / itemsPerPage);
+    if (currentPage.value > newTotalPages && newTotalPages > 0) {
+      currentPage.value = newTotalPages;
+    }
   }
   showConfirm.value = false;
   txToDelete = null;
@@ -171,8 +206,141 @@ function doDelete() {
 }
 
 @media (max-width: 600px) {
-  .transaction-item {
-    padding: 10px 12px !important;
+  .history-card .v-card-title {
+    padding: 12px 16px !important;
   }
+  
+  .icon-container {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .history-card .text-h6 {
+    font-size: 1rem !important;
+  }
+  
+  .history-card .text-caption {
+    font-size: 0.7rem !important;
+  }
+  
+  .transaction-item {
+    padding: 10px 8px !important;
+    margin-bottom: 6px;
+    flex-direction: column;
+    align-items: flex-start !important;
+    min-height: auto;
+  }
+  
+  .transaction-item .v-list-item__prepend {
+    padding-right: 6px !important;
+    align-self: flex-start;
+    margin-top: 2px;
+  }
+  
+  .transaction-item .v-list-item__content {
+    flex: 1;
+    min-width: 0;
+  }
+  
+  .transaction-item .v-list-item-title {
+    font-size: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    word-break: break-word;
+    line-height: 1.3;
+  }
+  
+  .transaction-item .v-list-item-title .text-caption {
+    font-size: 0.65rem !important;
+    margin-left: 0 !important;
+  }
+  
+  .transaction-item .v-list-item-subtitle {
+    font-size: 0.75rem;
+  }
+  
+  .subtitle-with-brand {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  
+  .brand-chip-inline {
+    font-size: 0.65rem !important;
+    height: 18px !important;
+    padding: 0 6px !important;
+  }
+  
+  .transaction-item .v-list-item__append {
+    margin-top: 8px;
+    width: 100%;
+  }
+  
+  .append-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+    width: 100%;
+  }
+  
+  .gram-display {
+    font-size: 0.85rem !important;
+    color: #0B6B3A;
+    white-space: nowrap;
+  }
+  
+  .delete-btn-styled {
+    background: rgba(244, 67, 54, 0.04) !important;
+    border: 1px solid rgba(244, 67, 54, 0.02);
+    transition: all 0.3s ease;
+  }
+  
+  .delete-btn-styled:hover {
+    background: rgba(244, 67, 54, 0.25) !important;
+    border-color: rgba(244, 67, 54, 0.5);
+    transform: scale(1.1);
+  }
+  
+  .delete-btn-styled:active {
+    transform: scale(0.95);
+  }
+  
+  .transaction-item .v-chip {
+    font-size: 0.7rem;
+    height: 20px;
+  }
+  
+  .pagination-custom {
+    margin-top: 8px;
+  }
+  
+  .pagination-custom :deep(.v-pagination__item) {
+    min-width: 32px;
+    height: 32px;
+    font-size: 0.85rem;
+  }
+  
+  .pagination-custom :deep(.v-pagination__prev),
+  .pagination-custom :deep(.v-pagination__next) {
+    min-width: 32px;
+    height: 32px;
+  }
+}
+
+/* Pagination styling */
+.pagination-custom {
+  animation: fadeIn 0.5s ease-out;
+}
+
+
+.pagination-custom :deep(.v-pagination__item) {
+  transition: all 0.3s ease;
+}
+
+.pagination-custom :deep(.v-pagination__item:hover) {
+  transform: translateY(-2px);
 }
 </style>

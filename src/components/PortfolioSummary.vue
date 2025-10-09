@@ -1,32 +1,37 @@
 <template>
   <v-card class="mb-4 portfolio-card" rounded="xl" elevation="8" style="background: linear-gradient(135deg, #0B6B3A 0%, #1aa251 100%); color: white; box-shadow: 0 8px 24px rgba(11, 107, 58, 0.25);">
     <v-card-title class="d-flex justify-space-between align-center py-4 px-4">
-      <div>
-        <div class="text-caption" style="opacity: 0.9;">Halo, <strong style="font-size: 1.1em;">{{ user.name || user.phone }}</strong></div>
+      <div class="d-flex flex-column" style="width: 100%;">
+        <div class="d-flex align-center justify-space-between mb-2">
+          <v-chip color="white" variant="flat" label size="small" style="color: #0B6B3A; font-weight: 600;">
+            <v-icon start size="16">mdi-account-circle</v-icon>
+            <span class="text-caption">{{ user.name || user.phone }}</span>
+          </v-chip>
+          <v-chip color="white" variant="flat" label size="small" class="ml-2" style="color: #0B6B3A; font-weight: 600;">
+            <v-icon start size="16">mdi-phone</v-icon>
+            <span class="text-caption">{{ user.phone }}</span>
+          </v-chip>
+        </div>
         <div class="text-h5 font-weight-bold mt-1">Portofolio Emas</div>
       </div>
-      <v-chip color="white" variant="flat" label style="color: #0B6B3A; font-weight: 600;">
-        <v-icon start size="18">mdi-phone</v-icon>
-        {{ user.phone }}
-      </v-chip>
     </v-card-title>
     <v-card-text class="px-4 py-4">
-      <v-row align="center" justify="space-between" class="mb-3">
-        <v-col cols="12" sm="4" class="py-2">
+      <v-row align="center" justify="space-between" class="mb-3 stats-row">
+        <v-col cols="12" sm="4" class="py-2 total-gold-col">
           <div class="stat-card stat-card-1">
             <div class="text-caption mb-1" style="opacity: 0.7;">Total Emas Fisik</div>
             <div class="text-h4 font-weight-black">{{ totalGold.toFixed(2) }} gr</div>
             <v-icon class="stat-icon">mdi-gold</v-icon>
           </div>
         </v-col>
-        <v-col cols="12" sm="4" class="py-2">
+        <v-col cols="12" sm="4" class="py-2 other-stats-col">
           <div class="stat-card stat-card-2">
             <div class="text-caption mb-1" style="opacity: 0.7;">Senilai Nominal (Rp)</div>
             <div class="text-h5 font-weight-black">{{ totalPorto }}</div>
             <v-icon class="stat-icon">mdi-currency-usd</v-icon>
           </div>
         </v-col>
-        <v-col cols="12" sm="4" class="text-sm-right py-2">
+        <v-col cols="12" sm="4" class="text-sm-right py-2 other-stats-col">
           <div class="stat-card stat-card-3">
             <div class="text-caption mb-1" style="opacity: 0.7; line-height: 1.3;">
               Harga Jual/gram<br/>
@@ -568,9 +573,221 @@ async function generateReport() {
   }
 }
 
+/* ============================================
+   MOBILE OPTIMIZATION (600px and below)
+   ============================================ */
 @media (max-width: 600px) {
+  /* Card Spacing - Reduce margin-bottom */
+  .portfolio-card {
+    margin-bottom: 12px !important;
+    border-radius: 12px !important;
+  }
+
+  /* Card Title - More compact padding */
+  .v-card-title {
+    padding: 8px 12px !important;
+  }
+
+  .v-card-title > div {
+    width: 100%;
+  }
+
+  .v-card-title .text-h5 {
+    font-size: 1.15rem !important;
+    margin-top: 2px !important;
+  }
+
+  .v-card-title .v-chip {
+    height: 26px !important;
+    padding: 0 8px !important;
+    flex-shrink: 1;
+    min-width: 0;
+    border-radius: 6px !important;
+  }
+
+  .v-card-title .v-chip .text-caption {
+    font-size: 0.7rem !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .v-card-title .v-chip .v-icon {
+    font-size: 14px !important;
+    flex-shrink: 0;
+  }
+
+  /* Card Text - More compact padding */
+  .v-card-text {
+    padding: 8px 12px 10px 12px !important;
+  }
+
+  /* REORDER: Total Emas Fisik First (Most Important) */
+  .stats-row {
+    display: flex;
+    flex-wrap: wrap;
+    margin-bottom: 4px !important;
+  }
+
+  /* Total Emas Fisik appears first (order: 1) */
+  .total-gold-col {
+    order: 1;
+  }
+
+  /* Other stats appear after (order: 2) */
+  .other-stats-col {
+    order: 2;
+  }
+
+  /* Info boxes and profit reordered */
+  .v-row.mt-2 {
+    display: flex;
+    flex-direction: column-reverse;
+    margin-top: 4px !important;
+  }
+
+  /* Stat Cards - Super Compact */
   .stat-card {
-    margin-bottom: 8px;
+    padding: 7px 9px !important;
+    margin-bottom: 4px !important;
+    min-height: 54px !important;
+    border-radius: 8px !important;
+  }
+
+  .stat-card .text-caption {
+    font-size: 0.7rem !important;
+    margin-bottom: 2px !important;
+    line-height: 1.2 !important;
+  }
+
+  .stat-card .text-h4 {
+    font-size: 1.3rem !important;
+    line-height: 1.2 !important;
+  }
+
+  .stat-card .text-h5 {
+    font-size: 1.1rem !important;
+    line-height: 1.2 !important;
+  }
+
+  .stat-card .text-subtitle-1 {
+    font-size: 0.85rem !important;
+    line-height: 1.2 !important;
+  }
+
+  .stat-icon {
+    font-size: 24px !important;
+    top: 6px !important;
+    right: 6px !important;
+  }
+
+  /* Divider - Reduce margin */
+  .v-divider {
+    margin-top: 4px !important;
+    margin-bottom: 4px !important;
+  }
+
+  /* Column Spacing - Tighter */
+  .v-col {
+    padding: 3px !important;
+  }
+
+  /* Info Boxes - More Compact */
+  .info-box {
+    padding: 4px 0 !important;
+    margin-bottom: 6px !important;
+  }
+
+  .info-box .text-caption {
+    font-size: 0.7rem !important;
+    margin-bottom: 2px !important;
+    line-height: 1.2 !important;
+  }
+
+  .info-box .text-h6 {
+    font-size: 0.95rem !important;
+    line-height: 1.2 !important;
+  }
+
+  /* Profit Box - Compact & Centered for Mobile */
+  .profit-box {
+    padding: 10px 12px !important;
+    margin-bottom: 6px !important;
+    border-radius: 8px !important;
+    text-align: center !important;
+  }
+
+  .profit-box .text-caption {
+    font-size: 0.7rem !important;
+    margin-bottom: 4px !important;
+  }
+
+  .profit-box .text-h4 {
+    font-size: 1.5rem !important;
+    line-height: 1.1 !important;
+  }
+
+  .profit-box .text-body-1 {
+    font-size: 0.85rem !important;
+    margin-top: 4px !important;
+    justify-content: center !important;
+  }
+
+  .profit-icon {
+    font-size: 18px !important;
+  }
+
+  /* Download Button - Super Compact for Mobile */
+  .download-btn {
+    margin-top: 4px !important;
+    height: 34px !important;
+    font-size: 0.7rem !important;
+    width: 100%;
+    padding: 0 8px !important;
+    min-width: 0 !important;
+    border-radius: 6px !important;
+  }
+
+  .download-btn .v-icon {
+    font-size: 15px !important;
+    margin-right: 3px !important;
+  }
+
+  .download-btn span {
+    font-size: 0.7rem !important;
+    font-weight: 500 !important;
+  }
+
+  .download-btn .v-progress-circular {
+    width: 14px !important;
+    height: 14px !important;
+  }
+}
+
+/* ============================================
+   EXTRA COMPACT FOR VERY SMALL DEVICES (400px)
+   ============================================ */
+@media (max-width: 400px) {
+  .v-card-title,
+  .v-card-text {
+    padding: 6px 10px !important;
+  }
+
+  .stat-card {
+    padding: 6px 8px !important;
+    min-height: 50px !important;
+  }
+
+  .stat-card .text-h4 {
+    font-size: 1.2rem !important;
+  }
+
+  .profit-box {
+    padding: 8px 10px !important;
+  }
+
+  .profit-box .text-h4 {
+    font-size: 1.3rem !important;
   }
 }
 </style>

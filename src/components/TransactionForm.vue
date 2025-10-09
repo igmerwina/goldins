@@ -435,6 +435,78 @@ watch(
 }
 
 @media (max-width: 600px) {
+  .transaction-card .v-card-title {
+    padding: 12px 16px !important;
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 12px;
+  }
+  
+  .transaction-card .v-card-title .d-flex {
+    width: 100%;
+  }
+  
+  .transaction-card .v-card-text {
+    padding: 16px !important;
+  }
+  
+  .icon-container {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .transaction-card .text-h6 {
+    font-size: 1rem !important;
+  }
+  
+  .transaction-card .text-caption {
+    font-size: 0.7rem !important;
+  }
+  
+  .custom-input {
+    margin-bottom: 0 !important;
+  }
+  
+  .v-row {
+    margin-top: 0 !important;
+  }
+  
+  .v-col {
+    padding: 6px 12px !important;
+  }
+  
+  .total-chip {
+    font-size: 0.85rem;
+    padding: 8px 12px;
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .summary-alert {
+    padding: 12px !important;
+    font-size: 0.85rem;
+  }
+  
+  .summary-alert .d-flex {
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-start !important;
+  }
+  
+  .summary-alert .text-h6 {
+    font-size: 1.1rem !important;
+  }
+  
+  .submit-btn {
+    width: 100%;
+    min-width: 100%;
+    height: 48px !important;
+  }
+  
+  .submit-btn .btn-text {
+    font-size: 0.95rem;
+  }
+  
   .save-btn {
     min-width: 100%;
   }
