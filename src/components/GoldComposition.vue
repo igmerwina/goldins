@@ -57,8 +57,8 @@
                   </div>
                   <div class="stat-item">
                     <v-icon size="16" color="#D4AF37" class="mr-1">mdi-currency-usd</v-icon>
-                    <span class="text-caption" style="color: #6b6b6b;">Nilai:</span>
-                    <span class="font-weight-bold ml-1" style="color: #2e2e2e;">Rp {{ numberWithCommas(donutData[brand].nominal) }}</span>
+                    <span class="text-caption" style="color: #6b6b6b;">Nilai Rp:</span>
+                    <span class="font-weight-bold ml-1" style="color: #2e2e2e;">{{ numberWithCommas(donutData[brand].nominal) }}</span>
                   </div>
                 </div>
               </div>
@@ -115,7 +115,10 @@ const donutData = computed(() => {
   return result;
 });
 
-const donutBrands = computed(() => Object.keys(donutData.value));
+const donutBrands = computed(() => {
+  // Only show brands with gram > 0 (filter out sold-out brands)
+  return Object.keys(donutData.value).filter(brand => donutData.value[brand]?.gram > 0);
+});
 
 // Helper Functions
 function getPercentage(brand) {
@@ -129,17 +132,11 @@ function drawDonutChart() {
   const ctx = document.getElementById('donutChart');
   if (!ctx) return;
   
-  const groups = {};
-  props.transactions
-    .filter(t => t.type === 'beli') // Only count gold owned (beli)
-    .forEach(t => { 
-      const b = t.brand || 'Other'; 
-      groups[b] = (groups[b] || 0) + (Number(t.denom) * Number(t.count)); 
-    });
-    
-  const labels = Object.keys(groups);
-  const data = labels.map(l => groups[l]);
-  const colors = labels.map(l => BRAND_CHART_COLORS[l] || '#999');
+  // Use donutData computed property for consistency (already handles buy - sell)
+  // donutBrands already filtered (gram > 0)
+  const labels = donutBrands.value;
+  const data = labels.map(brand => donutData.value[brand]?.gram|| 0);
+  const colors = labels.map(brand => BRAND_CHART_COLORS[brand] || '#999');
 
   const config = {
     type: 'doughnut',
