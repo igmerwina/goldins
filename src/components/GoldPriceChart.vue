@@ -49,7 +49,7 @@
         <v-col cols="12" sm="6" md="6">
           <div class="filter-label mb-2">
             <v-icon size="18" class="mr-1" color="#0B6B3A">mdi-weight-gram</v-icon>
-            <span class="text-caption font-weight-bold" style="color: #2e2e2e;">Pilih Denominasi (g)</span>
+            <span class="text-caption font-weight-bold" style="color: #2e2e2e;">Pilih Denominasi (gr)</span>
           </div>
           <v-select
             v-model="selectedDenom"

@@ -7,7 +7,7 @@
           <v-icon size="28" color="white">mdi-swap-horizontal</v-icon>
         </div>
         <div>
-          <div class="text-h6 font-weight-bold" style="color: #2e2e2e;">Tambah Transaksi</div>
+          <div class="text-h6 font-weight-bold" style="color: #2e2e2e;">Catat Transaksi</div>
           <div class="text-caption" style="color: #6b6b6b;">Catat pembelian atau penjualan emas</div>
         </div>
       </div>
@@ -29,7 +29,7 @@
             <v-select
               v-model="transaction.type"
               :items="[{title: 'Beli', value: 'beli'}, {title: 'Jual', value: 'jual'}]"
-              label="Jenis Transaksi"
+              label="Jenis"
               variant="outlined"
               color="#0B6B3A"
               prepend-inner-icon="mdi-swap-horizontal"
@@ -62,7 +62,7 @@
           <v-col cols="12" sm="6" md="5">
             <v-text-field
               v-model="transaction.date"
-              label="Tanggal Transaksi"
+              :label="transaction.type === 'beli' ? 'Tanggal Pembelian' : 'Tanggal Penjualan'"
               type="date"
               variant="outlined"
               color="#0B6B3A"
@@ -104,7 +104,7 @@
           <v-col cols="12" sm="8" md="6">
             <v-text-field
               v-model="transaction.manualPrice"
-              :label="transaction.type === 'beli' ? 'Harga Beli per Gram' : 'Harga Jual per Gram'"
+              :label="transaction.type === 'beli' ? 'Harga Per Gram' : 'Harga Per Gram'"
               :placeholder="transaction.type === 'beli' ? 'Contoh: Rp 1.500.000' : 'Contoh: Rp 1.450.000'"
               :rules="[
                 v => !!v || 'Harga wajib diisi',
@@ -126,31 +126,29 @@
               class="custom-input"
             ></v-text-field>
           </v-col>
-          <v-col cols="12" md="3" class="d-flex align-center">
-            <v-chip color="#0B6B3A" variant="tonal" class="total-chip">
-              <v-icon start size="18">mdi-scale-balance</v-icon>
-              <span class="font-weight-bold">{{ (transaction.denom * transaction.count).toFixed(2) }} gr</span>
-            </v-chip>
-          </v-col>
+
         </v-row>
         
         <!-- Transaction Summary -->
         <v-alert v-if="transaction.denom && transaction.count && transaction.manualPrice" 
-          type="info" 
-          variant="tonal" 
           class="mt-4 summary-alert"
           rounded="lg"
+          color="#E8F5E9"
+          border="start"
+          border-color="#0B6B3A"
         >
-          <div class="d-flex align-items-center justify-space-between flex-wrap">
-            <div>
-              <strong>Total Transaksi:</strong> 
-              <span class="ml-2">{{ transaction.denom * transaction.count }} gram</span>
+          <div class="summary-content">
+            <div class="summary-left">
+              <div class="summary-amount">
+                <div class="currency-label">Total Gram</div>
+                <div class="amount-value">{{ transaction.denom * transaction.count }} gram</div>
+              </div>
             </div>
-            <div>
-              <strong>Total Harga:</strong>
-              <span class="text-h6 font-weight-bold ml-2" style="color: #0B6B3A;">
-                Rp {{ formatTotal() }}
-              </span>
+            <div class="summary-right">
+              <div class="summary-amount">
+                <div class="currency-label">Nominal</div>
+                <div class="amount-value">Rp {{ formatTotal() }}</div>
+              </div>
             </div>
           </div>
         </v-alert>
@@ -169,7 +167,7 @@
           >
             <v-icon start size="22">{{ isLoading ? 'mdi-loading' : 'mdi-content-save' }}</v-icon>
             <span class="btn-text">
-              <template v-if="!isLoading">Simpan Transaksi</template>
+              <template v-if="!isLoading">Catat Transaksi</template>
               <template v-else>Menyimpan...</template>
             </span>
           </v-btn>
@@ -367,7 +365,63 @@ watch(
 
 .summary-alert {
   animation: slideInUp 0.4s ease-out;
-  border-left: 4px solid #0B6B3A;
+  border-left: 4px solid #0B6B3A !important;
+  background: linear-gradient(135deg, #E8F5E9 0%, #F1F8F4 100%) !important;
+  box-shadow: 0 2px 12px rgba(11, 107, 58, 0.1) !important;
+}
+
+.summary-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.summary-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.summary-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #0B6B3A 0%, #1aa251 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 3px 8px rgba(11, 107, 58, 0.25);
+  flex-shrink: 0;
+}
+
+.summary-right {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  justify-content: flex-end;
+}
+
+.summary-amount {
+  text-align: right;
+}
+
+.currency-label {
+  font-size: 0.75rem;
+  color: #666;
+  font-weight: 500;
+  margin-bottom: 2px;
+  letter-spacing: 0.5px;
+}
+
+.amount-value {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #0B6B3A;
+  letter-spacing: 0.5px;
+  text-shadow: 0 1px 2px rgba(11, 107, 58, 0.1);
 }
 
 .submit-btn {
@@ -483,17 +537,47 @@ watch(
   }
   
   .summary-alert {
-    padding: 12px !important;
-    font-size: 0.85rem;
+    padding: 14px 12px !important;
   }
   
-  .summary-alert .d-flex {
+  .summary-content {
     flex-direction: column;
-    gap: 8px;
-    align-items: flex-start !important;
+    gap: 10px;
+    align-items: stretch !important;
   }
   
-  .summary-alert .text-h6 {
+  .summary-left,
+  .summary-right {
+    width: 100%;
+    padding: 10px 12px;
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 8px;
+    border: 1px solid rgba(11, 107, 58, 0.15);
+    justify-content: flex-start;
+  }
+  
+  .summary-left {
+    gap: 10px;
+  }
+  
+  .summary-icon {
+    width: 38px;
+    height: 38px;
+  }
+  
+  .summary-icon .v-icon {
+    font-size: 20px !important;
+  }
+  
+  .summary-amount {
+    text-align: left;
+  }
+  
+  .currency-label {
+    font-size: 0.7rem !important;
+  }
+  
+  .amount-value {
     font-size: 1.1rem !important;
   }
   
