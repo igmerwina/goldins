@@ -60,7 +60,7 @@
           <div class="section-header" @click="toggleSection('form')">
             <div class="section-title">
               <v-icon size="24" color="#0B6B3A" class="mr-2">mdi-plus-circle</v-icon>
-              <span class="text-h6 font-weight-bold">Catat Transaksi</span>
+              <span class="text-h6 font-weight-bold">Catat Aset Emas</span>
             </div>
             <v-icon 
               size="24" 

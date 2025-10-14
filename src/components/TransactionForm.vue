@@ -7,8 +7,8 @@
           <v-icon size="28" color="white">mdi-swap-horizontal</v-icon>
         </div>
         <div>
-          <div class="text-h6 font-weight-bold" style="color: #2e2e2e;">Catat Transaksi</div>
-          <div class="text-caption" style="color: #6b6b6b;">Catat pembelian atau penjualan emas</div>
+          <div class="text-h6 font-weight-bold" style="color: #2e2e2e;">Tambah Riwayat Emas</div>
+          <div class="text-caption" style="color: #6b6b6b;">Masukkan detail emas yang sudah Anda miliki atau pernah jual sebelumnya</div>
         </div>
       </div>
       <v-chip 
@@ -29,7 +29,7 @@
             <v-select
               v-model="transaction.type"
               :items="[{title: 'Beli', value: 'beli'}, {title: 'Jual', value: 'jual'}]"
-              label="Jenis"
+              label="Status Aset"
               variant="outlined"
               color="#0B6B3A"
               prepend-inner-icon="mdi-swap-horizontal"
@@ -103,6 +103,7 @@
           </v-col>
           <v-col cols="12" sm="8" md="6">
             <v-text-field
+              v-show="false"
               v-model="transaction.manualPrice"
               :label="transaction.type === 'beli' ? 'Harga Per Gram' : 'Harga Per Gram'"
               :placeholder="transaction.type === 'beli' ? 'Contoh: Rp 1.500.000' : 'Contoh: Rp 1.450.000'"
@@ -140,13 +141,13 @@
           <div class="summary-content">
             <div class="summary-left">
               <div class="summary-amount">
-                <div class="currency-label">Total Gram</div>
+                <div class="currency-label">Total Gramasi</div>
                 <div class="amount-value">{{ transaction.denom * transaction.count }} gram</div>
               </div>
             </div>
             <div class="summary-right">
               <div class="summary-amount">
-                <div class="currency-label">Nominal</div>
+                <div class="currency-label">Total Nilai Aset</div>
                 <div class="amount-value">Rp {{ formatTotal() }}</div>
               </div>
             </div>
@@ -167,7 +168,7 @@
           >
             <v-icon start size="22">{{ isLoading ? 'mdi-loading' : 'mdi-content-save' }}</v-icon>
             <span class="btn-text">
-              <template v-if="!isLoading">Catat Transaksi</template>
+              <template v-if="!isLoading">Simpan Aset</template>
               <template v-else>Menyimpan...</template>
             </span>
           </v-btn>
@@ -511,10 +512,20 @@ watch(
   
   .transaction-card .text-h6 {
     font-size: 1rem !important;
+    line-height: 1.4;
+    margin-bottom: 2px;
   }
   
   .transaction-card .text-caption {
-    font-size: 0.7rem !important;
+    font-size: 0.75rem !important;
+    line-height: 1.3;
+    opacity: 0.85;
+    margin-top: 1px;
+    letter-spacing: 0.2px;
+    max-width: 95vw;
+    word-break: break-word;
+    white-space: normal;
+    display: block;
   }
   
   .custom-input {
