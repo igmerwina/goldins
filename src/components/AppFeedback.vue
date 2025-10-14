@@ -7,7 +7,7 @@
       <div class="text-h5 font-weight-bold mb-2 text-center">Beri Feedback Aplikasi</div>
       <div class="text-body-1 mb-4 text-center" style="max-width: 500px; opacity: 0.95;">
         Kami sangat menghargai masukan Anda untuk pengembangan aplikasi ini.
-        Silakan isi form singkat berikut untuk memberikan saran, kritik, atau laporan bug.
+        Silakan isi form berikut untuk memberikan kritik, saran, atau laporan bug
       </div>
       <v-btn 
         color="white" 
@@ -196,53 +196,61 @@ function handleDownloadClick() {
 
 @media (max-width: 600px) {
   .feedback-card {
-    border-radius: 16px !important;
-  }
-  
-  .feedback-card .v-card-text {
-    padding: 20px 16px !important;
-  }
-  
-  .icon-wrapper {
-    width: 64px;
-    height: 64px;
+    border-radius: 12px !important;
     margin-bottom: 12px !important;
   }
   
-  .pulse-icon {
-    font-size: 36px !important;
+  .feedback-card .v-card-text {
+    padding: 14px 12px !important;
   }
   
-  .text-h5 {
-    font-size: 1.1rem !important;
+  .icon-wrapper {
+    width: 48px;
+    height: 48px;
     margin-bottom: 8px !important;
   }
   
+  .pulse-icon {
+    font-size: 28px !important;
+  }
+  
+  .text-h5 {
+    font-size: 0.95rem !important;
+    margin-bottom: 6px !important;
+    line-height: 1.3;
+  }
+  
   .text-body-1 {
-    font-size: 0.85rem !important;
-    margin-bottom: 16px !important;
-    padding: 0 8px;
+    font-size: 0.75rem !important;
+    margin-bottom: 10px !important;
+    padding: 0 4px;
+    line-height: 1.4;
+    opacity: 0.9 !important;
   }
   
   .feedback-btn {
     min-width: 100%;
-    font-size: 0.9rem !important;
-    height: 48px !important;
+    font-size: 0.8rem !important;
+    height: 40px !important;
+    padding: 0 16px !important;
   }
   
   .feedback-btn .v-icon {
-    font-size: 20px !important;
+    font-size: 18px !important;
+    margin-right: 4px !important;
   }
   
   .download-btn {
     min-width: 100%;
-    font-size: 0.85rem !important;
-    height: 44px !important;
-    margin-top: 12px !important;
+    font-size: 0.75rem !important;
+    height: 36px !important;
+    margin-top: 8px !important;
+    padding: 0 16px !important;
   }
   
   .download-btn .v-icon {
-    font-size: 18px !important;
+    font-size: 16px !important;
+    margin-right: 4px !important;
   }
 }
 </style>
