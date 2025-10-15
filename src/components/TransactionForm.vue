@@ -298,6 +298,7 @@ async function setDefaultManualPrice(dateStr) {
       }
     } else {
       console.warn(`No price found for ${props.transaction.brand} ${props.transaction.denom}gr on ${dateStr}`);
+      props.transaction.manualPrice = 528000; // default fallback price
     }
   } catch (err) {
     console.error('Exception fetching price:', err);
