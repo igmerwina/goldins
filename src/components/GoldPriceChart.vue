@@ -192,9 +192,8 @@ async function fetchBrands() {
 async function fetchDenominations() {
   try {
     const { data, error } = await supabase
-      .from('gold_prices')
+      .from('gold_prices_v2')
       .select('denom')
-      .order('denom', { ascending: true });
     
     if (error) {
       console.error('Error fetching denominations for chart:', error);
@@ -223,12 +222,17 @@ async function fetchDenominations() {
 
 // API Functions
 async function fetchGoldPricesFromSupabase(brand = 'Galeri24', denom = 1) {
+  const sevenDaysAgo = new Date();
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
+  const startDate = sevenDaysAgo.toISOString();
   const { data, error } = await supabase
-    .from('gold_prices')
+    .from('gold_prices_v2')
     .select('*')
     .eq('brand', brand)
     .eq('denom', denom)
-    .order('date', { ascending: false })
+    .gte('date', startDate) // Greater than or equal to 7 days ago
+    .order('date', { ascending: true }) // Orders chronologically
+    .order('brand', { ascending: true })
     .limit(7);
     
   if (!error && data) {

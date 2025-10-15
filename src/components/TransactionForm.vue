@@ -226,9 +226,8 @@ async function fetchBrands() {
 async function fetchDenominations() {
   try {
     const { data, error } = await supabase
-      .from('gold_prices')
+      .from('gold_prices_v2')
       .select('denom')
-      .order('denom', { ascending: true });
     
     if (error) {
       console.error('Error fetching denominations:', error);
@@ -279,7 +278,7 @@ async function setDefaultManualPrice(dateStr) {
   
   try {
     const { data, error } = await supabase
-      .from('gold_prices')
+      .from('gold_prices_v2')
       .select(`${field}, date`)
       .eq('brand', props.transaction.brand)
       .eq('denom', DEFAULT_GRAM)

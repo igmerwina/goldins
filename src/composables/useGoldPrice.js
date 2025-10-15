@@ -19,7 +19,7 @@ export function useGoldPrice() {
       
       for (const brand of goldBrands) {
         const { data, error } = await supabase
-          .from('gold_prices')
+          .from('gold_prices_v2')
           .select('date, price_buyback')
           .eq('brand', brand)
           .eq('denom', 1)
@@ -54,7 +54,7 @@ export function useGoldPrice() {
     
     try {
       const { data, error } = await supabase
-        .from('gold_prices')
+        .from('gold_prices_v2')
         .select(`${field}, date`)
         .eq('brand', brand)
         .eq('denom', denom)
