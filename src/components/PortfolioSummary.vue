@@ -12,7 +12,7 @@
             <span class="text-caption">{{ user.phone }}</span>
           </v-chip>
         </div>
-        <div class="text-h5 font-weight-bold mt-1">Portofolio Emas</div>
+        <div class="text-h5 font-weight-bold mt-1">Portofolio EmasKu</div>
       </div>
     </v-card-title>
     <v-card-text class="px-4 py-4">

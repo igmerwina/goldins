@@ -351,7 +351,7 @@ watch([selectedBrand, selectedDenom], async ([brand, denom]) => {
   width: 50px;
   height: 50px;
   border-radius: 14px;
-  background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+  background: linear-gradient(135deg, #0B6B3A 0%, #1aa251 100%);
   display: flex;
   align-items: center;
   justify-content: center;

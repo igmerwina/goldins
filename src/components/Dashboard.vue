@@ -8,7 +8,7 @@
             <v-icon size="32" color="white" class="mr-3">mdi-hand-wave</v-icon>
             <div>
               <div class="text-h6 font-weight-bold">Selamat Datang, {{ user.name }}!</div>
-              <div class="text-caption">Kelola portofolio emas Anda dengan mudah</div>
+              <div class="text-caption">Mulai kelola portofolio aset emas batangan di menu <b>Catatan EmasKu</b></div>
             </div>
             <v-btn icon size="small" variant="text" color="white" @click="showWelcomeBanner = false" class="ml-auto">
               <v-icon>mdi-close</v-icon>
@@ -16,46 +16,7 @@
           </div>
         </transition>
 
-        <PortfolioSummary
-          ref="portfolioSummaryRef"
-          :user="user"
-          :totalGold="totalGold"
-          :totalPorto="totalPorto"
-          :latestDate="latestDate"
-          :latestPriceFormatted="latestPriceFormatted"
-          :avgPriceFormatted="avgPriceFormatted"
-          :potentialProfit="potentialProfit"
-          :potentialProfitFormatted="potentialProfitFormatted"
-          :profitPercent="profitPercent"
-          :donutBrands="donutBrands"
-          :donutData="donutData"
-          :numberWithCommas="numberWithCommas"
-          :transactions="transactions"
-        />
-        
-        <!-- Collapsible GoldComposition -->
-        <div class="collapsible-section">
-          <div class="section-header" @click="toggleSection('composition')">
-            <div class="section-title">
-              <v-icon size="24" color="#0B6B3A" class="mr-2">mdi-chart-donut</v-icon>
-              <span class="text-h6 font-weight-bold">Komposisi Emas</span>
-            </div>
-            <v-icon 
-              size="24" 
-              color="#0B6B3A" 
-              :class="['caret-icon', { 'caret-expanded': expandedSections.composition }]"
-            >
-              mdi-chevron-down
-            </v-icon>
-          </div>
-          <transition name="collapse">
-            <div v-show="expandedSections.composition" class="section-content">
-              <GoldComposition :transactions="transactions" />
-            </div>
-          </transition>
-        </div>
-
-        <!-- Collapsible TransactionForm -->
+         <!-- Collapsible TransactionForm -->
         <div class="collapsible-section">
           <div class="section-header" @click="toggleSection('form')">
             <div class="section-title">
@@ -79,6 +40,46 @@
                 :formatRupiah="formatRupiah"
                 :unformatRupiah="unformatRupiah"
               />
+            </div>
+          </transition>
+        </div>
+        
+        <!-- Portfolio Summary -->
+        <PortfolioSummary
+          ref="portfolioSummaryRef"
+          :user="user"
+          :totalGold="totalGold"
+          :totalPorto="totalPorto"
+          :latestDate="latestDate"
+          :latestPriceFormatted="latestPriceFormatted"
+          :avgPriceFormatted="avgPriceFormatted"
+          :potentialProfit="potentialProfit"
+          :potentialProfitFormatted="potentialProfitFormatted"
+          :profitPercent="profitPercent"
+          :donutBrands="donutBrands"
+          :donutData="donutData"
+          :numberWithCommas="numberWithCommas"
+          :transactions="transactions"
+        />
+        
+        <!-- Collapsible GoldComposition -->
+        <div class="collapsible-section">
+          <div class="section-header" @click="toggleSection('composition')">
+            <div class="section-title">
+              <v-icon size="24" color="#0B6B3A" class="mr-2">mdi-chart-donut</v-icon>
+              <span class="text-h6 font-weight-bold">Komposisi EmasKu</span>
+            </div>
+            <v-icon 
+              size="24" 
+              color="#0B6B3A" 
+              :class="['caret-icon', { 'caret-expanded': expandedSections.composition }]"
+            >
+              mdi-chevron-down
+            </v-icon>
+          </div>
+          <transition name="collapse">
+            <div v-show="expandedSections.composition" class="section-content">
+              <GoldComposition :transactions="transactions" />
             </div>
           </transition>
         </div>
