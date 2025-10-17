@@ -85,7 +85,7 @@
             </div>
             <v-tooltip
               v-if="!canDownloadReport"
-              v-model="showTooltip"
+              v-model="showTooltipDesktop"
               location="bottom"
               :color="'grey-lighten-2'"
               :text="'Report bisa didownload setelah mengisi Form Feedback'"
@@ -100,7 +100,7 @@
                   color="white"
                   variant="flat"
                   class="mt-2 download-btn"
-                  @click="onDownloadClick"
+                  @click="onDownloadClick($event, false)"
                   :loading="isLoading || isEnabling"
                   :style="!canDownloadReport ? 'color:#bdbdbd;background:#f5f5f5;border:1px solid #e0e0e0;cursor:not-allowed;' : 'color:#0B6B3A;'"
                 >
@@ -126,7 +126,7 @@
               color="white"
               variant="flat"
               class="mt-2 download-btn"
-              @click="onDownloadClick"
+              @click="onDownloadClick($event, false)"
               :loading="isLoading || isEnabling"
               style="color:#0B6B3A;"
             >
@@ -201,7 +201,7 @@
         <div class="mobile-download-wrapper">
           <v-tooltip
             v-if="!canDownloadReport"
-            v-model="showTooltip"
+            v-model="showTooltipMobile"
             location="top"
             :color="'grey-lighten-2'"
             :text="'Report bisa didownload setelah mengisi Form Feedback'"
@@ -215,7 +215,7 @@
                 color="white"
                 variant="flat"
                 class="mobile-download-btn"
-                @click="onDownloadClick"
+                @click="onDownloadClick($event, true)"
                 :loading="isLoading || isEnabling"
                 :style="!canDownloadReport ? 'color:#bdbdbd;background:#f5f5f5;border:1px solid #e0e0e0;cursor:not-allowed;' : 'color:#0B6B3A;'"
                 block
@@ -234,7 +234,7 @@
             color="white"
             variant="flat"
             class="mobile-download-btn"
-            @click="onDownloadClick"
+            @click="onDownloadClick($event, true)"
             :loading="isLoading || isEnabling"
             style="color:#0B6B3A;"
             block
@@ -276,12 +276,18 @@ const props = defineProps({
 const isLoading = ref(false);
 const canDownloadReport = ref(false);
 const isEnabling = ref(false);
-const showTooltip = ref(false);
+const showTooltipDesktop = ref(false);
+const showTooltipMobile = ref(false);
 
-function onDownloadClick(e) {
+function onDownloadClick(e, isMobile = false) {
   if (!canDownloadReport.value) {
-    showTooltip.value = true;
-    setTimeout(() => { showTooltip.value = false; }, 2200);
+    if (isMobile) {
+      showTooltipMobile.value = true;
+      setTimeout(() => { showTooltipMobile.value = false; }, 2200);
+    } else {
+      showTooltipDesktop.value = true;
+      setTimeout(() => { showTooltipDesktop.value = false; }, 2200);
+    }
     return;
   }
   generateReport();
@@ -783,6 +789,7 @@ async function generateReport() {
   .mobile-profit-hero {
     margin-bottom: 14px;
     padding: 0;
+    text-align: center;
   }
 
   .profit-title {
@@ -804,6 +811,7 @@ async function generateReport() {
   .profit-badge-row {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 10px;
   }
 
