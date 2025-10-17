@@ -158,7 +158,9 @@
           </div>
           <div class="profit-badge-row">
             <div :class="['profit-badge', badgeData.className]">{{ badgeData.label }}</div>
-            <div class="profit-percent">{{ profitPercent }}</div>
+            <div :class="['profit-percent', potentialProfit >= 0 ? 'profit-positive' : 'profit-negative']">
+              {{ profitPercent }}
+            </div>
             <v-icon 
               :color="potentialProfit >= 0 ? '#f59e0b' : '#d32f2f'" 
               size="28"
@@ -193,6 +195,57 @@
             <div class="stat-label">Rata-rata per gram</div>
             <div class="stat-value">Rp {{ avgHargaBeliFormatted }}</div>
           </div>
+        </div>
+
+        <!-- Download Report Button - Mobile -->
+        <div class="mobile-download-wrapper">
+          <v-tooltip
+            v-if="!canDownloadReport"
+            v-model="showTooltip"
+            location="top"
+            :color="'grey-lighten-2'"
+            :text="'Report bisa didownload setelah mengisi Form Feedback'"
+            :open-on-click="true"
+            :open-on-hover="true"
+            :arrow="true"
+          >
+            <template #activator="{ props }">
+              <v-btn
+                v-bind="props"
+                color="white"
+                variant="flat"
+                class="mobile-download-btn"
+                @click="onDownloadClick"
+                :loading="isLoading || isEnabling"
+                :style="!canDownloadReport ? 'color:#bdbdbd;background:#f5f5f5;border:1px solid #e0e0e0;cursor:not-allowed;' : 'color:#0B6B3A;'"
+                block
+              >
+                <v-icon start :color="!canDownloadReport ? 'grey' : '#0B6B3A'" size="18">mdi-file-pdf-box</v-icon>
+                <span :style="!canDownloadReport ? 'color:#bdbdbd;font-size:0.85rem;' : 'color:#0B6B3A;font-weight:600;font-size:0.85rem;'">
+                  <template v-if="!isLoading && !isEnabling">Download Report</template>
+                  <template v-else-if="isEnabling">Tunggu 3 Detik</template>
+                  <template v-else>Downloading</template>
+                </span>
+              </v-btn>
+            </template>
+          </v-tooltip>
+          <v-btn
+            v-else
+            color="white"
+            variant="flat"
+            class="mobile-download-btn"
+            @click="onDownloadClick"
+            :loading="isLoading || isEnabling"
+            style="color:#0B6B3A;"
+            block
+          >
+            <v-icon start color="#0B6B3A" size="18">mdi-file-pdf-box</v-icon>
+            <span style="color:#0B6B3A;font-weight:600;font-size:0.85rem;">
+              <template v-if="!isLoading && !isEnabling">Download Report</template>
+              <template v-else-if="isEnabling">Tunggu 3 Detik</template>
+              <template v-else>Downloading</template>
+            </span>
+          </v-btn>
         </div>
       </div>
     </v-card-text>
@@ -845,7 +898,7 @@ async function generateReport() {
   }
 
   .mobile-profit {
-    background: rgba(255, 255, 255, 45%);
+    background: rgba(255, 255, 255, 65%);
     border-radius: 12px;
     padding: 12px 14px;
     min-height: 72px;
@@ -866,6 +919,28 @@ async function generateReport() {
     font-weight: 700;
     color: white;
     line-height: 1.2;
+  }
+
+  /* ===== MOBILE DOWNLOAD BUTTON ===== */
+  .mobile-download-wrapper {
+    margin-top: 14px;
+  }
+
+  .mobile-download-btn {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+    border-radius: 10px !important;
+    padding: 10px 16px !important;
+    height: auto !important;
+    text-transform: none !important;
+  }
+
+  .mobile-download-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(11, 107, 58, 0.25) !important;
+  }
+
+  .mobile-download-btn:active:not(:disabled) {
+    transform: translateY(0);
   }
 }
 
