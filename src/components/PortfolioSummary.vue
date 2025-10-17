@@ -2,7 +2,7 @@
   <v-card class="mb-4 portfolio-card" rounded="xl" elevation="8" style="background: linear-gradient(135deg, #0B6B3A 0%, #1aa251 100%); color: white; box-shadow: 0 8px 24px rgba(11, 107, 58, 0.25);">
     <v-card-title class="d-flex justify-space-between align-center py-4 px-4">
       <div class="d-flex flex-column" style="width: 100%;">
-        <div class="d-flex align-center justify-space-between mb-2">
+        <!-- <div class="d-flex align-center justify-space-between mb-2">
           <v-chip color="white" variant="flat" label size="small" style="color: #0B6B3A; font-weight: 600;">
             <v-icon start size="16">mdi-account-circle</v-icon>
             <span class="text-caption">{{ user.name || user.phone }}</span>
@@ -11,138 +11,190 @@
             <v-icon start size="16">mdi-phone</v-icon>
             <span class="text-caption">{{ user.phone }}</span>
           </v-chip>
-        </div>
+        </div> -->
         <div class="text-h5 font-weight-bold mt-1">Portofolio EmasKu</div>
       </div>
     </v-card-title>
+
     <v-card-text class="px-4 py-4">
-      <v-row align="center" justify="space-between" class="mb-3 stats-row">
-        <v-col cols="12" sm="4" class="py-2 total-gold-col">
-          <div class="stat-card stat-card-1">
-            <div class="text-caption mb-1" style="opacity: 0.7;">Total Emas Fisik</div>
-            <div class="text-h4 font-weight-black">{{ totalGold.toFixed(2) }} gr</div>
-            <v-icon class="stat-icon">mdi-gold</v-icon>
-          </div>
-        </v-col>
-        <v-col cols="12" sm="4" class="py-2 other-stats-col">
-          <div class="stat-card stat-card-2">
-            <div class="text-caption mb-1" style="opacity: 0.7;">Senilai Nominal (Rp)</div>
-            <div class="text-h5 font-weight-black">{{ totalPorto }}</div>
-            <v-icon class="stat-icon">mdi-currency-usd</v-icon>
-          </div>
-        </v-col>
-        <v-col cols="12" sm="4" class="text-sm-right py-2 other-stats-col">
-          <div class="stat-card stat-card-3">
-            <div class="text-caption mb-1" style="opacity: 0.7; line-height: 1.3;">
-              Harga Jual/gram<br/>
-              <span style="font-size: 0.75rem; opacity: 0.8;">{{ formatDateIndo(latestDate) }}</span>
+      <!-- Desktop: Original Layout -->
+      <div class="desktop-layout">
+        <v-row align="center" justify="space-between" class="mb-3 stats-row">
+          <v-col cols="12" sm="4" class="py-2 total-gold-col">
+            <div class="stat-card stat-card-1">
+              <div class="text-caption mb-1" style="opacity: 0.7;">Total Emas Fisik</div>
+              <div class="text-h4 font-weight-black">{{ totalGold.toFixed(2) }} gr</div>
+              <v-icon class="stat-icon">mdi-gold</v-icon>
             </div>
-            <div class="text-subtitle-1 font-weight-bold">Rp {{ latestPriceFormatted }}</div>
-            <v-icon class="stat-icon">mdi-trending-up</v-icon>
-          </div>
-        </v-col>
-      </v-row>
-      <v-divider class="my-3" style="opacity: 0.3;"></v-divider>
-      <v-row justify="space-between" class="mt-2">
-        <v-col cols="12" md="6" class="py-2">
-          <div class="info-box mb-3">
-            <div class="text-caption mb-1" style="opacity: 0.8;">Total Emas yang dibeli</div>
-            <div class="text-h6 font-weight-bold">Rp {{ totalEmasDibeliFormatted }}</div>
-          </div>
-          <div class="info-box mb-3">
-            <div class="text-caption mb-1" style="opacity: 0.8;">Rata-rata harga beli (per gram)</div>
-            <div class="text-h6 font-weight-bold">Rp {{ avgHargaBeliFormatted }}</div>
-          </div>
-        </v-col>
-        <v-col cols="12" md="6" class="text-md-right py-2">
-          <div class="profit-box">
-            <div class="text-caption mb-2" style="color: #6b6b6b;">Potensi Profit (Rp)</div>
-            <div :class="['text-h4 font-weight-black profit-amount', potentialProfit >= 0 ? 'profit-positive' : 'profit-negative']">
-              {{ potentialProfitFormatted }}
+          </v-col>
+          <v-col cols="12" sm="4" class="py-2 other-stats-col">
+            <div class="stat-card stat-card-2">
+              <div class="text-caption mb-1" style="opacity: 0.7;">Senilai Nominal (Rp)</div>
+              <div class="text-h5 font-weight-black">{{ totalPorto }}</div>
+              <v-icon class="stat-icon">mdi-currency-usd</v-icon>
             </div>
-            <div class="text-body-1 mt-1 d-flex align-center justify-end" style="color: #2e2e2e;">
-              <span>({{ profitPercent }})</span>
-              <v-icon 
-                v-if="potentialProfit >= 0" 
-                size="20" 
-                color="#0B6B3A" 
-                class="ml-1 profit-icon"
-              >
-                mdi-arrow-up
-              </v-icon>
-              <v-icon 
-                v-else 
-                size="20" 
-                color="#d32f2f" 
-                class="ml-1 profit-icon"
-              >
-                mdi-arrow-down
-              </v-icon>
+          </v-col>
+          <v-col cols="12" sm="4" class="text-sm-right py-2 other-stats-col">
+            <div class="stat-card stat-card-3">
+              <div class="text-caption mb-1" style="opacity: 0.7; line-height: 1.3;">
+                Harga Jual/gram<br/>
+                <span style="font-size: 0.75rem; opacity: 0.8;">{{ formatDateIndo(latestDate) }}</span>
+              </div>
+              <div class="text-subtitle-1 font-weight-bold">Rp {{ latestPriceFormatted }}</div>
+              <v-icon class="stat-icon">mdi-trending-up</v-icon>
             </div>
+          </v-col>
+        </v-row>
+        <v-divider class="my-3" style="opacity: 0.3;"></v-divider>
+        <v-row justify="space-between" class="mt-2">
+          <v-col cols="12" md="6" class="py-2">
+            <div class="info-box mb-3">
+              <div class="text-caption mb-1" style="opacity: 0.8;">Total Emas yang dibeli</div>
+              <div class="text-h6 font-weight-bold">Rp {{ totalEmasDibeliFormatted }}</div>
+            </div>
+            <div class="info-box mb-3">
+              <div class="text-caption mb-1" style="opacity: 0.8;">Rata-rata harga beli (per gram)</div>
+              <div class="text-h6 font-weight-bold">Rp {{ avgHargaBeliFormatted }}</div>
+            </div>
+          </v-col>
+          <v-col cols="12" md="6" class="text-md-right py-2">
+            <div class="profit-box">
+              <div class="text-caption mb-2" style="color: #6b6b6b;">Potensi Profit (Rp)</div>
+              <div :class="['text-h4 font-weight-black profit-amount', potentialProfit >= 0 ? 'profit-positive' : 'profit-negative']">
+                {{ potentialProfitFormatted }}
+              </div>
+              <div class="text-body-1 mt-1 d-flex align-center justify-end" style="color: #2e2e2e;">
+                <span>({{ profitPercent }})</span>
+                <v-icon 
+                  v-if="potentialProfit >= 0" 
+                  size="20" 
+                  color="#0B6B3A" 
+                  class="ml-1 profit-icon"
+                >
+                  mdi-arrow-up
+                </v-icon>
+                <v-icon 
+                  v-else 
+                  size="20" 
+                  color="#d32f2f" 
+                  class="ml-1 profit-icon"
+                >
+                  mdi-arrow-down
+                </v-icon>
+              </div>
+            </div>
+            <v-tooltip
+              v-if="!canDownloadReport"
+              v-model="showTooltip"
+              location="bottom"
+              :color="'grey-lighten-2'"
+              :text="'Report bisa didownload setelah mengisi Form Feedback'"
+              :open-on-click="true"
+              :open-on-hover="true"
+              :arrow="true"
+            >
+              <template #activator="{ props }">
+                <v-btn
+                  v-bind="props"
+                  ref="downloadBtnRef"
+                  color="white"
+                  variant="flat"
+                  class="mt-2 download-btn"
+                  @click="onDownloadClick"
+                  :loading="isLoading || isEnabling"
+                  :style="!canDownloadReport ? 'color:#bdbdbd;background:#f5f5f5;border:1px solid #e0e0e0;cursor:not-allowed;' : 'color:#0B6B3A;'"
+                >
+                  <v-icon start :color="!canDownloadReport ? 'grey' : '#0B6B3A'">mdi-file-pdf-box</v-icon>
+                  <v-progress-circular
+                    v-if="isLoading || isEnabling"
+                    indeterminate
+                    color="#0B6B3A"
+                    size="18"
+                    class="mr-2"
+                  />
+                  <span :style="!canDownloadReport ? 'color:#bdbdbd' : 'color:#0B6B3A;font-weight:600;'">
+                    <template v-if="!isLoading && !isEnabling">Download Report</template>
+                    <template v-else-if="isEnabling">Tunggu 3 Detik</template>
+                    <template v-else>Downloading</template>
+                  </span>
+                </v-btn>
+              </template>
+            </v-tooltip>
+            <v-btn
+              v-else
+              ref="downloadBtnRef"
+              color="white"
+              variant="flat"
+              class="mt-2 download-btn"
+              @click="onDownloadClick"
+              :loading="isLoading || isEnabling"
+              style="color:#0B6B3A;"
+            >
+              <v-icon start color="#0B6B3A">mdi-file-pdf-box</v-icon>
+              <v-progress-circular
+                v-if="isLoading || isEnabling"
+                indeterminate
+                color="#0B6B3A"
+                size="18"
+                class="mr-2"
+              />
+              <span style="color:#0B6B3A;font-weight:600;">
+                <template v-if="!isLoading && !isEnabling">Download Report</template>
+                <template v-else-if="isEnabling">Tunggu 3 Detik</template>
+                <template v-else>Downloading</template>
+              </span>
+            </v-btn>
+          </v-col>
+        </v-row>
+      </div>
+
+      <!-- Mobile: New Compact Layout -->
+      <div class="mobile-layout">
+        <!-- Potensi Profit - Large Hero Section -->
+        <div class="mobile-profit-hero mobile-profit">
+          <div class="profit-title">Potensi Profit</div>
+          <div :class="['profit-value', potentialProfit >= 0 ? 'profit-positive' : 'profit-negative']">
+            Rp {{ potentialProfitFormatted }}
           </div>
-          <v-tooltip
-            v-if="!canDownloadReport"
-            v-model="showTooltip"
-            location="bottom"
-            :color="'grey-lighten-2'"
-            :text="'Report bisa didownload setelah mengisi Form Feedback'"
-            :open-on-click="true"
-            :open-on-hover="true"
-            :arrow="true"
-          >
-            <template #activator="{ props }">
-              <v-btn
-                v-bind="props"
-                ref="downloadBtnRef"
-                color="white"
-                variant="flat"
-                class="mt-2 download-btn"
-                @click="onDownloadClick"
-                :loading="isLoading || isEnabling"
-                :style="!canDownloadReport ? 'color:#bdbdbd;background:#f5f5f5;border:1px solid #e0e0e0;cursor:not-allowed;' : 'color:#0B6B3A;'"
-              >
-                <v-icon start :color="!canDownloadReport ? 'grey' : '#0B6B3A'">mdi-file-pdf-box</v-icon>
-                <v-progress-circular
-                  v-if="isLoading || isEnabling"
-                  indeterminate
-                  color="#0B6B3A"
-                  size="18"
-                  class="mr-2"
-                />
-                <span :style="!canDownloadReport ? 'color:#bdbdbd' : 'color:#0B6B3A;font-weight:600;'">
-                  <template v-if="!isLoading && !isEnabling">Download Report</template>
-                  <template v-else-if="isEnabling">Tunggu 3 Detik</template>
-                  <template v-else>Downloading</template>
-                </span>
-              </v-btn>
-            </template>
-          </v-tooltip>
-          <v-btn
-            v-else
-            ref="downloadBtnRef"
-            color="white"
-            variant="flat"
-            class="mt-2 download-btn"
-            @click="onDownloadClick"
-            :loading="isLoading || isEnabling"
-            style="color:#0B6B3A;"
-          >
-            <v-icon start color="#0B6B3A">mdi-file-pdf-box</v-icon>
-            <v-progress-circular
-              v-if="isLoading || isEnabling"
-              indeterminate
-              color="#0B6B3A"
-              size="18"
-              class="mr-2"
-            />
-            <span style="color:#0B6B3A;font-weight:600;">
-              <template v-if="!isLoading && !isEnabling">Download Report</template>
-              <template v-else-if="isEnabling">Tunggu 3 Detik</template>
-              <template v-else>Downloading</template>
-            </span>
-          </v-btn>
-        </v-col>
-      </v-row>
+          <div class="profit-badge-row">
+            <div :class="['profit-badge', badgeData.className]">{{ badgeData.label }}</div>
+            <div class="profit-percent">{{ profitPercent }}</div>
+            <v-icon 
+              :color="potentialProfit >= 0 ? '#f59e0b' : '#d32f2f'" 
+              size="28"
+            >
+              {{ potentialProfit >= 0 ? 'mdi-trending-up' : 'mdi-trending-down' }}
+            </v-icon>
+          </div>
+        </div>
+
+        <!-- Harga Jual Info Card -->
+        <div class="mobile-price-info">
+          <span class="price-label">Harga Jual/gram</span>
+          <span class="price-date">{{ formatDateIndo(latestDate) }}</span>
+          <span class="price-value">Rp {{ latestPriceFormatted }}</span>
+        </div>
+
+        <!-- Stats Grid - 2x2 Layout -->
+        <div class="mobile-stats-grid">
+          <div class="mobile-stat-item">
+            <div class="stat-label">Total Emas Fisik</div>
+            <div class="stat-value">{{ totalGold.toFixed(2) }} gr</div>
+          </div>
+          <div class="mobile-stat-item">
+            <div class="stat-label">Nilai Sekarang</div>
+            <div class="stat-value">Rp {{ totalPorto }}</div>
+          </div>
+          <div class="mobile-stat-item">
+            <div class="stat-label">Total Beli</div>
+            <div class="stat-value">Rp {{ totalEmasDibeliFormatted }}</div>
+          </div>
+          <div class="mobile-stat-item">
+            <div class="stat-label">Rata-rata per gram</div>
+            <div class="stat-value">Rp {{ avgHargaBeliFormatted }}</div>
+          </div>
+        </div>
+      </div>
     </v-card-text>
   </v-card>
 </template>
@@ -242,6 +294,50 @@ const profitPercent = computed(() => {
   if (!totalEmasBeliFinal.value) return '-';
   const percent = (potentialProfit.value / totalEmasBeliFinal.value) * 100;
   return percent.toFixed(1) + '%';
+});
+
+// Numeric profit percentage for badge conditions
+const profitPercentNumeric = computed(() => {
+  if (!totalEmasBeliFinal.value) return 0;
+  return (potentialProfit.value / totalEmasBeliFinal.value) * 100;
+});
+
+// Dynamic badge data based on profit percentage ranges
+const badgeData = computed(() => {
+  const percent = profitPercentNumeric.value;
+  
+  if (percent <= -10) {
+    return {
+      label: 'Penurunan Pasar',
+      color: '#E74C3C',
+      className: 'badge-market-drop'
+    };
+  } else if (percent > -10 && percent <= 10) {
+    return {
+      label: 'Stabil',
+      color: '#95A5A6',
+      className: 'badge-stable'
+    };
+  } else if (percent > 10 && percent <= 100) {
+    return {
+      label: 'Pertumbuhan Stabil',
+      color: '#27AE60',
+      className: 'badge-steady-growth'
+    };
+  } else if (percent > 100 && percent <= 200) {
+    return {
+      label: ' Strong Performance',
+      color: '#1E8449',
+      className: 'badge-strong-performance'
+    };
+  } else {
+    // > 200%
+    return {
+      label: 'Amazing Growth',
+      color: '#F1C40F',
+      className: 'badge-amazing-growth'
+    };
+  }
 });
 
 function formatDateIndo(dateStr) {
@@ -573,10 +669,18 @@ async function generateReport() {
   }
 }
 
+/* Desktop/Mobile Layout Toggle */
+.mobile-layout { display: none; }
+.desktop-layout { display: block; }
+
 /* ============================================
    MOBILE OPTIMIZATION (600px and below)
    ============================================ */
 @media (max-width: 600px) {
+  /* Toggle layouts */
+  .desktop-layout { display: none !important; }
+  .mobile-layout { display: block !important; }
+
   /* Card Spacing - Reduce margin-bottom */
   .portfolio-card {
     margin-bottom: 12px !important;
@@ -585,7 +689,7 @@ async function generateReport() {
 
   /* Card Title - More compact padding */
   .v-card-title {
-    padding: 8px 12px !important;
+    padding: 10px 12px 8px 12px !important;
   }
 
   .v-card-title > div {
@@ -593,12 +697,12 @@ async function generateReport() {
   }
 
   .v-card-title .text-h5 {
-    font-size: 1.15rem !important;
+    font-size: 1rem !important;
     margin-top: 2px !important;
   }
 
   .v-card-title .v-chip {
-    height: 26px !important;
+    height: 24px !important;
     padding: 0 8px !important;
     flex-shrink: 1;
     min-width: 0;
@@ -606,161 +710,162 @@ async function generateReport() {
   }
 
   .v-card-title .v-chip .text-caption {
-    font-size: 0.7rem !important;
+    font-size: 0.68rem !important;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
 
   .v-card-title .v-chip .v-icon {
-    font-size: 14px !important;
+    font-size: 13px !important;
     flex-shrink: 0;
   }
 
   /* Card Text - More compact padding */
   .v-card-text {
-    padding: 8px 12px 10px 12px !important;
+    padding: 10px 14px 12px 14px !important;
   }
 
-  /* REORDER: Total Emas Fisik First (Most Important) */
-  .stats-row {
+  /* ===== MOBILE PROFIT HERO ===== */
+  .mobile-profit-hero {
+    margin-bottom: 14px;
+    padding: 0;
+  }
+
+  .profit-title {
+    font-size: 1.4rem;
+    font-weight: 100;
+    color: white;
+    margin-bottom: 6px;
+    letter-spacing: -0.5px;
+  }
+
+  .profit-value {
+    font-size: 2.2rem;
+    font-weight: 900;
+    line-height: 1.1;
+    margin-bottom: 8px;
+    letter-spacing: -1px;
+  }
+
+  .profit-badge-row {
     display: flex;
-    flex-wrap: wrap;
-    margin-bottom: 4px !important;
+    align-items: center;
+    gap: 10px;
   }
 
-  /* Total Emas Fisik appears first (order: 1) */
-  .total-gold-col {
-    order: 1;
+  .profit-badge {
+    background: #f59e0b;
+    color: #1f2937;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 700;
   }
 
-  /* Other stats appear after (order: 2) */
-  .other-stats-col {
-    order: 2;
+  /* Badge Variants - Dynamic Colors */
+  .profit-badge.badge-market-drop {
+    background: #E74C3C;
+    color: white;
   }
 
-  /* Info boxes and profit reordered */
-  .v-row.mt-2 {
+  .profit-badge.badge-stable {
+    background: #95A5A6;
+    color: white;
+  }
+
+  .profit-badge.badge-steady-growth {
+    background: #27AE60;
+    color: white;
+  }
+
+  .profit-badge.badge-strong-performance {
+    background: #1E8449;
+    color: white;
+  }
+
+  .profit-badge.badge-amazing-growth {
+    background: #F1C40F;
+    color: #1f2937;
+  }
+
+  .profit-percent {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: white;
+  }
+
+  /* ===== MOBILE PRICE INFO CARD ===== */
+  .mobile-price-info {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 10px;
+    padding: 8px 14px;
+    margin-bottom: 14px;
     display: flex;
-    flex-direction: column-reverse;
-    margin-top: 4px !important;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
   }
 
-  /* Stat Cards - Super Compact */
-  .stat-card {
-    padding: 7px 9px !important;
-    margin-bottom: 4px !important;
-    min-height: 54px !important;
-    border-radius: 8px !important;
+  .price-label {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 600;
   }
 
-  .stat-card .text-caption {
-    font-size: 0.7rem !important;
-    margin-bottom: 2px !important;
-    line-height: 1.2 !important;
+  .price-date {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.7);
+    font-weight: 400;
   }
 
-  .stat-card .text-h4 {
-    font-size: 1.3rem !important;
-    line-height: 1.2 !important;
+  .price-value {
+    font-size: 0.85rem;
+    color: white;
+    font-weight: 700;
+    margin-left: auto;
   }
 
-  .stat-card .text-h5 {
-    font-size: 1.1rem !important;
-    line-height: 1.2 !important;
+  /* ===== MOBILE STATS GRID ===== */
+  .mobile-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-top: 0;
   }
 
-  .stat-card .text-subtitle-1 {
-    font-size: 0.85rem !important;
-    line-height: 1.2 !important;
+  .mobile-stat-item {
+    background: rgba(0, 0, 0, 0.08);
+    border-radius: 12px;
+    padding: 12px 14px;
+    min-height: 72px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
   }
 
-  .stat-icon {
-    font-size: 24px !important;
-    top: 6px !important;
-    right: 6px !important;
+  .mobile-profit {
+    background: rgba(255, 255, 255, 45%);
+    border-radius: 12px;
+    padding: 12px 14px;
+    min-height: 72px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
   }
 
-  /* Divider - Reduce margin */
-  .v-divider {
-    margin-top: 4px !important;
-    margin-bottom: 4px !important;
+  .stat-label {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.85);
+    margin-bottom: 6px;
+    line-height: 1.2;
   }
 
-  /* Column Spacing - Tighter */
-  .v-col {
-    padding: 3px !important;
-  }
-
-  /* Info Boxes - More Compact */
-  .info-box {
-    padding: 4px 0 !important;
-    margin-bottom: 6px !important;
-  }
-
-  .info-box .text-caption {
-    font-size: 0.7rem !important;
-    margin-bottom: 2px !important;
-    line-height: 1.2 !important;
-  }
-
-  .info-box .text-h6 {
-    font-size: 0.95rem !important;
-    line-height: 1.2 !important;
-  }
-
-  /* Profit Box - Compact & Centered for Mobile */
-  .profit-box {
-    padding: 10px 12px !important;
-    margin-bottom: 6px !important;
-    border-radius: 8px !important;
-    text-align: center !important;
-  }
-
-  .profit-box .text-caption {
-    font-size: 0.7rem !important;
-    margin-bottom: 4px !important;
-  }
-
-  .profit-box .text-h4 {
-    font-size: 1.5rem !important;
-    line-height: 1.1 !important;
-  }
-
-  .profit-box .text-body-1 {
-    font-size: 0.85rem !important;
-    margin-top: 4px !important;
-    justify-content: center !important;
-  }
-
-  .profit-icon {
-    font-size: 18px !important;
-  }
-
-  /* Download Button - Super Compact for Mobile */
-  .download-btn {
-    margin-top: 4px !important;
-    height: 34px !important;
-    font-size: 0.7rem !important;
-    width: 100%;
-    padding: 0 8px !important;
-    min-width: 0 !important;
-    border-radius: 6px !important;
-  }
-
-  .download-btn .v-icon {
-    font-size: 15px !important;
-    margin-right: 3px !important;
-  }
-
-  .download-btn span {
-    font-size: 0.7rem !important;
-    font-weight: 500 !important;
-  }
-
-  .download-btn .v-progress-circular {
-    width: 14px !important;
-    height: 14px !important;
+  .stat-value {
+    font-size: 1rem;
+    font-weight: 700;
+    color: white;
+    line-height: 1.2;
   }
 }
 
@@ -770,24 +875,37 @@ async function generateReport() {
 @media (max-width: 400px) {
   .v-card-title,
   .v-card-text {
-    padding: 6px 10px !important;
-  }
-
-  .stat-card {
-    padding: 6px 8px !important;
-    min-height: 50px !important;
-  }
-
-  .stat-card .text-h4 {
-    font-size: 1.2rem !important;
-  }
-
-  .profit-box {
     padding: 8px 10px !important;
   }
 
-  .profit-box .text-h4 {
-    font-size: 1.3rem !important;
+  .profit-title {
+    font-size: 1.2rem;
+  }
+
+  .profit-value {
+    font-size: 1.9rem;
+  }
+
+  .profit-badge {
+    font-size: 0.75rem;
+    padding: 5px 12px;
+  }
+
+  .profit-percent {
+    font-size: 1.2rem;
+  }
+
+  .mobile-stat-item {
+    padding: 10px 12px;
+    min-height: 68px;
+  }
+
+  .stat-label {
+    font-size: 0.7rem;
+  }
+
+  .stat-value {
+    font-size: 0.9rem;
   }
 }
 </style>
