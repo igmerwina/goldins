@@ -4,139 +4,238 @@
     <v-card-title class="d-flex align-center justify-space-between px-4 py-4">
       <div class="d-flex align-center">
         <div class="icon-container mr-3">
-          <v-icon size="28" color="white">mdi-swap-horizontal</v-icon>
+          <v-icon size="24" color="white">mdi-swap-horizontal</v-icon>
         </div>
         <div>
           <div class="text-h6 font-weight-bold" style="color: #2e2e2e;">Tambah Riwayat Emas</div>
-          <div class="text-caption" style="color: #6b6b6b;">Masukkan detail emas yang sudah Anda miliki atau pernah jual sebelumnya</div>
+          <div class="text-caption" style="color: #6b6b6b;">Catat emas yang Anda miliki atau pernah jual</div>
         </div>
       </div>
       <v-chip 
         :color="transaction.type === 'beli' ? '#4CAF50' : '#F44336'" 
         size="small" 
-        variant="flat"
+        variant="tonal"
+        class="px-4"
         v-if="transaction.type"
       >
-        <v-icon start size="16">{{ transaction.type === 'beli' ? 'mdi-arrow-up-circle' : 'mdi-arrow-down-circle' }}</v-icon>
+        <v-icon start size="18">{{ transaction.type === 'beli' ? 'mdi-arrow-up-circle' : 'mdi-arrow-down-circle' }}</v-icon>
         {{ transaction.type.toUpperCase() }}
       </v-chip>
     </v-card-title>
     <v-divider class="mx-4"></v-divider>
     <v-card-text class="px-4 py-6">
       <v-form @submit.prevent="wrappedAddTransaction" class="transaction-form">
-        <v-row>
-          <v-col cols="12" sm="6" md="3">
-            <v-select
-              v-model="transaction.type"
-              :items="[{title: 'Beli', value: 'beli'}, {title: 'Jual', value: 'jual'}]"
-              label="Status Aset"
-              variant="outlined"
-              color="#0B6B3A"
-              prepend-inner-icon="mdi-swap-horizontal"
-              class="custom-input"
-            >
-              <template v-slot:item="{ props, item }">
-                <v-list-item v-bind="props">
-                  <template v-slot:prepend>
-                    <v-icon :color="item.raw.value === 'beli' ? '#4CAF50' : '#F44336'">
-                      {{ item.raw.value === 'beli' ? 'mdi-arrow-up-circle' : 'mdi-arrow-down-circle' }}
-                    </v-icon>
-                  </template>
-                </v-list-item>
-              </template>
-            </v-select>
-          </v-col>
-          <v-col cols="12" sm="6" md="4">
-            <v-select
-              v-model="transaction.brand"
-              :items="brands"
-              label="Merk Emas"
-              variant="outlined"
-              color="#0B6B3A"
-              prepend-inner-icon="mdi-tag"
-              class="custom-input"
-              :loading="isLoadingData"
-              :disabled="isLoadingData"
-            ></v-select>
-          </v-col>
-          <v-col cols="12" sm="6" md="5">
-            <v-text-field
-              v-model="transaction.date"
-              :label="transaction.type === 'beli' ? 'Tanggal Pembelian' : 'Tanggal Penjualan'"
-              type="date"
-              variant="outlined"
-              color="#0B6B3A"
-              required
-              :min="'1900-01-01'"
-              :max="today"
-              prepend-inner-icon="mdi-calendar"
-              class="custom-input"
-            ></v-text-field>
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col cols="12" sm="6" md="5">
-            <v-select
-              v-model.number="transaction.denom"
-              :items="denominations"
-              label="Denominasi (gram)"
-              variant="outlined"
-              color="#0B6B3A"
-              prepend-inner-icon="mdi-weight-gram"
-              class="custom-input"
-              :loading="isLoadingData"
-              :disabled="isLoadingData"
-            ></v-select>
-          </v-col>
-          <v-col cols="12" sm="6" md="4">
-            <v-text-field
-              v-model.number="transaction.count"
-              label="Jumlah Keping"
-              type="number"
-              min="1"
-              variant="outlined"
-              color="#0B6B3A"
-              required
-              prepend-inner-icon="mdi-numeric"
-              class="custom-input"
-            ></v-text-field>
-          </v-col>
-          <v-col cols="12" sm="8" md="6">
-            <v-text-field
-              v-show="false"
-              v-model="transaction.manualPrice"
-              :label="transaction.type === 'beli' ? 'Harga Per Gram' : 'Harga Per Gram'"
-              :placeholder="transaction.type === 'beli' ? 'Contoh: Rp 1.500.000' : 'Contoh: Rp 1.450.000'"
-              :rules="[
-                v => !!v || 'Harga wajib diisi',
-                v => {
-                  const digits = v ? v.toString().replace(/[^\d]/g, '') : '';
-                  return /^\d{1,12}$/.test(digits) || 'Nominal hanya angka, max 12 digit';
-                }
-              ]"
-              maxlength="20"
-              clearable
-              prepend-inner-icon="mdi-cash-multiple"
-              variant="outlined"
-              type="text"
-              inputmode="numeric"
-              color="#0B6B3A"
-              :formatter="formatRupiah"
-              :model-value="formatRupiah(transaction.manualPrice)"
-              @update:model-value="val => transaction.manualPrice = unformatRupiah(val)"
-              class="custom-input"
-            ></v-text-field>
-          </v-col>
-
-        </v-row>
+        <!-- Desktop: 3 columns -->
+        <div class="desktop-layout">
+          <v-row>
+            <v-col cols="12" md="4">
+              <v-select
+                v-model="transaction.type"
+                :items="[{title: 'Beli', value: 'beli'}, {title: 'Jual', value: 'jual'}]"
+                label="Status Aset"
+                variant="outlined"
+                color="#0B6B3A"
+                prepend-inner-icon="mdi-swap-horizontal"
+                class="custom-input"
+              >
+                <template v-slot:item="{ props, item }">
+                  <v-list-item v-bind="props">
+                    <template v-slot:prepend>
+                      <v-icon :color="item.raw.value === 'beli' ? '#4CAF50' : '#F44336'">
+                        {{ item.raw.value === 'beli' ? 'mdi-arrow-up-circle' : 'mdi-arrow-down-circle' }}
+                      </v-icon>
+                    </template>
+                  </v-list-item>
+                </template>
+              </v-select>
+            </v-col>
+            <v-col cols="12" md="4">
+              <v-select
+                v-model="transaction.brand"
+                :items="brands"
+                label="Merk Emas"
+                variant="outlined"
+                color="#0B6B3A"
+                prepend-inner-icon="mdi-tag"
+                class="custom-input"
+                :loading="isLoadingData"
+                :disabled="isLoadingData"
+              ></v-select>
+            </v-col>
+            <v-col cols="12" md="4">
+              <v-text-field
+                v-model="transaction.date"
+                :label="transaction.type === 'beli' ? 'Tanggal Pembelian' : 'Tanggal Penjualan'"
+                type="date"
+                variant="outlined"
+                color="#0B6B3A"
+                required
+                :min="'1900-01-01'"
+                :max="today"
+                prepend-inner-icon="mdi-calendar"
+                class="custom-input"
+              ></v-text-field>
+            </v-col>
+          </v-row>
+          
+          <v-row>
+            <v-col cols="12" md="6">
+              <v-select
+                v-model.number="transaction.denom"
+                :items="denominations"
+                label="Denominasi (gram)"
+                variant="outlined"
+                color="#0B6B3A"
+                prepend-inner-icon="mdi-weight-gram"
+                class="custom-input"
+                :loading="isLoadingData"
+                :disabled="isLoadingData"
+              ></v-select>
+            </v-col>
+            <v-col cols="12" md="6">
+              <v-text-field
+                v-model.number="transaction.count"
+                label="Jumlah Keping"
+                type="number"
+                min="1"
+                variant="outlined"
+                color="#0B6B3A"
+                required
+                prepend-inner-icon="mdi-numeric"
+                class="custom-input"
+              ></v-text-field>
+            </v-col>
+          </v-row>
+          
+          <v-row>
+            <v-col cols="12">
+              <v-text-field
+                v-show="false"
+                v-model="transaction.manualPrice"
+                :label="transaction.type === 'beli' ? 'Harga Per Gram' : 'Harga Per Gram'"
+                :placeholder="transaction.type === 'beli' ? 'Contoh: Rp 1.500.000' : 'Contoh: Rp 1.450.000'"
+                :rules="[
+                  v => !!v || 'Harga wajib diisi',
+                  v => {
+                    const digits = v ? v.toString().replace(/[^\d]/g, '') : '';
+                    return /^\d{1,12}$/.test(digits) || 'Nominal hanya angka, max 12 digit';
+                  }
+                ]"
+                maxlength="20"
+                clearable
+                prepend-inner-icon="mdi-cash-multiple"
+                variant="outlined"
+                type="text"
+                inputmode="numeric"
+                color="#0B6B3A"
+                :formatter="formatRupiah"
+                :model-value="formatRupiah(transaction.manualPrice)"
+                @update:model-value="val => transaction.manualPrice = unformatRupiah(val)"
+                class="custom-input"
+              ></v-text-field>
+            </v-col>
+          </v-row>
+        </div>
+        
+        <!-- Mobile: 2 columns compact layout -->
+        <div class="mobile-layout">
+          <!-- Row 1: Status Aset & Merk -->
+          <v-row dense>
+            <v-col cols="6">
+              <v-select
+                v-model="transaction.type"
+                :items="[{title: 'Beli', value: 'beli'}, {title: 'Jual', value: 'jual'}]"
+                label="Status Aset"
+                variant="outlined"
+                color="#0B6B3A"
+                prepend-inner-icon="mdi-swap-horizontal"
+                class="custom-input"
+                density="compact"
+              >
+                <template v-slot:item="{ props, item }">
+                  <v-list-item v-bind="props">
+                    <template v-slot:prepend>
+                      <v-icon :color="item.raw.value === 'beli' ? '#4CAF50' : '#F44336'">
+                        {{ item.raw.value === 'beli' ? 'mdi-arrow-up-circle' : 'mdi-arrow-down-circle' }}
+                      </v-icon>
+                    </template>
+                  </v-list-item>
+                </template>
+              </v-select>
+            </v-col>
+            <v-col cols="6">
+              <v-select
+                v-model="transaction.brand"
+                :items="brands"
+                label="Merk Emas"
+                variant="outlined"
+                color="#0B6B3A"
+                prepend-inner-icon="mdi-tag"
+                class="custom-input"
+                density="compact"
+                :loading="isLoadingData"
+                :disabled="isLoadingData"
+              ></v-select>
+            </v-col>
+          </v-row>
+          
+          <!-- Row 2: Denominasi & Jumlah Keping -->
+          <v-row dense>
+            <v-col cols="6">
+              <v-select
+                v-model.number="transaction.denom"
+                :items="denominations"
+                label="Denominasi (gram)"
+                variant="outlined"
+                color="#0B6B3A"
+                prepend-inner-icon="mdi-weight-gram"
+                class="custom-input"
+                density="compact"
+                :loading="isLoadingData"
+                :disabled="isLoadingData"
+              ></v-select>
+            </v-col>
+            <v-col cols="6">
+              <v-text-field
+                v-model.number="transaction.count"
+                label="Jumlah Keping"
+                type="number"
+                min="1"
+                variant="outlined"
+                color="#0B6B3A"
+                required
+                prepend-inner-icon="mdi-numeric"
+                class="custom-input"
+                density="compact"
+              ></v-text-field>
+            </v-col>
+          </v-row>
+          
+          <!-- Row 3: Tanggal (Full Width) -->
+          <v-row dense>
+            <v-col cols="12">
+              <v-text-field
+                v-model="transaction.date"
+                :label="transaction.type === 'beli' ? 'Tanggal Pembelian' : 'Tanggal Penjualan'"
+                type="date"
+                variant="outlined"
+                color="#0B6B3A"
+                required
+                :min="'1900-01-01'"
+                :max="today"
+                prepend-inner-icon="mdi-calendar"
+                class="custom-input"
+                density="compact"
+              ></v-text-field>
+            </v-col>
+          </v-row>
+        </div>
         
         <!-- Transaction Summary -->
         <v-alert v-if="transaction.denom && transaction.count && transaction.manualPrice" 
           class="mt-4 summary-alert"
           rounded="lg"
           color="#E8F5E9"
-          border="start"
-          border-color="#0B6B3A"
         >
           <div class="summary-content">
             <div class="summary-left">
@@ -166,7 +265,7 @@
             :disabled="!transaction.date || transaction.count < 1 || isLoading"
             :loading="isLoading"
           >
-            <v-icon start size="22">{{ isLoading ? 'mdi-loading' : 'mdi-content-save' }}</v-icon>
+            <v-icon start size="22">{{ isLoading ? 'mdi-loading' : 'mdi-check-circle' }}</v-icon>
             <span class="btn-text">
               <template v-if="!isLoading">Simpan Aset</template>
               <template v-else>Menyimpan...</template>
@@ -366,7 +465,7 @@ watch(
 
 .summary-alert {
   animation: slideInUp 0.4s ease-out;
-  border-left: 4px solid #0B6B3A !important;
+  border: 1px solid rgba(11, 107, 58, 0.2) !important;
   background: linear-gradient(135deg, #E8F5E9 0%, #F1F8F4 100%) !important;
   box-shadow: 0 2px 12px rgba(11, 107, 58, 0.1) !important;
 }
@@ -489,9 +588,28 @@ watch(
   }
 }
 
+/* Desktop layout: show on screens >= 600px */
+.desktop-layout {
+  display: block;
+}
+
+/* Mobile layout: hide on desktop */
+.mobile-layout {
+  display: none;
+}
+
 @media (max-width: 600px) {
+  /* Hide desktop layout on mobile */
+  .desktop-layout {
+    display: none;
+  }
+  
+  /* Show mobile layout on mobile */
+  .mobile-layout {
+    display: block;
+  }
   .transaction-card .v-card-title {
-    padding: 12px 16px !important;
+    padding: 10px 16px !important;
     flex-direction: column;
     align-items: flex-start !important;
     gap: 12px;
@@ -502,12 +620,16 @@ watch(
   }
   
   .transaction-card .v-card-text {
-    padding: 16px !important;
+    padding: 12px 16px !important;
   }
   
   .icon-container {
     width: 40px;
     height: 40px;
+  }
+  
+  .icon-container .v-icon {
+    font-size: 20px !important;
   }
   
   .transaction-card .text-h6 {
