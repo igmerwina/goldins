@@ -6,7 +6,7 @@
         <v-icon size="28" color="white">mdi-chart-donut</v-icon>
       </div>
       <div class="flex-grow-1">
-        <div class="text-h6 font-weight-bold" style="color: #2e2e2e;">Komposisi Emas</div>
+        <div class="text-h6 font-weight-bold" style="color: #2e2e2e;">Komposisi EmasKu</div>
         <div class="text-caption" style="color: #6b6b6b;">Distribusi portfolio berdasarkan merk</div>
       </div>
       <v-chip 
@@ -299,7 +299,7 @@ watch(() => props.transactions, () => {
   width: 52px;
   height: 52px;
   border-radius: 14px;
-  background: linear-gradient(135deg, #FFA726 0%, #FF6F00 100%);
+  background: linear-gradient(135deg, #D4AF37 0%, #B8860B 100%);
   display: flex;
   align-items: center;
   justify-content: center;

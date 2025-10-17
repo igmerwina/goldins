@@ -42,7 +42,12 @@
             :disabled="isLoadingData"
           >
             <template v-slot:prepend-inner>
-              <v-icon color="#0B6B3A">mdi-briefcase</v-icon>
+              <img
+                :src="getBrandLogo(selectedBrand)"
+                :alt="`${selectedBrand} logo`"
+                class="brand-logo mr-1"
+                style="width: 18px; height: 18px; object-fit: contain; vertical-align: middle;"
+              />
             </template>
           </v-select>
         </v-col>
@@ -111,6 +116,9 @@
 import { ref, watch, onMounted, nextTick, computed } from 'vue';
 import { Chart, LineController, LineElement, PointElement, CategoryScale, LinearScale, Filler, Tooltip, Legend } from 'chart.js';
 import { supabase } from '../lib/SupabaseClient';
+import antam from '@/assets/gold/antam.png';
+import galeri24 from '@/assets/gold/galery24.png';
+import ubs from '@/assets/gold/ubs.png';
 
 Chart.register(LineController, LineElement, PointElement, CategoryScale, LinearScale, Filler, Tooltip, Legend);
 
@@ -296,6 +304,18 @@ function drawLineChart() {
   }
 }
 
+function getBrandLogo(brand) {
+  // safe key for matching
+  if (!brand) return galeri24;
+  const key = String(brand).toLowerCase().replaceAll(/\s+/g, '').replaceAll(/[^a-z0-9]/g, '');
+  if (key.includes('antam')) return antam;
+  if (key.includes('ubs')) return ubs;
+  // match variations of galeri/galery names
+  if (key.includes('galeri') || key.includes('galery') || key.includes('galeri24') || key.includes('galery24')) return galeri24;
+  // fallback
+  return galeri24;
+}
+
 // Lifecycle
 onMounted(async () => {
   // Fetch brands and denominations first
@@ -351,7 +371,7 @@ watch([selectedBrand, selectedDenom], async ([brand, denom]) => {
   width: 50px;
   height: 50px;
   border-radius: 14px;
-  background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+  background: linear-gradient(135deg, #0B6B3A 0%, #1aa251 100%);
   display: flex;
   align-items: center;
   justify-content: center;

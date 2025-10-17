@@ -11,9 +11,9 @@
           <v-container class="d-flex align-center px-0 header-container">
             <v-icon size="32" class="mr-2" color="secondary">mdi-treasure-chest</v-icon>
             <v-toolbar-title class="white--text">
-              <span class="font-weight-bold text-h6 d-none d-sm-inline">Gold Insight by Pegadaian</span>
+              <span class="font-weight-bold text-h6 d-none d-sm-inline">Gold Insight</span>
               <span class="font-weight-bold text-h6 d-inline d-sm-none">Gold Insight</span>
-              <p class="text-caption mt-n1 hidden-sm-and-down">Kelola portofolio emas Anda dengan lebih mudah</p>
+              <p class="text-caption mt-n1 hidden-sm-and-down">Kelola portofolio emas dengan lebih mudah</p>
             </v-toolbar-title>
             <v-spacer />
             <transition name="fade-in-btn">
@@ -178,13 +178,13 @@ const carouselSlides = [
   },
   {
     image: onboarding2,
-    title: 'Kelola Portofolio',
-    description: 'Catat dan kelola investasi emas Anda dengan mudah'
+    title: 'Kelola Portofolio Emasmu',
+    description: 'Catat dan kelola aset emasmu dengan mudah dan praktis'
   },
   {
     image: onboarding3,
     title: 'Analisis Keuntungan',
-    description: 'Lihat profit dan pergerakan investasi Anda'
+    description: 'Lihat potensi keuntungan aset emasmu'
   }
 ];
 

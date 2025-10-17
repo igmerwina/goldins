@@ -12,7 +12,7 @@
             <span class="text-caption">{{ user.phone }}</span>
           </v-chip>
         </div>
-        <div class="text-h5 font-weight-bold mt-1">Portofolio Emas</div>
+        <div class="text-h5 font-weight-bold mt-1">Portofolio EmasKu</div>
       </div>
     </v-card-title>
     <v-card-text class="px-4 py-4">
@@ -221,7 +221,7 @@ const avgHargaBeli = computed(() => {
   if (!props.transactions || !props.transactions.length) return 0;
   const beli = props.transactions.filter(tx => tx.type === 'beli');
   if (beli.length === 0) return 0;
-  const totalPrice = beli.reduce((sum, tx) => sum + (Number(tx.price) || 0), 0);
+  const totalPrice = beli.reduce((sum, tx) => sum + (Number(tx.total_price) || 0), 0);
   const totalGram = beli.reduce((sum, tx) => sum + (Number(tx.denom) * Number(tx.count)), 0);
   if (totalGram === 0) return 0;
   return Math.round(totalPrice / totalGram);
