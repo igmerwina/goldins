@@ -6,7 +6,7 @@
           <v-icon size="28" color="white">mdi-history</v-icon>
         </div>
         <div>
-          <div class="text-h6 font-weight-bold" style="color: #2e2e2e;">Riwayat Transaksi</div>
+          <!-- <div class="text-h6 font-weight-bold" style="color: #2e2e2e;">Riwayat Transaksi</div> -->
           <div class="text-caption" style="color: #6b6b6b;">{{ transactions.length }} transaksi tercatat</div>
         </div>
       </div>
@@ -335,9 +335,21 @@ function doDelete() {
   animation: fadeIn 0.5s ease-out;
 }
 
-
 .pagination-custom :deep(.v-pagination__item) {
   transition: all 0.3s ease;
+  min-width: 32px !important;
+  width: 32px !important;
+  height: 32px !important;
+  margin: 0 2px !important;
+  font-size: 0.875rem !important;
+}
+
+.pagination-custom :deep(.v-pagination__prev),
+.pagination-custom :deep(.v-pagination__next) {
+  min-width: 32px !important;
+  width: 32px !important;
+  height: 32px !important;
+  margin: 0 2px !important;
 }
 
 .pagination-custom :deep(.v-pagination__item:hover) {

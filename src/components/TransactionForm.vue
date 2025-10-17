@@ -7,7 +7,7 @@
           <v-icon size="24" color="white">mdi-swap-horizontal</v-icon>
         </div>
         <div>
-          <div class="text-h6 font-weight-bold" style="color: #2e2e2e;">Tambah Riwayat Emas</div>
+          <!-- <div class="text-h8 font-weight-bold" style="color: #2e2e2e;">Tambah Riwayat Emas</div> -->
           <div class="text-caption" style="color: #6b6b6b;">Catat emas yang Anda miliki atau pernah jual</div>
         </div>
       </div>
