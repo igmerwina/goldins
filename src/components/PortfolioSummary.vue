@@ -2,7 +2,7 @@
   <v-card class="mb-4 portfolio-card" rounded="xl" elevation="8" style="background: linear-gradient(135deg, #0B6B3A 0%, #1aa251 100%); color: white; box-shadow: 0 8px 24px rgba(11, 107, 58, 0.25);">
     <v-card-title class="d-flex justify-space-between align-center py-4 px-4">
       <div class="d-flex flex-column" style="width: 100%;">
-        <!-- <div class="d-flex align-center justify-space-between mb-2">
+        <div class="d-flex align-center justify-space-between mb-2">
           <v-chip color="white" variant="flat" label size="small" style="color: #0B6B3A; font-weight: 600;">
             <v-icon start size="16">mdi-account-circle</v-icon>
             <span class="text-caption">{{ user.name || user.phone }}</span>
@@ -11,7 +11,7 @@
             <v-icon start size="16">mdi-phone</v-icon>
             <span class="text-caption">{{ user.phone }}</span>
           </v-chip>
-        </div> -->
+        </div>
         <div class="text-h5 font-weight-bold mt-1">Portofolio EmasKu</div>
       </div>
     </v-card-title>
