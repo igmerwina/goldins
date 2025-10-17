@@ -31,18 +31,18 @@
           <v-row justify="center">
             <v-col cols="12" sm="12" md="10" lg="9" xl="8">
               <!-- Login Card - Enhanced -->
-              <v-card v-if="!hasUser" class="pa-5 pa-sm-8 onboarding-card login-card" rounded="xl" elevation="8">
+              <v-card v-if="!hasUser" class="pa-2 pa-sm-4 onboarding-card login-card" rounded="xl" elevation="8">
                 <div class="login-header">
                   <div class="login-icon-wrapper">
-                    <v-icon size="48" color="#0B6B3A">mdi-shield-check</v-icon>
+                    <v-icon size="28" color="#0B6B3A">mdi-shield-check</v-icon>
                   </div>
-                  <v-card-title class="text-h4 font-weight-bold mb-2 px-0 login-title">Selamat Datang</v-card-title>
+                  <v-card-title class="text-subtitle-1 font-weight-bold mb-1 px-0 login-title">Selamat Datang</v-card-title>
                 </div>
 
                 <!-- Onboarding Carousel - Inside Card -->
                 <div class="carousel-section" @mouseenter="stopCarousel" @mouseleave="startCarousel">
                   <button class="carousel-arrow left" @click="prevSlide">
-                    <v-icon color="white" size="24">mdi-chevron-left</v-icon>
+                    <v-icon color="white" size="18">mdi-chevron-left</v-icon>
                   </button>
                   
                   <div class="carousel-inner">
@@ -61,7 +61,6 @@
                     </div>
                     
                     <!-- Dots Indicator -->
-                    <br>
                     <div class="carousel-dots">
                       <span 
                         v-for="n in 3" 
@@ -73,11 +72,11 @@
                   </div>
                   
                   <button class="carousel-arrow right" @click="nextSlide">
-                    <v-icon color="white" size="24">mdi-chevron-right</v-icon>
+                    <v-icon color="white" size="18">mdi-chevron-right</v-icon>
                   </button>
                 </div>
                 
-                <p class="text-body-1 mb-4 px-0 login-subtitle">Masukkan data Anda untuk memulai pengelolaan portofolio emas yang lebih baik</p>
+                <p class="text-caption mb-1 px-0 login-subtitle">Masukkan data Anda untuk memulai pengelolaan portofolio emas yang lebih baik</p>
                 <div class="input-group">
                   <v-text-field
                     v-model="user.name"
@@ -93,7 +92,7 @@
                     variant="outlined"
                     color="#0B6B3A"
                     class="custom-input"
-                    density="comfortable"
+                    density="compact"
                   ></v-text-field>
                   
                   <v-text-field
@@ -107,15 +106,15 @@
                     variant="outlined"
                     color="#0B6B3A"
                     class="custom-input"
-                    density="comfortable"
+                    density="compact"
                     @input="filterPhone"
                   ></v-text-field>
                 </div>
                 
-                <v-card-actions class="justify-end px-0 mt-2">
+                <v-card-actions class="justify-end px-0 mt-0">
                   <v-btn 
                     color="#0B6B3A" 
-                    size="x-large" 
+                    size="large" 
                     @click="saveUser" 
                     :disabled="!user.name || !user.phone" 
                     block
@@ -124,15 +123,15 @@
                     class="onboarding-btn"
                   >
                     <span class="btn-text">Mulai Sekarang</span>
-                    <v-icon end size="24">mdi-arrow-right-circle</v-icon>
+                    <v-icon end size="20">mdi-arrow-right-circle</v-icon>
                   </v-btn>
                 </v-card-actions>
                 
-                <v-alert v-if="phoneError" type="error" class="mt-4" rounded="lg" variant="tonal">{{ phoneError }}</v-alert>
+                <v-alert v-if="phoneError" type="error" class="mt-2" rounded="lg" variant="tonal" density="compact">{{ phoneError }}</v-alert>
                 
                 <div class="login-footer">
-                  <v-icon size="16" color="#999">mdi-lock</v-icon>
-                  <span class="footer-text">Data Anda aman dan terenkripsi</span>
+                  <v-icon size="12" color="#999">mdi-lock</v-icon>
+                  <span class="footer-text">Data Anda aman</span>
                 </div>
               </v-card>
               
@@ -318,13 +317,13 @@ function logout() {
 /* Login Card Enhancements */
 .login-header {
   text-align: center;
-  margin-bottom: 24px;
+  margin-bottom: 16px;
 }
 
 .login-icon-wrapper {
   display: flex;
   justify-content: center;
-  margin-bottom: 16px;
+  margin-bottom: 10px;
   animation: iconPulse 2s ease-in-out infinite;
 }
 
@@ -335,38 +334,38 @@ function logout() {
 
 .login-title {
   color: #1a1a1a;
-  font-size: 2rem !important;
+  font-size: 1.5rem !important;
   line-height: 1.2;
 }
 
 .login-subtitle {
   color: #666;
-  font-size: 1rem;
-  line-height: 1.5;
+  font-size: 0.875rem;
+  line-height: 1.4;
   text-align: center;
 }
 
 .input-group {
-  margin-bottom: 16px;
+  margin-bottom: 8px;
 }
 
 .custom-input {
-  margin-bottom: 16px;
+  margin-bottom: 10px;
 }
 
 .login-footer {
-  margin-top: 24px;
-  padding-top: 20px;
+  margin-top: 16px;
+  padding-top: 14px;
   border-top: 1px solid #e8e8e8;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 6px;
 }
 
 .footer-text {
   color: #999;
-  font-size: 0.875rem;
+  font-size: 0.8rem;
 }
 
 .onboarding-btn {
@@ -376,11 +375,11 @@ function logout() {
   font-weight: 600 !important;
   text-transform: none !important;
   letter-spacing: 0.5px;
-  height: 56px !important;
+  height: 48px !important;
 }
 
 .onboarding-btn .btn-text {
-  font-size: 1.1rem;
+  font-size: 1rem;
 }
 
 .onboarding-btn:hover {
@@ -439,17 +438,17 @@ function logout() {
   justify-content: center;
   position: relative;
   width: 100%;
-  margin-bottom: 32px;
-  gap: 12px;
+  margin-bottom: 20px;
+  gap: 10px;
 }
 
 .carousel-inner {
   position: relative;
   width: 100%;
   overflow: hidden;
-  border-radius: 16px;
+  border-radius: 12px;
   background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
-  padding: 4px;
+  padding: 3px;
 }
 
 .carousel-track {
@@ -469,22 +468,22 @@ function logout() {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 16px;
+  padding: 10px;
 }
 
 .slide-image-wrapper {
   width: 100%;
-  max-height: 280px;
+  max-height: 200px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 16px;
+  margin-bottom: 10px;
 }
 
 .carousel-img {
   width: 100%;
   height: auto;
-  max-height: 280px;
+  max-height: 200px;
   object-fit: contain;
   display: block;
   animation: slideInCarousel 0.5s ease-out;
@@ -492,38 +491,38 @@ function logout() {
 
 .slide-caption {
   text-align: center;
-  padding: 0 20px;
+  padding: 0 12px;
   animation: fadeIn 0.6s ease-out 0.2s backwards;
 }
 
 .slide-title {
   color: #0B6B3A;
-  font-size: 1.35rem;
+  font-size: 1.1rem;
   font-weight: 700;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
   line-height: 1.3;
 }
 
 .slide-description {
   color: #666;
-  font-size: 0.95rem;
-  line-height: 1.5;
+  font-size: 0.85rem;
+  line-height: 1.4;
   margin: 0;
 }
 
 .carousel-dots {
   position: absolute;
-  bottom: 16px;
+  bottom: 10px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
-  gap: 10px;
+  gap: 8px;
   z-index: 10;
 }
 
 .dot {
-  width: 10px;
-  height: 10px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   background: rgba(11, 107, 58, 0.3);
   cursor: pointer;
@@ -539,7 +538,7 @@ function logout() {
 .dot.active {
   background: #0B6B3A;
   border-color: #fff;
-  width: 28px;
+  width: 24px;
   border-radius: 5px;
 }
 
@@ -548,8 +547,8 @@ function logout() {
   color: #fff;
   border: none;
   border-radius: 50%;
-  width: 42px;
-  height: 42px;
+  width: 36px;
+  height: 36px;
   cursor: pointer;
   box-shadow: 0 3px 12px rgba(11, 107, 58, 0.25);
   transition: all 0.3s ease;
@@ -671,55 +670,125 @@ function logout() {
 
 @media (max-width: 960px) {
   .slide-image-wrapper {
-    max-height: 240px;
+    max-height: 170px;
   }
   
   .carousel-img {
-    max-height: 240px;
+    max-height: 170px;
   }
   
   .slide-title {
-    font-size: 1.2rem;
+    font-size: 1rem;
   }
   
   .slide-description {
-    font-size: 0.9rem;
+    font-size: 0.8rem;
   }
   
   .carousel-arrow {
-    width: 38px;
-    height: 38px;
+    width: 34px;
+    height: 34px;
   }
   
   .login-title {
-    font-size: 1.75rem !important;
+    font-size: 1.35rem !important;
   }
   
   .login-subtitle {
-    font-size: 0.95rem;
+    font-size: 0.85rem;
   }
 }
 
 @media (max-width: 600px) {
   .carousel-inner {
-    border-radius: 12px;
+    border-radius: 10px;
   }
   
   .slide-content {
-    padding: 12px;
+    padding: 12px 8px;
   }
   
   .slide-image-wrapper {
-    max-height: 180px;
-    margin-bottom: 12px;
+    max-height: 200px;
+    margin-bottom: 10px;
   }
   
   .carousel-img {
-    max-height: 180px;
+    max-height: 200px;
   }
   
   .slide-caption {
-    padding: 0 8px;
+    padding: 0 10px;
+  }
+  
+  .slide-title {
+    font-size: 1rem;
+  }
+  
+  .slide-description {
+    font-size: 0.8rem;
+  }
+  
+  .carousel-arrow {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .carousel-section {
+    margin-bottom: 16px;
+    gap: 8px;
+  }
+  
+  .carousel-dots {
+    bottom: 10px;
+    gap: 7px;
+  }
+  
+  .dot {
+    width: 7px;
+    height: 7px;
+  }
+  
+  .dot.active {
+    width: 22px;
+  }
+  
+  .login-card {
+    margin: 0 8px;
+  }
+  
+  .login-title {
+    font-size: 1.2rem !important;
+  }
+  
+  .login-subtitle {
+    font-size: 0.8rem;
+  }
+  
+  .login-icon-wrapper {
+    margin-bottom: 8px;
+  }
+  
+  .login-header {
+    margin-bottom: 12px;
+  }
+  
+  .onboarding-btn {
+    height: 44px !important;
+  }
+  
+  .onboarding-btn .btn-text {
+    font-size: 0.95rem;
+  }
+}
+
+@media (min-width: 401px) and (max-width: 600px) {
+  .slide-image-wrapper {
+    max-height: 220px;
+  }
+  
+  .carousel-img {
+    max-height: 220px;
   }
   
   .slide-title {
@@ -730,76 +799,32 @@ function logout() {
     font-size: 0.85rem;
   }
   
-  .carousel-arrow {
-    width: 36px;
-    height: 36px;
-  }
-  
   .carousel-section {
-    margin-bottom: 24px;
-    gap: 8px;
-  }
-  
-  .carousel-dots {
-    bottom: 12px;
-    gap: 8px;
-  }
-  
-  .dot {
-    width: 8px;
-    height: 8px;
-  }
-  
-  .dot.active {
-    width: 24px;
-  }
-  
-  .login-card {
-    margin: 0 8px;
-  }
-  
-  .login-title {
-    font-size: 1.5rem !important;
-  }
-  
-  .login-subtitle {
-    font-size: 0.875rem;
-  }
-  
-  .login-icon-wrapper {
-    margin-bottom: 12px;
-  }
-  
-  .onboarding-btn {
-    height: 52px !important;
-  }
-  
-  .onboarding-btn .btn-text {
-    font-size: 1rem;
+    margin-bottom: 18px;
   }
 }
 
 @media (max-width: 400px) {
   .carousel-arrow {
-    width: 32px;
-    height: 32px;
+    width: 30px;
+    height: 30px;
   }
   
   .slide-content {
-    padding: 8px;
+    padding: 10px 6px;
   }
   
   .slide-image-wrapper {
-    max-height: 150px;
-    margin-bottom: 10px;
+    max-height: 160px;
+    margin-bottom: 8px;
   }
   
   .carousel-img {
-    max-height: 150px;
+    max-height: 160px;
   }
   
   .slide-title {
-    font-size: 0.95rem;
+    font-size: 0.9rem;
   }
   
   .slide-description {
@@ -807,16 +832,24 @@ function logout() {
   }
   
   .carousel-section {
-    margin-bottom: 20px;
+    margin-bottom: 12px;
     gap: 6px;
   }
   
+  .carousel-dots {
+    bottom: 8px;
+  }
+  
   .login-title {
-    font-size: 1.3rem !important;
+    font-size: 1.1rem !important;
   }
   
   .onboarding-btn {
-    height: 48px !important;
+    height: 42px !important;
+  }
+  
+  .onboarding-btn .btn-text {
+    font-size: 0.9rem;
   }
 }
 </style>
