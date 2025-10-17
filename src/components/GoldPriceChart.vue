@@ -10,7 +10,7 @@
       <div class="flex-grow-1">
         <div class="d-flex align-center justify-space-between flex-wrap">
           <div>
-            <div class="text-h6 font-weight-bold" style="color: #2e2e2e;">Grafik Harga Emas</div>
+            <!-- <div class="text-h6 font-weight-bold" style="color: #2e2e2e;">Grafik Harga Emas</div> -->
             <div class="text-caption" style="color: #6b6b6b;">Pergerakan harga 7 hari terakhir</div>
           </div>
           <v-chip size="small" class="pulse-chip" style="background: linear-gradient(135deg, #D4AF37 0%, #B8860B 100%); color: white;">

@@ -7,7 +7,7 @@
           <div v-if="showWelcomeBanner" class="welcome-banner">
             <v-icon size="32" color="white" class="mr-3">mdi-hand-wave</v-icon>
             <div>
-              <div class="text-h6 font-weight-bold">Selamat Datang, {{ user.name }}!</div>
+              <div class="text-h8 font-weight-bold">Selamat Datang, {{ user.name }}!</div>
               <div class="text-caption">Mulai kelola portofolio aset emas batangan di menu <b>Catatan EmasKu</b></div>
             </div>
             <v-btn icon size="small" variant="text" color="white" @click="showWelcomeBanner = false" class="ml-auto">
@@ -21,7 +21,7 @@
           <div class="section-header" @click="toggleSection('form')">
             <div class="section-title">
               <v-icon size="24" color="#0B6B3A" class="mr-2">mdi-plus-circle</v-icon>
-              <span class="text-h6 font-weight-bold">Catatan EmasKu</span>
+              <span class="text-h8 font-weight-bold">Catatan EmasKu</span>
             </div>
             <v-icon 
               size="24" 
@@ -67,7 +67,7 @@
           <div class="section-header" @click="toggleSection('composition')">
             <div class="section-title">
               <v-icon size="24" color="#0B6B3A" class="mr-2">mdi-chart-donut</v-icon>
-              <span class="text-h6 font-weight-bold">Komposisi EmasKu</span>
+              <span class="text-h8 font-weight-bold">Komposisi EmasKu</span>
             </div>
             <v-icon 
               size="24" 
@@ -89,7 +89,7 @@
           <div class="section-header" @click="toggleSection('chart')">
             <div class="section-title">
               <v-icon size="24" color="#0B6B3A" class="mr-2">mdi-chart-line</v-icon>
-              <span class="text-h6 font-weight-bold">Grafik Harga Emas</span>
+              <span class="text-h8 font-weight-bold">Grafik Harga Emas</span>
             </div>
             <v-icon 
               size="24" 
@@ -111,7 +111,7 @@
           <div class="section-header" @click="toggleSection('history')">
             <div class="section-title">
               <v-icon size="24" color="#0B6B3A" class="mr-2">mdi-history</v-icon>
-              <span class="text-h6 font-weight-bold">Riwayat Transaksi</span>
+              <span class="text-h8 font-weight-bold">Riwayat Transaksi</span>
             </div>
             <v-icon 
               size="24" 

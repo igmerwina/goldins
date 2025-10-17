@@ -6,7 +6,7 @@
         <v-icon size="28" color="white">mdi-chart-donut</v-icon>
       </div>
       <div class="flex-grow-1">
-        <div class="text-h6 font-weight-bold" style="color: #2e2e2e;">Komposisi EmasKu</div>
+        <!-- <div class="text-h8 font-weight-bold" style="color: #2e2e2e;">Komposisi EmasKu</div> -->
         <div class="text-caption" style="color: #6b6b6b;">Distribusi portfolio berdasarkan merk</div>
       </div>
       <v-chip 
