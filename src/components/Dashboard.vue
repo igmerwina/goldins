@@ -4,7 +4,7 @@
       <v-col cols="12" sm="12" md="10" lg="9" xl="8" class="dashboard-content">
         <!-- Welcome Banner Animation -->
         <transition name="slide-fade">
-          <div v-if="showWelcomeBanner" class="welcome-banner">
+          <div v-if="showWelcomeBanner" class="welcome-banner" @click="showWelcomeBanner = false">
             <v-icon size="32" color="white" class="mr-3">mdi-hand-wave</v-icon>
             <div>
               <div class="text-h8 font-weight-bold">Selamat Datang, {{ user.name }}!</div>
@@ -274,11 +274,6 @@ onMounted(async () => {
   
   // Setup scroll listener for back-to-top button
   window.addEventListener('scroll', handleScroll);
-  
-  // Auto-hide welcome banner
-  setTimeout(() => {
-    showWelcomeBanner.value = false;
-  }, 5000);
 });
 
 // Transaction Management
@@ -433,6 +428,7 @@ function toggleSection(section) {
   border-radius: 16px;
   box-shadow: 0 8px 24px rgba(11, 107, 58, 0.25);
   animation: slideDown 0.5s ease-out;
+  cursor: pointer;
 }
 
 .back-to-top-btn {
