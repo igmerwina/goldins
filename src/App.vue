@@ -13,7 +13,7 @@
             <v-toolbar-title class="white--text">
               <span class="font-weight-bold text-h6 d-none d-sm-inline">Gold Insight</span>
               <span class="font-weight-bold text-h6 d-inline d-sm-none">Gold Insight</span>
-              <p class="text-caption mt-n1 hidden-sm-and-down">Kelola portofolio emas dengan lebih mudah</p>
+              <p class="text-caption mt-n1">Kelola portofolio emas dengan lebih mudah</p>
             </v-toolbar-title>
             <v-spacer />
             <transition name="fade-in-btn">
@@ -76,7 +76,7 @@
                   </button>
                 </div>
                 
-                <p class="text-caption mb-1 px-0 login-subtitle">Masukkan data Anda untuk memulai pengelolaan portofolio emas yang lebih baik</p>
+                <p class="text-caption mb-1 px-0 login-subtitle">Masukkan data untuk memulai pengelolaan portofolio emas batangan lebih baik</p>
                 <div class="input-group">
                   <v-text-field
                     v-model="user.name"
@@ -173,7 +173,7 @@ const carouselSlides = [
   {
     image: onboarding1,
     title: 'Monitor Harga Emas',
-    description: 'Pantau pergerakan harga emas'
+    description: 'Pantau pergerakan harga emas batangan'
   },
   {
     image: onboarding2,
