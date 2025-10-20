@@ -96,29 +96,30 @@ Output akan tersimpan di folder `dist/`
 ```
 goldins/
 ├── src/
-│   ├── App.vue                      # Main application shell
-│   ├── main.js                      # Application entry point
+│   ├── App.vue                      # Main application shell (header, onboarding, logout UX)
+│   ├── main.js                      # App entry
 │   ├── style.css                    # Global styles
 │   ├── assets/                      # Images & static files
-│   │   ├── onboarding1.png         # Carousel image 1
-│   │   ├── onboarding2.png         # Carousel image 2
-│   │   ├── onboarding3.png         # Carousel image 3
-│   │   └── ss_v2.png               # Screenshot
+│   │   ├── onboarding1.png
+│   │   ├── onboarding2.png
+│   │   ├── onboarding3.png
+│   │   └── ss_v2.png
+│   │   └── ss.jpeg
 │   ├── components/                  # Vue components
-│   │   ├── Dashboard.vue           # Main dashboard
-│   │   ├── PortfolioSummary.vue    # Portfolio overview
-│   │   ├── GoldComposition.vue     # Donut chart composition
-│   │   ├── GoldPriceChart.vue      # Line chart price history
-│   │   ├── TransactionForm.vue     # Add transaction form
-│   │   ├── TransactionHistory.vue  # Transaction list
-│   │   └── AppFeedback.vue         # Feedback section
+│   │   ├── Dashboard.vue            # Main dashboard (welcome banner, summary)
+│   │   ├── PortfolioSummary.vue     # Portfolio overview
+│   │   ├── GoldComposition.vue      # Donut chart composition
+│   │   ├── GoldPriceChart.vue       # Line chart price history
+│   │   ├── TransactionForm.vue      # Add transaction form (desktop horizontal layout)
+│   │   ├── TransactionHistory.vue   # Transaction list (compact pagination)
+│   │   └── AppFeedback.vue          # Feedback & PDF export flow
 │   └── lib/
 │       └── SupabaseClient.js       # Supabase configuration
 ├── api/
-│   └── prices.js                    # Vercel serverless function
+│   └── prices.js                    # Serverless function for price fetch (Vercel)
 ├── vite.config.js                   # Vite configuration
 ├── vercel.json                      # Vercel deployment config
-└── package.json                     # Dependencies
+└── package.json                     # Dependencies & scripts
 ```
 
 ## 🎨 Tech Stack
