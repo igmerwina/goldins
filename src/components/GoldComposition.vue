@@ -7,7 +7,7 @@
       </div>
       <div class="flex-grow-1">
         <!-- <div class="text-h8 font-weight-bold" style="color: #2e2e2e;">Komposisi EmasKu</div> -->
-        <div class="text-caption" style="color: #6b6b6b;">Distribusi portfolio berdasarkan merk</div>
+        <div class="text-caption" style="color: #6b6b6b;">Distribusi portofolio berdasarkan merk</div>
       </div>
       <v-chip 
         v-if="donutBrands.length > 0" 

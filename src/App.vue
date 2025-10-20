@@ -9,16 +9,23 @@
       <v-app-bar app flat class="gradient-header">
         <div style="width:100vw;display:flex;justify-content:center;align-items:center;position:relative;">
           <v-container class="d-flex align-center px-0 header-container">
-            <v-icon size="32" class="mr-2" color="secondary">mdi-treasure-chest</v-icon>
-            <v-toolbar-title class="white--text">
+            <v-icon size="36" class="mr-1 header-icon" color="secondary">mdi-treasure-chest</v-icon>
+            <v-toolbar-title class="white--text header-title">
               <span class="font-weight-bold text-h6 d-none d-sm-inline">Gold Insight</span>
               <span class="font-weight-bold text-h6 d-inline d-sm-none">Gold Insight</span>
-              <p class="text-caption mt-n1 hidden-sm-and-down">Kelola portofolio emas dengan lebih mudah</p>
+              <p class="text-caption mt-n1 subtitle-text">Kelola portofolio emas dengan lebih mudah</p>
             </v-toolbar-title>
             <v-spacer />
             <transition name="fade-in-btn">
-              <v-btn v-if="hasUser" color="secondary" variant="flat" @click="logout" class="logout-btn">
-                <v-icon class="logout-icon">mdi-logout</v-icon>
+              <v-btn
+                v-if="hasUser"
+                color="secondary"
+                variant="flat"
+                @click="onLogoutBtnClick($event)"
+                @keydown.enter.prevent="onLogoutBtnKey"
+                :class="['logout-btn', { 'is-expanded': logoutExpanded }]"
+              >
+                <v-icon size="18" class="logout-icon">mdi-logout</v-icon>
                 <span class="logout-text">Logout</span>
               </v-btn>
             </transition>
@@ -76,7 +83,7 @@
                   </button>
                 </div>
                 
-                <p class="text-caption mb-1 px-0 login-subtitle">Masukkan data Anda untuk memulai pengelolaan portofolio emas yang lebih baik</p>
+                <p class="text-caption mb-1 px-0 login-subtitle">Masukkan data untuk memulai pengelolaan portofolio emas batangan lebih baik</p>
                 <div class="input-group">
                   <v-text-field
                     v-model="user.name"
@@ -169,11 +176,15 @@ const showLoader = ref(true);
 const currentSlide = ref(0);
 let carouselInterval = null;
 
+// Two-step logout state
+const logoutExpanded = ref(false);
+let logoutTimer = null;
+
 const carouselSlides = [
   {
     image: onboarding1,
     title: 'Monitor Harga Emas',
-    description: 'Pantau pergerakan harga emas'
+    description: 'Pantau pergerakan harga emas batangan'
   },
   {
     image: onboarding2,
@@ -201,6 +212,11 @@ onMounted(() => {
 
 onUnmounted(() => {
   stopCarousel();
+  // clear logout timer if still pending
+  if (logoutTimer) {
+    clearTimeout(logoutTimer);
+    logoutTimer = null;
+  }
 });
 
 function nextSlide() {
@@ -243,7 +259,8 @@ function resetCarousel() {
 }
 
 function filterPhone() {
-  user.value.phone = user.value.phone.replace(/[^0-9]/g, '');
+  // Use concise \D to remove non-digits and prefer replaceAll for clarity
+  user.value.phone = user.value.phone.replaceAll(/\D/g, '');
 }
 
 function showErrorPopup(msg) {
@@ -265,7 +282,7 @@ async function saveUser() {
     return;
   }
   // Cek apakah phone sudah ada di Supabase
-  const { data, error } = await supabase.from('users').select('name').eq('phone', user.value.phone).single();
+  const { data } = await supabase.from('users').select('name').eq('phone', user.value.phone).single();
   if (data && data.name) {
     // Jika ada, popup selamat datang
     user.value.name = data.name; // sinkronkan nama dari database
@@ -290,6 +307,45 @@ function loadUser() {
   if (raw) {
     user.value = JSON.parse(raw);
     hasUser.value = true;
+  }
+}
+
+// Two-step logout handlers: first click expands the button, second click triggers actual logout
+function onLogoutBtnClick(e) {
+  // If the logout label is already visible (hover/focus or expanded), treat this as immediate logout.
+  const btn = e?.currentTarget || (e?.target && e.target.closest && e.target.closest('.logout-btn')) || document.querySelector('.logout-btn');
+  let labelVisible = false;
+  if (btn) {
+    const textEl = btn.querySelector('.logout-text');
+    if (textEl && typeof globalThis !== 'undefined' && globalThis.getComputedStyle) {
+      const style = globalThis.getComputedStyle(textEl);
+      labelVisible = Number.parseFloat(style.opacity) > 0 || (style.maxWidth && style.maxWidth !== '0px');
+    }
+  }
+
+  // If label is visible via CSS (hover/focus) or we already expanded programmatically, perform logout immediately.
+  if (labelVisible || logoutExpanded.value) {
+    if (logoutTimer) {
+      clearTimeout(logoutTimer);
+      logoutTimer = null;
+    }
+    logoutExpanded.value = false;
+    logout();
+    return;
+  }
+
+  // Otherwise, expand first (two-step): show label and start collapse timer
+  logoutExpanded.value = true;
+  logoutTimer = setTimeout(() => {
+    logoutExpanded.value = false;
+    logoutTimer = null;
+  }, 2000);
+}
+
+function onLogoutBtnKey(e) {
+  // Support keyboard activation (Enter / Space)
+  if (e.key === 'Enter' || e.key === ' ') {
+    onLogoutBtnClick();
   }
 }
 
@@ -396,6 +452,9 @@ function logout() {
   overflow: hidden;
   position: relative;
   transition: all 0.3s ease;
+  min-width: 32px !important;
+  padding: 0 6px !important;
+  height: 36px !important;
 }
 
 .logout-btn .logout-icon {
@@ -404,22 +463,37 @@ function logout() {
 }
 
 .logout-btn .logout-text {
+  display: inline-block;
   max-width: 0;
   opacity: 0;
   overflow: hidden;
   white-space: nowrap;
-  transition: all 0.3s ease;
+  transition: all 0.25s ease;
   margin-left: 0;
 }
 
+/* Show logout text on hover (desktop) and on tap/focus (mobile) */
 .logout-btn:hover .logout-icon {
   margin-right: 8px;
 }
 
-.logout-btn:hover .logout-text {
-  max-width: 100px;
+.logout-btn:hover .logout-text,
+.logout-btn:active .logout-text,
+.logout-btn:focus .logout-text,
+.logout-btn:focus-within .logout-text {
+  max-width: 120px;
   opacity: 1;
-  margin-left: 0;
+  margin-left: 8px;
+}
+
+/* Also show when programmatically expanded (two-step) */
+.logout-btn.is-expanded .logout-text {
+  max-width: 120px;
+  opacity: 1;
+  margin-left: 8px;
+}
+.logout-btn.is-expanded .logout-icon {
+  margin-right: 8px;
 }
 
 .logout-btn:hover {
@@ -620,12 +694,71 @@ function logout() {
 .header-container {
   max-width: 900px;
   width: 100%;
+  display: flex;
+  align-items: center;
 }
+
+/* Ensure toolbar title can shrink and allow wrapping */
+.header-title {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  flex: 1 1 auto;
+  min-width: 0; /* allow children to shrink */
+}
+
+.subtitle-text {
+  margin: 0;
+  padding: 0;
+  line-height: 1.2;
+  white-space: normal; /* allow wrap so full sentence is visible */
+}
+
+/* icon sizing for balance */
+.header-icon {
+  font-size: 36px !important;
+}
+.logout-icon {
+  font-size: 16px !important;
+}
+
 @media (max-width: 600px) {
   .header-container {
-    max-width: 100vw !important;
     padding-left: 8px !important;
     padding-right: 8px !important;
+    gap: 8px;
+  }
+
+  /* Adjust sizes on mobile */
+  .header-icon {
+    font-size: 30px !important;
+  }
+  .logout-icon {
+    font-size: 14px !important;
+  }
+
+  .logout-btn {
+    min-width: 30px !important;
+    padding: 0 4px !important;
+    height: 34px !important;
+  }
+
+  .subtitle-text {
+    font-size: 0.78rem !important; /* slightly smaller to fit */
+    line-height: 1.1;
+    white-space: normal;
+  }
+
+  /* Make logout button compact on small screens */
+  /* handled above */
+}
+
+@media (max-width: 380px) {
+  .header-icon { font-size: 26px !important; }
+  .logout-icon { font-size: 12px !important; }
+  .subtitle-text {
+    font-size: 0.62rem !important;
+    line-height: 1.05;
   }
 }
 

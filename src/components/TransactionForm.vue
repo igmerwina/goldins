@@ -8,7 +8,7 @@
         </div>
         <div>
           <!-- <div class="text-h8 font-weight-bold" style="color: #2e2e2e;">Tambah Riwayat Emas</div> -->
-          <div class="text-caption" style="color: #6b6b6b;">Catat emas yang Anda miliki atau pernah jual</div>
+          <div class="text-caption" style="color: #6b6b6b;">Catat riwayat emas batangan yang pernah dimiliki atau sudah terjual</div>
         </div>
       </div>
       <v-chip 
