@@ -17,7 +17,14 @@
             </v-toolbar-title>
             <v-spacer />
             <transition name="fade-in-btn">
-              <v-btn v-if="hasUser" color="secondary" variant="flat" @click="logout" class="logout-btn">
+              <v-btn
+                v-if="hasUser"
+                color="secondary"
+                variant="flat"
+                @click="onLogoutBtnClick($event)"
+                @keydown.enter.prevent="onLogoutBtnKey"
+                :class="['logout-btn', { 'is-expanded': logoutExpanded }]"
+              >
                 <v-icon size="18" class="logout-icon">mdi-logout</v-icon>
                 <span class="logout-text">Logout</span>
               </v-btn>
@@ -169,6 +176,10 @@ const showLoader = ref(true);
 const currentSlide = ref(0);
 let carouselInterval = null;
 
+// Two-step logout state
+const logoutExpanded = ref(false);
+let logoutTimer = null;
+
 const carouselSlides = [
   {
     image: onboarding1,
@@ -201,6 +212,11 @@ onMounted(() => {
 
 onUnmounted(() => {
   stopCarousel();
+  // clear logout timer if still pending
+  if (logoutTimer) {
+    clearTimeout(logoutTimer);
+    logoutTimer = null;
+  }
 });
 
 function nextSlide() {
@@ -243,7 +259,8 @@ function resetCarousel() {
 }
 
 function filterPhone() {
-  user.value.phone = user.value.phone.replace(/[^0-9]/g, '');
+  // Use concise \D to remove non-digits and prefer replaceAll for clarity
+  user.value.phone = user.value.phone.replaceAll(/\D/g, '');
 }
 
 function showErrorPopup(msg) {
@@ -265,7 +282,7 @@ async function saveUser() {
     return;
   }
   // Cek apakah phone sudah ada di Supabase
-  const { data, error } = await supabase.from('users').select('name').eq('phone', user.value.phone).single();
+  const { data } = await supabase.from('users').select('name').eq('phone', user.value.phone).single();
   if (data && data.name) {
     // Jika ada, popup selamat datang
     user.value.name = data.name; // sinkronkan nama dari database
@@ -290,6 +307,45 @@ function loadUser() {
   if (raw) {
     user.value = JSON.parse(raw);
     hasUser.value = true;
+  }
+}
+
+// Two-step logout handlers: first click expands the button, second click triggers actual logout
+function onLogoutBtnClick(e) {
+  // If the logout label is already visible (hover/focus or expanded), treat this as immediate logout.
+  const btn = e?.currentTarget || (e?.target && e.target.closest && e.target.closest('.logout-btn')) || document.querySelector('.logout-btn');
+  let labelVisible = false;
+  if (btn) {
+    const textEl = btn.querySelector('.logout-text');
+    if (textEl && typeof globalThis !== 'undefined' && globalThis.getComputedStyle) {
+      const style = globalThis.getComputedStyle(textEl);
+      labelVisible = Number.parseFloat(style.opacity) > 0 || (style.maxWidth && style.maxWidth !== '0px');
+    }
+  }
+
+  // If label is visible via CSS (hover/focus) or we already expanded programmatically, perform logout immediately.
+  if (labelVisible || logoutExpanded.value) {
+    if (logoutTimer) {
+      clearTimeout(logoutTimer);
+      logoutTimer = null;
+    }
+    logoutExpanded.value = false;
+    logout();
+    return;
+  }
+
+  // Otherwise, expand first (two-step): show label and start collapse timer
+  logoutExpanded.value = true;
+  logoutTimer = setTimeout(() => {
+    logoutExpanded.value = false;
+    logoutTimer = null;
+  }, 2000);
+}
+
+function onLogoutBtnKey(e) {
+  // Support keyboard activation (Enter / Space)
+  if (e.key === 'Enter' || e.key === ' ') {
+    onLogoutBtnClick();
   }
 }
 
@@ -407,22 +463,37 @@ function logout() {
 }
 
 .logout-btn .logout-text {
+  display: inline-block;
   max-width: 0;
   opacity: 0;
   overflow: hidden;
   white-space: nowrap;
-  transition: all 0.3s ease;
+  transition: all 0.25s ease;
   margin-left: 0;
 }
 
+/* Show logout text on hover (desktop) and on tap/focus (mobile) */
 .logout-btn:hover .logout-icon {
   margin-right: 8px;
 }
 
-.logout-btn:hover .logout-text {
-  max-width: 100px;
+.logout-btn:hover .logout-text,
+.logout-btn:active .logout-text,
+.logout-btn:focus .logout-text,
+.logout-btn:focus-within .logout-text {
+  max-width: 120px;
   opacity: 1;
-  margin-left: 0;
+  margin-left: 8px;
+}
+
+/* Also show when programmatically expanded (two-step) */
+.logout-btn.is-expanded .logout-text {
+  max-width: 120px;
+  opacity: 1;
+  margin-left: 8px;
+}
+.logout-btn.is-expanded .logout-icon {
+  margin-right: 8px;
 }
 
 .logout-btn:hover {
