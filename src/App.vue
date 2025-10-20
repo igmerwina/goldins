@@ -9,16 +9,16 @@
       <v-app-bar app flat class="gradient-header">
         <div style="width:100vw;display:flex;justify-content:center;align-items:center;position:relative;">
           <v-container class="d-flex align-center px-0 header-container">
-            <v-icon size="32" class="mr-2" color="secondary">mdi-treasure-chest</v-icon>
-            <v-toolbar-title class="white--text">
+            <v-icon size="36" class="mr-1 header-icon" color="secondary">mdi-treasure-chest</v-icon>
+            <v-toolbar-title class="white--text header-title">
               <span class="font-weight-bold text-h6 d-none d-sm-inline">Gold Insight</span>
               <span class="font-weight-bold text-h6 d-inline d-sm-none">Gold Insight</span>
-              <p class="text-caption mt-n1">Kelola portofolio emas dengan lebih mudah</p>
+              <p class="text-caption mt-n1 subtitle-text">Kelola portofolio emas dengan lebih mudah</p>
             </v-toolbar-title>
             <v-spacer />
             <transition name="fade-in-btn">
               <v-btn v-if="hasUser" color="secondary" variant="flat" @click="logout" class="logout-btn">
-                <v-icon class="logout-icon">mdi-logout</v-icon>
+                <v-icon size="18" class="logout-icon">mdi-logout</v-icon>
                 <span class="logout-text">Logout</span>
               </v-btn>
             </transition>
@@ -396,6 +396,9 @@ function logout() {
   overflow: hidden;
   position: relative;
   transition: all 0.3s ease;
+  min-width: 32px !important;
+  padding: 0 6px !important;
+  height: 36px !important;
 }
 
 .logout-btn .logout-icon {
@@ -620,12 +623,71 @@ function logout() {
 .header-container {
   max-width: 900px;
   width: 100%;
+  display: flex;
+  align-items: center;
 }
+
+/* Ensure toolbar title can shrink and allow wrapping */
+.header-title {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  flex: 1 1 auto;
+  min-width: 0; /* allow children to shrink */
+}
+
+.subtitle-text {
+  margin: 0;
+  padding: 0;
+  line-height: 1.2;
+  white-space: normal; /* allow wrap so full sentence is visible */
+}
+
+/* icon sizing for balance */
+.header-icon {
+  font-size: 36px !important;
+}
+.logout-icon {
+  font-size: 16px !important;
+}
+
 @media (max-width: 600px) {
   .header-container {
-    max-width: 100vw !important;
     padding-left: 8px !important;
     padding-right: 8px !important;
+    gap: 8px;
+  }
+
+  /* Adjust sizes on mobile */
+  .header-icon {
+    font-size: 30px !important;
+  }
+  .logout-icon {
+    font-size: 14px !important;
+  }
+
+  .logout-btn {
+    min-width: 30px !important;
+    padding: 0 4px !important;
+    height: 34px !important;
+  }
+
+  .subtitle-text {
+    font-size: 0.78rem !important; /* slightly smaller to fit */
+    line-height: 1.1;
+    white-space: normal;
+  }
+
+  /* Make logout button compact on small screens */
+  /* handled above */
+}
+
+@media (max-width: 380px) {
+  .header-icon { font-size: 26px !important; }
+  .logout-icon { font-size: 12px !important; }
+  .subtitle-text {
+    font-size: 0.62rem !important;
+    line-height: 1.05;
   }
 }
 
