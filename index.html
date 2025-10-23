@@ -1,12 +1,44 @@
 <!doctype html>
-<html>
+<html lang="id">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1.0" />
     <title>Gold Insight - Portofolio Emas by Pegadaian</title>
+    
+    <!-- Critical CSS - Inline for instant render -->
+    <style>
+      *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+      html,body{height:100%;font-family:Roboto,sans-serif;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;background:#f5f5f5}
+      body{overflow-x:hidden}
+      #app{min-height:100vh;background:#f5f5f5}
+      .v-application{font-family:Roboto,sans-serif!important}
+      .v-application{background:#f5f5f5!important}
+      .v-app-bar{background:linear-gradient(135deg,#0B6B3A 0%,#00582D 100%)!important}
+      .onboarding-card{background:#fff;border-radius:16px;box-shadow:0 4px 20px rgba(0,0,0,.08);padding:24px}
+      .carousel-img{width:100%;max-width:280px;height:auto;display:block;margin:0 auto;object-fit:contain}
+      .v-btn{text-transform:none!important}
+      .gradient-header{background:linear-gradient(135deg,#0B6B3A 0%,#00582D 100%)!important;box-shadow:0 2px 8px rgba(0,0,0,.1)!important}
+    </style>
+    
+    <!-- Preload critical resources -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   </head>
   <body>
     <div id="app"></div>
+    
+    <!-- Load non-critical CSS asynchronously -->
+    <script>
+      (function(){
+        var l=document.createElement('link');
+        l.rel='stylesheet';
+        l.href='https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap';
+        l.media='print';
+        l.onload=function(){this.media='all'};
+        document.head.appendChild(l);
+      })();
+    </script>
+    
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>

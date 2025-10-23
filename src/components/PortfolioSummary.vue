@@ -113,7 +113,7 @@
                     class="mr-2"
                   />
                   <span :style="!canDownloadReport ? 'color:#bdbdbd' : 'color:#0B6B3A;font-weight:600;'">
-                    <template v-if="!isLoading && !isEnabling">Download Report</template>
+                    <template v-if="!isLoading && !isEnabling">DOWNLOAD REPORT</template>
                     <template v-else-if="isEnabling">Tunggu 3 Detik</template>
                     <template v-else>Downloading</template>
                   </span>
@@ -139,7 +139,7 @@
                 class="mr-2"
               />
               <span style="color:#0B6B3A;font-weight:600;">
-                <template v-if="!isLoading && !isEnabling">Download Report</template>
+                <template v-if="!isLoading && !isEnabling">DOWNLOAD REPORT</template>
                 <template v-else-if="isEnabling">Tunggu 3 Detik</template>
                 <template v-else>Downloading</template>
               </span>
@@ -222,7 +222,7 @@
               >
                 <v-icon start :color="!canDownloadReport ? 'grey' : '#0B6B3A'" size="18">mdi-file-pdf-box</v-icon>
                 <span :style="!canDownloadReport ? 'color:#bdbdbd;font-size:0.85rem;' : 'color:#0B6B3A;font-weight:600;font-size:0.85rem;'">
-                  <template v-if="!isLoading && !isEnabling">Download Report</template>
+                  <template v-if="!isLoading && !isEnabling">DOWNLOAD REPORT</template>
                   <template v-else-if="isEnabling">Tunggu 3 Detik</template>
                   <template v-else>Downloading</template>
                 </span>
