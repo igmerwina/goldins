@@ -30,24 +30,15 @@ function stripConsolePlugin() {
       for (const fileName in bundle) {
         const chunk = bundle[fileName];
         if (chunk.type === 'chunk' && fileName.endsWith('.js')) {
-          // Aggressively remove all console statements using multiple passes
           let code = chunk.code;
           
-          // Pass 1: Remove simple console statements
-          code = code.replace(/console\.(log|debug|info|warn|error|trace|dir|dirxml|group|groupEnd|time|timeEnd|assert|profile|profileEnd|count|countReset|table|clear|exception)\s*\([^)]*\)\s*;?/g, '');
+          // Replace console statements with void 0 to maintain syntax integrity
+          // This is safer than removing them entirely
+          const consolePattern = /\bconsole\.(log|debug|info|warn|error|trace|dir|dirxml|group|groupEnd|groupCollapsed|time|timeEnd|timeLog|assert|profile|profileEnd|count|countReset|table|clear|exception)\s*\(/g;
           
-          // Pass 2: Remove console statements with nested parentheses
-          code = code.replace(/console\.(log|debug|info|warn|error|trace|dir|dirxml|group|groupEnd|time|timeEnd|assert|profile|profileEnd|count|countReset|table|clear|exception)\s*\((?:[^()]*|\([^()]*\))*\)\s*;?/g, '');
-          
-          // Pass 3: Remove console statements with complex arguments (multiple passes)
-          for (let i = 0; i < 5; i++) {
-            const before = code.length;
-            code = code.replace(/console\.(log|debug|info|warn|error|trace|dir|dirxml|group|groupEnd|time|timeEnd|assert|profile|profileEnd|count|countReset|table|clear|exception)\s*\((?:[^()]*|\((?:[^()]*|\([^()]*\))*\))*\)\s*;?/g, '');
-            if (code.length === before) break; // No more replacements
-          }
-          
-          // Pass 4: Remove any remaining console.* patterns
-          code = code.replace(/console\.[a-zA-Z]+\s*\(/g, '(');
+          // Replace console.method( with (void 0,( to maintain syntax
+          // The void 0 acts as a no-op and the comma operator continues execution
+          code = code.replace(consolePattern, '(void 0,(');
           
           chunk.code = code;
         }
@@ -61,7 +52,7 @@ export default defineConfig({
   plugins: [
     vue(),
     nonBlockingCssPlugin(),
-    stripConsolePlugin(),
+    // stripConsolePlugin(), // Disabled - Terser handles console removal
     // Gzip compression
     viteCompression({
       verbose: false,
