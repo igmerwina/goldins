@@ -26,7 +26,7 @@
                 :class="['logout-btn', { 'is-expanded': logoutExpanded }]"
               >
                 <v-icon size="18" class="logout-icon">mdi-logout</v-icon>
-                <span class="logout-text">Logout</span>
+                <span class="logout-text">LOGOUT</span>
               </v-btn>
             </transition>
           </v-container>
