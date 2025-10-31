@@ -123,13 +123,7 @@ export default defineConfig({
         collapse_vars: true,
         reduce_vars: true,
         hoist_funs: true,
-        inline: 3,
-        global_defs: {
-          '@console.log': 'alert',
-          '@console.debug': 'alert',
-          '@console.info': 'alert',
-          '@console.warn': 'alert'
-        }
+        inline: 3
       },
       mangle: {
         safari10: true,
